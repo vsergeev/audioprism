@@ -7,7 +7,7 @@ SRCS += RealDft.cpp
 SRCS += Spectrogram.cpp
 SRCS += AudioThread.cpp
 SRCS += SpectrogramThread.cpp
-
+SRCS += InterfaceThread.cpp
 SRCS += spectrogram.cpp
 
 OBJS = $(patsubst %.cpp,%.o,$(SRCS))
@@ -37,5 +37,5 @@ $(PROJECT): $(OBJS)
 	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
 
 %.o: %.cpp
-	$(CXX) $(CPPFLAGS) -c $< -o $@ 
+	$(CXX) $(CPPFLAGS) -c $< -o $@
 
