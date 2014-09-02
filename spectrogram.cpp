@@ -11,47 +11,12 @@
 #include "SDL.h"
 
 #include "PulseAudioSource.hpp"
-#include "RealDft.hpp"
-#include "Spectrogram.hpp"
 #include "AudioThread.hpp"
+#include "SpectrogramThread.hpp"
 
-#define DFT_SAMPLES     4096
-#define WIDTH   640
-#define HEIGHT  480
-
-std::mutex pixels_lock;
-uint32_t pixels[HEIGHT*WIDTH];
-
-void thread_audio() {
-    PulseAudioSource audioSource;
-    AudioThread audioThread(audioSource);
-    RealDft dft(DFT_SAMPLES, WindowFunction::Hanning);
-    Spectrogram spectrogram;
-
-    std::thread at(&AudioThread::run, &audioThread);
-
-    while (true) {
-        if (!audioThread.samplesQueue.empty()) {
-            std::vector<double> samples = audioThread.samplesQueue.pop();
-
-            /* Move old samples */
-            memmove(dft.samples.data(), dft.samples.data()+samples.size(), sizeof(double)*(DFT_SAMPLES-samples.size()));
-            /* Add new samples */
-            memcpy(dft.samples.data()+(DFT_SAMPLES-samples.size()), samples.data(), sizeof(double)*samples.size());
-
-            /* Compute DFT */
-            dft.compute();
-
-            /* Update pixels */
-            pixels_lock.lock();
-            spectrogram.update(pixels, WIDTH, HEIGHT, dft.magnitudes);
-            pixels_lock.unlock();
-        }
-
-        std::cout << audioThread.samplesQueue.count() << "\n";
-        usleep(5);
-    }
-}
+#define SAMPLE_RATE 48000
+#define WIDTH       640
+#define HEIGHT      480
 
 int main(int argc, char *argv[]) {
     SDL_Window *win = NULL;
@@ -78,7 +43,12 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    std::thread audioThread(thread_audio);
+    PulseAudioSource audioSource(SAMPLE_RATE);
+    AudioThread audioThread(audioSource);
+    SpectrogramThread spectrogramThread(audioThread.samplesQueue, WIDTH, HEIGHT);
+
+    std::thread at(&AudioThread::run, &audioThread);
+    std::thread st(&SpectrogramThread::run, &spectrogramThread);
 
     while (1) {
         SDL_Event e;
@@ -87,9 +57,9 @@ int main(int argc, char *argv[]) {
                 break;
         }
 
-        pixels_lock.lock();
-        SDL_UpdateTexture(texture, NULL, pixels, WIDTH * sizeof(Uint32));
-        pixels_lock.unlock();
+        spectrogramThread.pixels_lock.lock();
+        SDL_UpdateTexture(texture, NULL, spectrogramThread.pixels, WIDTH * sizeof(uint32_t));
+        spectrogramThread.pixels_lock.unlock();
 
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
