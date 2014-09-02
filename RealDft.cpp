@@ -74,7 +74,7 @@ void RealDft::setSize(unsigned int N) {
         throw std::runtime_error("Allocating sample memory.");
 
     /* Resize DFT magnitude buffer */
-    dft_magnitude.resize(N/2+1);
+    magnitudes.resize(N/2+1);
 
     /* Rebuild our plan */
     plan = fftw_plan_dft_r2c_1d(N, wsamples, dft, FFTW_MEASURE);
@@ -101,7 +101,7 @@ void RealDft::compute() {
     fftw_execute(plan);
 
     /* Compute DFT magnitude */
-    for (unsigned int n = 0; n < N; n++)
-        dft_magnitude[n] = dft[n][0]*dft[n][0] + dft[n][1]*dft[n][1];
+    for (unsigned int n = 0; n < N/2+1; n++)
+        magnitudes[n] = sqrt(dft[n][0]*dft[n][0] + dft[n][1]*dft[n][1]);
 }
 

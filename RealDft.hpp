@@ -23,7 +23,7 @@ class RealDft {
     void compute();
 
     std::vector<double> samples;
-    std::vector<double> dft_magnitude;
+    std::vector<double> magnitudes;
 
   private:
     unsigned int N;
