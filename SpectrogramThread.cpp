@@ -4,7 +4,7 @@
 
 #include "SpectrogramThread.hpp"
 
-#define DEFAULT_DFT_SIZE    1024
+#define DEFAULT_DFT_SIZE    2048
 #define DEFAULT_WINDOW_FUNC WindowFunction::Hanning
 
 SpectrogramThread::SpectrogramThread(AudioThread &audioThread, unsigned int width, unsigned int height) :

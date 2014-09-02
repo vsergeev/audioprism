@@ -2,7 +2,7 @@
 #include "AudioThread.hpp"
 #include "ThreadSafeQueue.hpp"
 
-#define DEFAULT_READ_SIZE   1024
+#define DEFAULT_READ_SIZE   128
 
 AudioThread::AudioThread(AudioSource &source) : readSize(DEFAULT_READ_SIZE), source(source) { }
 
