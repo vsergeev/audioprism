@@ -6,14 +6,16 @@
 #include <mutex>
 #include <cmath>
 
+#include <unistd.h>
+
 #include "SDL.h"
 
 #include "PulseAudioSource.hpp"
 #include "RealDft.hpp"
 #include "Spectrogram.hpp"
+#include "AudioThread.hpp"
 
-#define DFT_SAMPLES     2048
-#define READ_SAMPLES    128
+#define DFT_SAMPLES     4096
 #define WIDTH   640
 #define HEIGHT  480
 
@@ -21,24 +23,33 @@ std::mutex pixels_lock;
 uint32_t pixels[HEIGHT*WIDTH];
 
 void thread_audio() {
-    PulseAudioSource audio;
+    PulseAudioSource audioSource;
+    AudioThread audioThread(audioSource);
     RealDft dft(DFT_SAMPLES, WindowFunction::Hanning);
     Spectrogram spectrogram;
 
+    std::thread at(&AudioThread::run, &audioThread);
+
     while (true) {
-        /* Move old samples */
-        memmove(dft.samples.data(), dft.samples.data()+READ_SAMPLES, sizeof(double)*(DFT_SAMPLES-READ_SAMPLES));
+        if (!audioThread.samplesQueue.empty()) {
+            std::vector<double> samples = audioThread.samplesQueue.pop();
 
-        /* Read new samples */
-        audio.read(dft.samples.data()+(DFT_SAMPLES-READ_SAMPLES), READ_SAMPLES);
+            /* Move old samples */
+            memmove(dft.samples.data(), dft.samples.data()+samples.size(), sizeof(double)*(DFT_SAMPLES-samples.size()));
+            /* Add new samples */
+            memcpy(dft.samples.data()+(DFT_SAMPLES-samples.size()), samples.data(), sizeof(double)*samples.size());
 
-        /* Compute DFT */
-        dft.compute();
+            /* Compute DFT */
+            dft.compute();
 
-        /* Update pixels */
-        pixels_lock.lock();
-        spectrogram.update(pixels, WIDTH, HEIGHT, dft.magnitudes);
-        pixels_lock.unlock();
+            /* Update pixels */
+            pixels_lock.lock();
+            spectrogram.update(pixels, WIDTH, HEIGHT, dft.magnitudes);
+            pixels_lock.unlock();
+        }
+
+        std::cout << audioThread.samplesQueue.count() << "\n";
+        usleep(5);
     }
 }
 
