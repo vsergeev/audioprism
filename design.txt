@@ -1,0 +1,69 @@
+AudioSource
+    owns audio device
+
+    source -> samples
+
+    get         sample rate
+
+RealDft
+    owns windowed sample buffer (for FFTW alignment/efficiency)
+    owns output dft buffer (for FFTW alignment/efficiency)
+    owns input sample buffer FIXME?
+    owns output magnitudes buffer FIXME?
+
+    samples -> windowed samples -> dft -> magnitudes
+
+    get/set     size, window function
+
+Spectrogram
+    owns pixel buffer
+
+    magnitudes -> pixels
+
+    get         pixels, width, height
+    get/set     magnitude min, magnitude max
+
+################################################################################
+
+AudioThread
+    ref to AudioSource
+
+    while True:
+        read audio samples
+        put it in queue
+
+    get         sample rate
+    get/set     read size
+
+SpectrogramThread
+    ref to AudioThread
+    owns RealDft
+    owns Spectrogram
+
+    while True:
+        read samples from queue
+        shift into dft sample buffer
+        run RealDft with new sample buffer
+        run Spectrogram with new magnitudes
+
+    get/set     dft size, window function, magnitude min, magnitude max
+
+InterfaceThread
+    ref to AudioThread, SpectrogramThread
+    owns SDL
+
+    while True:
+        check for events
+        draw spectrogram pixels
+        draw settings info
+            Window Function
+            Overlap %, DFT Size
+            Hz/Px, Cursor Hz
+
+################################################################################
+
+- add InterfaceThread
+- fix color scheme
+- add info
+- add events
+- clean exit
