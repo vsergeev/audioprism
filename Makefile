@@ -5,6 +5,7 @@ PROJECT = spectrogram
 SRCS = PulseAudioSource.cpp
 SRCS += RealDft.cpp
 SRCS += Spectrogram.cpp
+SRCS += AudioThread.cpp
 SRCS += spectrogram.cpp
 
 OBJS = $(patsubst %.cpp,%.o,$(SRCS))
