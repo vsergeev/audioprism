@@ -15,6 +15,8 @@ class AudioThread {
     std::atomic<size_t> readSize;
     ThreadSafeQueue<std::vector<double>> samplesQueue;
 
+    unsigned int getSampleRate();
+
   private:
     AudioSource &source;
 };

@@ -17,3 +17,7 @@ void AudioThread::run() {
     }
 }
 
+unsigned int AudioThread::getSampleRate() {
+    return source.getSampleRate();
+}
+
