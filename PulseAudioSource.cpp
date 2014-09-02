@@ -6,12 +6,12 @@
 
 #include "PulseAudioSource.hpp"
 
-PulseAudioSource::PulseAudioSource() {
+PulseAudioSource::PulseAudioSource(unsigned int sampleRate) : sampleRate(sampleRate) {
     int error;
     pa_sample_spec ss;
 
     ss.format = PA_SAMPLE_FLOAT32LE;
-    ss.rate = 48000;
+    ss.rate = sampleRate;
     ss.channels = 1;
 
     s = pa_simple_new(NULL, "spectrogram", PA_STREAM_RECORD, NULL, "audio in", &ss, NULL, NULL, &error);
@@ -38,6 +38,6 @@ void PulseAudioSource::read(double *samples, size_t num) {
 }
 
 unsigned int PulseAudioSource::getSampleRate() {
-    return 48000;
+    return sampleRate;
 }
 

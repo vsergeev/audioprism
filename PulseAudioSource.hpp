@@ -7,12 +7,13 @@
 
 class PulseAudioSource : public AudioSource {
   public:
-    PulseAudioSource();
+    PulseAudioSource(unsigned int sampleRate);
     ~PulseAudioSource();
     virtual void read(double *samples, size_t num);
     virtual unsigned int getSampleRate();
   private:
     pa_simple *s;
+    unsigned int sampleRate;
 };
 
 #endif
