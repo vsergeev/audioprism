@@ -22,7 +22,7 @@ class RealDft {
     /* Set Window Function */
     void setWindowFunction(WindowFunction wf);
 
-    /* Update DFT magnitude based on samples */
+    /* Compute new DFT magnitude based on samples */
     void compute();
 
     std::vector<double> samples;
