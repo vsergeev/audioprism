@@ -10,7 +10,7 @@ PulseAudioSource::PulseAudioSource() {
     int error;
     pa_sample_spec ss;
     
-    ss.format = PA_SAMPLE_S16LE;
+    ss.format = PA_SAMPLE_FLOAT32LE;
     ss.rate = 48000;
     ss.channels = 1;
     
@@ -26,15 +26,15 @@ PulseAudioSource::~PulseAudioSource() {
     }
 }
 
-void PulseAudioSource::read(float *samples, size_t num) {
-    std::vector<int16_t> isamples(num);
+void PulseAudioSource::read(double *samples, size_t num) {
+    std::vector<float> fsamples(num);
     int error;
 
-    if (pa_simple_read(s, isamples.data(), num*sizeof(int16_t), &error) < 0)
+    if (pa_simple_read(s, fsamples.data(), num*sizeof(float), &error) < 0)
         throw std::runtime_error("Reading PulseAudio: pa_simple_read(): " + std::string(pa_strerror(error)));
 
     for (unsigned int i = 0; i < num; i++)
-            samples[i] = static_cast<float>(isamples[i])/INT16_MAX;
+        samples[i] = static_cast<double>(fsamples[i]);
 }
 
 unsigned int PulseAudioSource::getSampleRate() {
