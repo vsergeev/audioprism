@@ -4,6 +4,9 @@
 
 #include "Spectrogram.hpp"
 
+#define DEFAULT_MAGNITUDE_MIN   0.0
+#define DEFAULT_MAGNITUDE_MAX   60.0
+
 Spectrogram::Spectrogram(unsigned int width, unsigned int height) :
   width(width), height(height), magnitudeMin(0.0), magnitudeMax(60.0) {
     _pixels = std::unique_ptr<uint32_t []>(new uint32_t[width*height]);

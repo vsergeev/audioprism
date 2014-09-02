@@ -4,12 +4,13 @@
 
 #include "SpectrogramThread.hpp"
 
+#define DEFAULT_DFT_SIZE    1024
+#define DEFAULT_WINDOW_FUNC WindowFunction::Hanning
+
 SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, unsigned int width, unsigned int height) :
-  samplesQueue(samplesQueue), dft(1024, WindowFunction::Hanning), spectrogram(width, height) {
+  samplesQueue(samplesQueue), dft(DEFAULT_DFT_SIZE, DEFAULT_WINDOW_FUNC), spectrogram(width, height) {
     pixels = spectrogram.getPixels();
 }
-
-SpectrogramThread::~SpectrogramThread() { }
 
 void SpectrogramThread::run() {
     while (true) {

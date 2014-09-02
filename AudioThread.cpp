@@ -2,9 +2,9 @@
 #include "AudioThread.hpp"
 #include "ThreadSafeQueue.hpp"
 
-#define NUM_SAMPLES 2048
+#define DEFAULT_READ_SIZE   1024
 
-AudioThread::AudioThread(AudioSource &source) : readSize(128), source(source) { }
+AudioThread::AudioThread(AudioSource &source) : readSize(DEFAULT_READ_SIZE), source(source) { }
 
 void AudioThread::run() {
     std::vector<double> samples(readSize);
