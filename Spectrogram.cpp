@@ -4,18 +4,33 @@
 
 #include "Spectrogram.hpp"
 
-#define MAGNITUDE_MAX   60.0
-#define MAGNITUDE_MIN   0.0
+Spectrogram::Spectrogram() : magnitudeMin(0.0), magnitudeMax(60.0) { }
 
-Spectrogram::Spectrogram() { }
+void Spectrogram::setMagnitudeMax(double max) {
+    magnitudeMax = max;
+}
 
-static uint32_t magnitude2pixel(double magnitude) {
-    if (magnitude < MAGNITUDE_MIN)
-        magnitude = MAGNITUDE_MIN;
-    if (magnitude > MAGNITUDE_MAX)
-        magnitude = MAGNITUDE_MAX;
+double Spectrogram::getMagnitudeMax() {
+    return magnitudeMax;
+}
 
-    magnitude = (UINT16_MAX/(MAGNITUDE_MAX-MAGNITUDE_MIN))*(magnitude-MAGNITUDE_MIN);
+void Spectrogram::setMagnitudeMin(double min) {
+    magnitudeMin = min;
+}
+
+double Spectrogram::getMagnitudeMin() {
+    return magnitudeMin;
+}
+
+uint32_t Spectrogram::magnitude2pixel(double magnitude) {
+    /* Clamp magnitude at min and max */
+    if (magnitude < magnitudeMin)
+        magnitude = magnitudeMin;
+    if (magnitude > magnitudeMax)
+        magnitude = magnitudeMax;
+
+    /* Map magnitude to pixel */
+    magnitude = (UINT16_MAX/(magnitudeMax-magnitudeMin))*(magnitude-magnitudeMin);
 
     return static_cast<uint16_t>(magnitude);
 }
