@@ -4,22 +4,13 @@
 
 #include "Spectrogram.hpp"
 
-Spectrogram::Spectrogram() : magnitudeMin(0.0), magnitudeMax(60.0) { }
-
-void Spectrogram::setMagnitudeMax(double max) {
-    magnitudeMax = max;
+Spectrogram::Spectrogram(unsigned int width, unsigned int height) :
+  width(width), height(height), magnitudeMin(0.0), magnitudeMax(60.0) {
+    _pixels = std::unique_ptr<uint32_t []>(new uint32_t[width*height]);
 }
 
-double Spectrogram::getMagnitudeMax() {
-    return magnitudeMax;
-}
-
-void Spectrogram::setMagnitudeMin(double min) {
-    magnitudeMin = min;
-}
-
-double Spectrogram::getMagnitudeMin() {
-    return magnitudeMin;
+const uint32_t *Spectrogram::getPixels() {
+    return _pixels.get();
 }
 
 uint32_t Spectrogram::magnitude2pixel(double magnitude) {
@@ -35,8 +26,9 @@ uint32_t Spectrogram::magnitude2pixel(double magnitude) {
     return static_cast<uint16_t>(magnitude);
 }
 
-void Spectrogram::update(uint32_t *pixels, unsigned int width, unsigned int height, const std::vector<double> &dft_magnitudes) {
+void Spectrogram::update(const std::vector<double> &dft_magnitudes) {
     unsigned int i;
+    uint32_t *pixels = _pixels.get();
 
     /* Move pixels up one */
     for (i = 1; i < height; i++)
