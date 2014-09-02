@@ -3,13 +3,13 @@
 
 #include <vector>
 
+#include "AudioThread.hpp"
 #include "RealDft.hpp"
 #include "Spectrogram.hpp"
-#include "ThreadSafeQueue.hpp"
 
 class SpectrogramThread {
   public:
-    SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, unsigned int pixelsWidth, unsigned int pixelsHeight);
+    SpectrogramThread(AudioThread &audioThread, unsigned int width, unsigned int height);
     void run();
 
     std::mutex pixels_lock;
@@ -26,7 +26,7 @@ class SpectrogramThread {
     void setMagnitudeMax(double max);
 
   private:
-    ThreadSafeQueue<std::vector<double>> &samplesQueue;
+    AudioThread &audioThread;
     RealDft dft;
     Spectrogram spectrogram;
     std::mutex settingsLock;
