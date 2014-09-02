@@ -5,5 +5,6 @@ class AudioSource {
     AudioSource() { }
     virtual ~AudioSource() { }
     virtual void read(float *samples, size_t num) = 0;
+    virtual unsigned int getSampleRate() = 0;
 };
 

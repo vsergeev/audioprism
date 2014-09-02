@@ -1,10 +1,10 @@
 #include <stdexcept>
 #include <vector>
 
-#include "pulseaudiosource.hpp"
-
 #include <pulse/simple.h>
 #include <pulse/error.h>
+
+#include "PulseAudioSource.hpp"
 
 PulseAudioSource::PulseAudioSource() {
     int error;
@@ -35,5 +35,9 @@ void PulseAudioSource::read(float *samples, size_t num) {
 
     for (unsigned int i = 0; i < num; i++)
             samples[i] = static_cast<float>(isamples[i])/INT16_MAX;
+}
+
+unsigned int PulseAudioSource::getSampleRate() {
+    return 48000;
 }
 

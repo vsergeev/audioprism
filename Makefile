@@ -2,7 +2,7 @@ PROJECT = spectrogram
 
 ################################################################################
 
-SRCS = pulseaudiosource.cpp
+SRCS = PulseAudioSource.cpp
 
 OBJS = $(patsubst %.cpp,%.o,$(SRCS))
 
