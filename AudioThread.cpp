@@ -2,16 +2,17 @@
 #include "AudioThread.hpp"
 #include "ThreadSafeQueue.hpp"
 
-#define NUM_SAMPLES 4096
+#define NUM_SAMPLES 2048
 
-AudioThread::AudioThread(AudioSource &source) : source(source) { }
-
-AudioThread::~AudioThread() { }
+AudioThread::AudioThread(AudioSource &source) : readSize(128), source(source) { }
 
 void AudioThread::run() {
-    std::vector<double> samples(NUM_SAMPLES);
+    std::vector<double> samples(readSize);
     while (true) {
-        source.read(samples.data(), NUM_SAMPLES);
+        if (samples.size() != readSize)
+            samples.resize(readSize);
+
+        source.read(samples.data(), samples.size());
         samplesQueue.push(samples);
     }
 }
