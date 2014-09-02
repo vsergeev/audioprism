@@ -102,6 +102,6 @@ void RealDft::compute() {
 
     /* Compute DFT magnitude */
     for (unsigned int n = 0; n < N/2+1; n++)
-        magnitudes[n] = sqrt(dft[n][0]*dft[n][0] + dft[n][1]*dft[n][1]);
+        magnitudes[n] = 20*log10(sqrt(dft[n][0]*dft[n][0] + dft[n][1]*dft[n][1]));
 }
 
