@@ -3,6 +3,7 @@ PROJECT = spectrogram
 ################################################################################
 
 SRCS = PulseAudioSource.cpp
+SRCS += RealDft.cpp
 
 OBJS = $(patsubst %.cpp,%.o,$(SRCS))
 
