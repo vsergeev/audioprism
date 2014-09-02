@@ -7,6 +7,8 @@
 
 enum class WindowFunction { Hanning, Hamming, Rectangular };
 
+std::ostream &operator<<(std::ostream &os, const WindowFunction &wf);
+
 class RealDft {
   public:
     RealDft(unsigned int N, WindowFunction wf);

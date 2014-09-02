@@ -3,6 +3,17 @@
 
 #include "RealDft.hpp"
 
+std::ostream &operator<<(std::ostream &os, const WindowFunction &wf) {
+    if (wf == WindowFunction::Hanning)
+        os << std::string("Hanning");
+    else if (wf == WindowFunction::Hamming)
+        os << std::string("Hamming");
+    else if (wf == WindowFunction::Rectangular)
+        os << std::string("Rectangular");
+
+    return os;
+}
+
 static void calculateWindow(std::vector<double> &window, WindowFunction windowFunction) {
     unsigned int N = window.size();
     if (windowFunction == WindowFunction::Hanning) {
