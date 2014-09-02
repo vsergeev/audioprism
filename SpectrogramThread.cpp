@@ -14,6 +14,8 @@ SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<double>> &sampl
 
 void SpectrogramThread::run() {
     while (true) {
+        settingsLock.lock();
+
         if (!samplesQueue.empty()) {
             std::vector<double> samples = samplesQueue.pop();
 
@@ -32,7 +34,47 @@ void SpectrogramThread::run() {
         }
 
         std::cout << "Sample queue: " << samplesQueue.count() << "\r";
+
+        settingsLock.unlock();
+
         usleep(5);
+
     }
+}
+
+unsigned int SpectrogramThread::getDftSize() {
+    return dft.getSize();
+}
+
+WindowFunction SpectrogramThread::getWindowFunction() {
+    return dft.getWindowFunction();
+}
+
+double SpectrogramThread::getMagnitudeMin() {
+    return spectrogram.magnitudeMin;
+}
+
+double SpectrogramThread::getMagnitudeMax() {
+    return spectrogram.magnitudeMax;
+}
+
+void SpectrogramThread::setDftSize(unsigned int N) {
+    std::lock_guard<std::mutex> lg(settingsLock);
+    dft.setSize(N);
+}
+
+void SpectrogramThread::setWindowFunction(WindowFunction wf) {
+    std::lock_guard<std::mutex> lg(settingsLock);
+    dft.setWindowFunction(wf);
+}
+
+void SpectrogramThread::setMagnitudeMin(double min) {
+    std::lock_guard<std::mutex> lg(settingsLock);
+    spectrogram.magnitudeMin = min;
+}
+
+void SpectrogramThread::setMagnitudeMax(double max) {
+    std::lock_guard<std::mutex> lg(settingsLock);
+    spectrogram.magnitudeMax = max;
 }
 
