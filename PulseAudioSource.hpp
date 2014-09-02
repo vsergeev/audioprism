@@ -1,3 +1,6 @@
+#ifndef _PULSE_AUDIO_SOURCE_HPP
+#define _PULSE_AUDIO_SOURCE_HPP
+
 #include <pulse/simple.h>
 
 #include "AudioSource.hpp"
@@ -11,4 +14,6 @@ class PulseAudioSource : public AudioSource {
   private:
     pa_simple *s;
 };
+
+#endif
 

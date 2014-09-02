@@ -9,11 +9,11 @@
 PulseAudioSource::PulseAudioSource() {
     int error;
     pa_sample_spec ss;
-    
+
     ss.format = PA_SAMPLE_FLOAT32LE;
     ss.rate = 48000;
     ss.channels = 1;
-    
+
     s = pa_simple_new(NULL, "spectrogram", PA_STREAM_RECORD, NULL, "audio in", &ss, NULL, NULL, &error);
     if (s == NULL)
         throw std::runtime_error("Opening PulseAudio: pa_simple_new(): " + std::string(pa_strerror(error)));

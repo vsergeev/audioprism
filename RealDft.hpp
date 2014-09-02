@@ -1,3 +1,6 @@
+#ifndef _REAL_DFT_HPP
+#define _REAL_DFT_HPP
+
 #include <vector>
 
 #include <fftw3.h>
@@ -33,4 +36,6 @@ class RealDft {
     fftw_complex *dft;
     std::vector<double> window;
 };
+
+#endif
 
