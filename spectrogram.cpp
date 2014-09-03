@@ -12,7 +12,7 @@
 int main(int argc, char *argv[]) {
     PulseAudioSource audioSource(SAMPLE_RATE);
     AudioThread audioThread(audioSource);
-    SpectrogramThread spectrogramThread(audioThread, WIDTH, HEIGHT);
+    SpectrogramThread spectrogramThread(audioThread, WIDTH);
     InterfaceThread interfaceThread(audioThread, spectrogramThread, WIDTH, HEIGHT);
 
     std::thread t1(&AudioThread::run, &audioThread);
