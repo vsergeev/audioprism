@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <SDL.h>
 
 #include "InterfaceThread.hpp"
@@ -18,7 +20,7 @@ InterfaceThread::InterfaceThread(AudioThread &audioThread, SpectrogramThread &sp
     if (renderer == NULL)
         throw std::runtime_error("Erroring creating SDL renderer: SDL_CreateRenderer(): " + std::string(SDL_GetError()));
 
-    pixelsTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STATIC, width, height);
+    pixelsTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, width, height);
     if (pixelsTexture == NULL)
         throw std::runtime_error("Erroring creating SDL renderer: SDL_CreateTexture(): " + std::string(SDL_GetError()));
 }
@@ -30,9 +32,10 @@ InterfaceThread::~InterfaceThread() {
     SDL_Quit();
 }
 
-#include <iostream>
-
 void InterfaceThread::run() {
+    std::unique_ptr<uint32_t []> pixels = std::unique_ptr<uint32_t []>(new uint32_t[width*height]);
+    std::vector<uint32_t> newPixelRows;
+
     while (true) {
         SDL_Event e;
         if (SDL_PollEvent(&e)) {
@@ -46,14 +49,35 @@ void InterfaceThread::run() {
             }
         }
 
-        spectrogramThread.pixels_lock.lock();
-        SDL_UpdateTexture(pixelsTexture, NULL, spectrogramThread.pixels, width * sizeof(uint32_t));
-        spectrogramThread.pixels_lock.unlock();
+        /* Collect all new pixel rows */
+        while (!spectrogramThread.pixelsQueue.empty()) {
+            std::vector<uint32_t> pixelRow(spectrogramThread.pixelsQueue.pop());
+            newPixelRows.insert(newPixelRows.end(), pixelRow.begin(), pixelRow.end());
+        }
+
+        if (newPixelRows.size() > 0) {
+            if (newPixelRows.size() >= width*height) {
+                /* This should seldom happen. */
+
+                /* Overwrite all pixels */
+                memcpy(pixels.get(), newPixelRows.data()+(newPixelRows.size()-width*height), width*height);
+                /* Clear new pixels */
+                newPixelRows.clear();
+            } else if (newPixelRows.size() < width*height) {
+                /* Move old pixels up */
+                memmove(pixels.get(), pixels.get()+newPixelRows.size(), (width*height-newPixelRows.size())*sizeof(uint32_t));
+                /* Copy new pixels over */
+                memcpy(pixels.get()+(width*height-newPixelRows.size()), newPixelRows.data(), newPixelRows.size()*sizeof(uint32_t));
+                /* Clear new pixels */
+                newPixelRows.clear();
+            }
+            SDL_UpdateTexture(pixelsTexture, NULL, pixels.get(), width * sizeof(uint32_t));
+        }
 
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, pixelsTexture, NULL, NULL);
         SDL_RenderPresent(renderer);
-        SDL_Delay(1);
+        SDL_Delay(10);
     }
 }
 
