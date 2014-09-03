@@ -10,26 +10,28 @@
 SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, unsigned int sampleRate, unsigned int width) : samplesQueue(samplesQueue), pixelsQueue(pixelsQueue), sampleRate(sampleRate), width(width), dft(DEFAULT_DFT_SIZE, DEFAULT_WINDOW_FUNC), spectrogram() { }
 
 void SpectrogramThread::run() {
-    std::vector<uint32_t> pixelLine(width);
+    std::vector<double> samples(dft.getSize());
+    std::vector<double> magnitudes;
+    std::vector<uint32_t> pixels(width);
 
     while (true) {
         std::lock_guard<std::mutex> lg(settingsLock);
 
-        std::vector<double> samples = samplesQueue.pop();
+        std::vector<double> newSamples(samplesQueue.pop());
 
         /* Move down old samples */
-        memmove(dft.samples.data(), dft.samples.data()+samples.size(), sizeof(double)*(dft.getSize()-samples.size()));
-        /* Add new samples */
-        memcpy(dft.samples.data()+(dft.getSize()-samples.size()), samples.data(), sizeof(double)*samples.size());
+        memmove(samples.data(), samples.data()+newSamples.size(), sizeof(double)*(samples.size()-newSamples.size()));
+        /* Copy new samples */
+        memcpy(samples.data()+(samples.size()-newSamples.size()), newSamples.data(), sizeof(double)*newSamples.size());
 
         /* Compute DFT */
-        dft.compute();
+        dft.compute(magnitudes, samples);
 
         /* Render spectrogram line */
-        spectrogram.render(pixelLine, dft.magnitudes);
+        spectrogram.render(pixels, magnitudes);
 
         /* Put into pixels queue */
-        pixelsQueue.push(pixelLine);
+        pixelsQueue.push(pixels);
     }
 }
 

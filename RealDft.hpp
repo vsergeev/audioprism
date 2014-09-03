@@ -15,7 +15,7 @@ class RealDft {
     ~RealDft();
 
     /* Compute new DFT magnitude based on samples */
-    void compute();
+    void compute(std::vector<double> &magnitudes, const std::vector<double> &samples);
 
     /* Get DFT size */
     unsigned int getSize();
@@ -26,9 +26,6 @@ class RealDft {
     void setSize(unsigned int N);
     /* Set Window Function */
     void setWindowFunction(WindowFunction wf);
-
-    std::vector<double> samples;
-    std::vector<double> magnitudes;
 
   private:
     unsigned int N;

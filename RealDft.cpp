@@ -48,6 +48,27 @@ RealDft::~RealDft() {
     fftw_cleanup();
 }
 
+void RealDft::compute(std::vector<double> &magnitudes, const std::vector<double> &samples) {
+    /* Assert sample buffer size */
+    if (samples.size() != N)
+        throw std::runtime_error("Sample size do not much DFT size!");
+
+    /* Size magnitude buffer correctly */
+    magnitudes.resize(N/2+1);
+
+    /* Window samples first */
+    for (unsigned int n = 0; n < N; n++)
+        wsamples[n] = samples[n]*window[n];
+
+    /* Execute DFT */
+    fftw_execute(plan);
+
+    /* Compute DFT magnitude */
+    for (unsigned int n = 0; n < N/2+1; n++)
+        magnitudes[n] = 20*log10(sqrt(dft[n][0]*dft[n][0] + dft[n][1]*dft[n][1]));
+}
+
+
 unsigned int RealDft::getSize() {
     return N;
 }
@@ -67,8 +88,6 @@ void RealDft::setSize(unsigned int N) {
         dft = nullptr;
     }
 
-    /* Resize external sample buffer */
-    samples.resize(N);
     /* Resize window */
     window.resize(N);
     /* Recalculate window function */
@@ -84,9 +103,6 @@ void RealDft::setSize(unsigned int N) {
     if (wsamples == NULL)
         throw std::runtime_error("Allocating sample memory.");
 
-    /* Resize DFT magnitude buffer */
-    magnitudes.resize(N/2+1);
-
     /* Rebuild our plan */
     plan = fftw_plan_dft_r2c_1d(N, wsamples, dft, FFTW_MEASURE);
 
@@ -101,18 +117,5 @@ WindowFunction RealDft::getWindowFunction() {
 void RealDft::setWindowFunction(WindowFunction wf) {
     windowFunction = wf;
     calculateWindow(window, windowFunction);
-}
-
-void RealDft::compute() {
-    /* Window samples first */
-    for (unsigned int n = 0; n < N; n++)
-        wsamples[n] = samples[n]*window[n];
-
-    /* Execute DFT */
-    fftw_execute(plan);
-
-    /* Compute DFT magnitude */
-    for (unsigned int n = 0; n < N/2+1; n++)
-        magnitudes[n] = 20*log10(sqrt(dft[n][0]*dft[n][0] + dft[n][1]*dft[n][1]));
 }
 
