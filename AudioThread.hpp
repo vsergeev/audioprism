@@ -9,16 +9,16 @@
 
 class AudioThread {
   public:
-    AudioThread(AudioSource &source);
+    AudioThread(AudioSource &source, ThreadSafeQueue<std::vector<double>> &samplesQueue);
     void run();
 
     std::atomic<size_t> readSize;
-    ThreadSafeQueue<std::vector<double>> samplesQueue;
 
     unsigned int getSampleRate();
 
   private:
     AudioSource &source;
+    ThreadSafeQueue<std::vector<double>> &samplesQueue;
 };
 
 #endif

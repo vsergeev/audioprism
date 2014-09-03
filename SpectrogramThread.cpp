@@ -7,8 +7,7 @@
 #define DEFAULT_DFT_SIZE    2048
 #define DEFAULT_WINDOW_FUNC WindowFunction::Hanning
 
-SpectrogramThread::SpectrogramThread(AudioThread &audioThread, unsigned int width) :
-  width(width), audioThread(audioThread), dft(DEFAULT_DFT_SIZE, DEFAULT_WINDOW_FUNC), spectrogram() { }
+SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, unsigned int sampleRate, unsigned int width) : samplesQueue(samplesQueue), pixelsQueue(pixelsQueue), sampleRate(sampleRate), width(width), dft(DEFAULT_DFT_SIZE, DEFAULT_WINDOW_FUNC), spectrogram() { }
 
 void SpectrogramThread::run() {
     std::vector<uint32_t> pixelLine(width);
@@ -16,7 +15,7 @@ void SpectrogramThread::run() {
     while (true) {
         std::lock_guard<std::mutex> lg(settingsLock);
 
-        std::vector<double> samples = audioThread.samplesQueue.pop();
+        std::vector<double> samples = samplesQueue.pop();
 
         /* Move down old samples */
         memmove(dft.samples.data(), dft.samples.data()+samples.size(), sizeof(double)*(dft.getSize()-samples.size()));

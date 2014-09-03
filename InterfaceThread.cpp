@@ -4,8 +4,7 @@
 
 #include "InterfaceThread.hpp"
 
-InterfaceThread::InterfaceThread(AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height) :
-  audioThread(audioThread), spectrogramThread(spectrogramThread), width(width), height(height) {
+InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height) : pixelsQueue(pixelsQueue), audioThread(audioThread), spectrogramThread(spectrogramThread), width(width), height(height) {
     int ret;
 
     ret = SDL_Init(SDL_INIT_VIDEO);
@@ -50,8 +49,8 @@ void InterfaceThread::run() {
         }
 
         /* Collect all new pixel rows */
-        while (!spectrogramThread.pixelsQueue.empty()) {
-            std::vector<uint32_t> pixelRow(spectrogramThread.pixelsQueue.pop());
+        while (!pixelsQueue.empty()) {
+            std::vector<uint32_t> pixelRow(pixelsQueue.pop());
             newPixelRows.insert(newPixelRows.end(), pixelRow.begin(), pixelRow.end());
         }
 

@@ -11,10 +11,8 @@
 
 class SpectrogramThread {
   public:
-    SpectrogramThread(AudioThread &audioThread, unsigned int width);
+    SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, unsigned int sampleRate, unsigned int width);
     void run();
-
-    ThreadSafeQueue<std::vector<uint32_t>> pixelsQueue;
 
     unsigned int getDftSize();
     WindowFunction getWindowFunction();
@@ -27,8 +25,11 @@ class SpectrogramThread {
     void setMagnitudeMax(double max);
 
   private:
+    ThreadSafeQueue<std::vector<double>> &samplesQueue;
+    ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue;
+
+    unsigned int sampleRate;
     unsigned int width;
-    AudioThread &audioThread;
     RealDft dft;
     Spectrogram spectrogram;
     std::mutex settingsLock;

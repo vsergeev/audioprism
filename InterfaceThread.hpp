@@ -5,15 +5,17 @@
 
 #include "AudioThread.hpp"
 #include "SpectrogramThread.hpp"
+#include "ThreadSafeQueue.hpp"
 
 class InterfaceThread {
   public:
-    InterfaceThread(AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height);
+    InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height);
     ~InterfaceThread();
 
     void run();
 
   private:
+    ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue;
     AudioThread &audioThread;
     SpectrogramThread &spectrogramThread;
     const unsigned int width, height;
