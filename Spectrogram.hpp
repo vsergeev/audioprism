@@ -2,22 +2,19 @@
 #define _SPECTROGRAM_HPP
 
 #include <vector>
-#include <memory>
 #include <cstdint>
 
 class Spectrogram {
   public:
-    Spectrogram(unsigned int width, unsigned int height);
-    void update(const std::vector<double> &dft_magnitudes);
-    const uint32_t *getPixels();
+    Spectrogram();
+    void render(std::vector<uint32_t> &pixels, const std::vector<double> &magnitudes);
 
-    const unsigned int width;
-    const unsigned int height;
-    double magnitudeMin;
-    double magnitudeMax;
+    struct {
+        double magnitudeMin;
+        double magnitudeMax;
+    } settings;
 
   private:
-    std::unique_ptr<uint32_t []> _pixels;
     uint32_t magnitude2pixel(double magnitude);
 };
 
