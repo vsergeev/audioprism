@@ -6,17 +6,14 @@ AudioSource
     get         sample rate
 
 RealDft
-    owns windowed sample buffer (for FFTW alignment/efficiency)
-    owns output dft buffer (for FFTW alignment/efficiency)
-    owns input sample buffer FIXME?
-    owns output magnitudes buffer FIXME?
+    owns FFTW aligned windowed sample buffer
+    owns FFTW aligned output dft buffer
 
     samples -> windowed samples -> dft -> magnitudes
 
     get/set     size, window function
 
 Spectrogram
-    owns pixel buffer
 
     magnitudes -> pixels
 
@@ -26,7 +23,8 @@ Spectrogram
 ################################################################################
 
 AudioThread
-    ref to AudioSource
+    ref to AudioSource (input)
+    ref to samples queue (output)
 
     while True:
         read audio samples
@@ -36,34 +34,51 @@ AudioThread
     get/set     read size
 
 SpectrogramThread
-    ref to AudioThread
+    ref to samples queue (input)
+    ref to pixels queue (output)
     owns RealDft
     owns Spectrogram
 
     while True:
         read samples from queue
-        shift into dft sample buffer
-        run RealDft with new sample buffer
-        run Spectrogram with new magnitudes
+        shift into sample buffer
+        run RealDft on sample buffer to produce magnitudes
+        run Spectrogram on magnitudes to produce pixels
+        put pixels into pixels queue
 
     get/set     dft size, window function, magnitude min, magnitude max
 
 InterfaceThread
-    ref to AudioThread
-    ref to SpectrogramThread
-    owns SDL
+    ref to pixels queue (input)
+    owns SDL (output)
+    ref to AudioThread (for user control)
+    ref to SpectrogramThread (for user control)
 
     while True:
-        check for events
+        check for SDL events
         draw spectrogram pixels
         draw settings info
             Window Function
             Overlap %, DFT Size
+            Min/Max dB
             Hz/Px, Cursor Hz
 
 ################################################################################
 
-- add info
-- fix color scheme
-- add events
-- clean exit
+- change to complex dft propagation
+
+- interfacethread add settings info (cached)
+- interfacethread add cursor info (based on cached)
+- add source directory, build directory to makefile
+- spectrogram fix color scheme
+- interfacethread add keyboard events to cycle through settings
+- all add clean exit
+- spectrogram fix stretch
+- add PNG output stream
+- add GIF output stream
+
+- spectrogram add logarithmic/linear amplitude
+- spectrogram add logarithimic/linear frequency
+- spectrogram add bandwidth selection
+- add realtime sample rate update?
+
