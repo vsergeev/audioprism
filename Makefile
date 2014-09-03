@@ -17,7 +17,7 @@ OBJS = $(patsubst %.cpp,%.o,$(SRCS))
 CXX = g++
 REMOVE = rm -f
 
-CPPFLAGS = -std=c++11 -W -Wall -Wextra -pedantic
+CPPFLAGS = -std=c++11 -W -Wall -Wextra -pedantic -O3 -g
 CPPFLAGS += $(shell sdl2-config --cflags)
 
 LDFLAGS = $(shell sdl2-config --libs)
