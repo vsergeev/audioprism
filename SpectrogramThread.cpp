@@ -14,7 +14,7 @@ void SpectrogramThread::run() {
     std::vector<uint32_t> pixelLine(width);
 
     while (true) {
-        settingsLock.lock();
+        std::lock_guard<std::mutex> lg(settingsLock);
 
         std::vector<double> samples = audioThread.samplesQueue.pop();
 
@@ -31,8 +31,6 @@ void SpectrogramThread::run() {
 
         /* Put into pixels queue */
         pixelsQueue.push(pixelLine);
-
-        settingsLock.unlock();
     }
 }
 
