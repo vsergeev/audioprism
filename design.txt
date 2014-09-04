@@ -1,23 +1,20 @@
 AudioSource
     owns audio device
 
-    source -> samples
+    source (input) -> samples (output)
 
     get         sample rate
 
 RealDft
-    owns FFTW aligned windowed sample buffer
-    owns FFTW aligned output dft buffer
 
-    samples -> windowed samples -> dft -> magnitudes
+    samples (input) -> windowed samples -> dft (output)
 
     get/set     size, window function
 
 Spectrogram
 
-    magnitudes -> pixels
+    dft (input) -> pixel row (output)
 
-    get         pixels, width, height
     get/set     magnitude min, magnitude max
 
 ################################################################################
@@ -27,8 +24,8 @@ AudioThread
     ref to samples queue (output)
 
     while True:
-        read audio samples
-        put it in queue
+        read audio samples from source
+        push samples into samples queue
 
     get         sample rate
     get/set     read size
@@ -40,11 +37,11 @@ SpectrogramThread
     owns Spectrogram
 
     while True:
-        read samples from queue
+        pop samples from samples queue
         shift into sample buffer
-        run RealDft on sample buffer to produce magnitudes
-        run Spectrogram on magnitudes to produce pixels
-        put pixels into pixels queue
+        run RealDft on sample buffer to produce dft
+        run Spectrogram on dft to produce pixels
+        push pixels into pixels queue
 
     get/set     dft size, window function, magnitude min, magnitude max
 
@@ -55,7 +52,9 @@ InterfaceThread
     ref to SpectrogramThread (for user control)
 
     while True:
-        check for SDL events
+        check for and handle SDL events
+        pop pixels from pixels queue
+        update pixel buffer with new pixels
         draw spectrogram pixels
         draw settings info
             Window Function
@@ -65,20 +64,20 @@ InterfaceThread
 
 ################################################################################
 
-- change to complex dft propagation
-
-- interfacethread add settings info (cached)
-- interfacethread add cursor info (based on cached)
+- propagate more settings to top-level
++ interfacethread add settings info (cached)
++ interfacethread add cursor info (based on cached)
 - add source directory, build directory to makefile
 - spectrogram fix color scheme
-- interfacethread add keyboard events to cycle through settings
-- all add clean exit
 - spectrogram fix stretch
+- interfacethread add keyboard events to cycle through settings
+- spectrogram add logarithmic/linear amplitude
+- spectrogram add averaging?
+- spectrogram add bandwidth selection
+- all add clean exit
 - add PNG output stream
 - add GIF output stream
 
-- spectrogram add logarithmic/linear amplitude
 - spectrogram add logarithimic/linear frequency
-- spectrogram add bandwidth selection
 - add realtime sample rate update?
 

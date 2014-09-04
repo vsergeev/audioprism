@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <cmath>
+#include <complex>
 
 #include "RealDft.hpp"
 
@@ -48,13 +49,13 @@ RealDft::~RealDft() {
     fftw_cleanup();
 }
 
-void RealDft::compute(std::vector<double> &magnitudes, const std::vector<double> &samples) {
+void RealDft::compute(std::vector<std::complex<double>> &dft, const std::vector<double> &samples) {
     /* Assert sample buffer size */
     if (samples.size() != N)
-        throw std::runtime_error("Sample size do not much DFT size!");
+        throw std::runtime_error("Samples size does not match DFT size!");
 
-    /* Size magnitude buffer correctly */
-    magnitudes.resize(N/2+1);
+    /* Size dft buffer correctly */
+    dft.resize(N/2+1);
 
     /* Window samples first */
     for (unsigned int n = 0; n < N; n++)
@@ -65,9 +66,8 @@ void RealDft::compute(std::vector<double> &magnitudes, const std::vector<double>
 
     /* Compute DFT magnitude */
     for (unsigned int n = 0; n < N/2+1; n++)
-        magnitudes[n] = 20*log10(sqrt(dft[n][0]*dft[n][0] + dft[n][1]*dft[n][1]));
+        dft[n] = std::complex<double>(this->dft[n][0], this->dft[n][1]);
 }
-
 
 unsigned int RealDft::getSize() {
     return N;

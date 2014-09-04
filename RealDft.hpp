@@ -2,6 +2,7 @@
 #define _REAL_DFT_HPP
 
 #include <vector>
+#include <complex>
 
 #include <fftw3.h>
 
@@ -15,7 +16,7 @@ class RealDft {
     ~RealDft();
 
     /* Compute new DFT magnitude based on samples */
-    void compute(std::vector<double> &magnitudes, const std::vector<double> &samples);
+    void compute(std::vector<std::complex<double>> &dft, const std::vector<double> &samples);
 
     /* Get DFT size */
     unsigned int getSize();

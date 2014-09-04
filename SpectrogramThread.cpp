@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cstring>
-#include <unistd.h>
+#include <complex>
 
 #include "SpectrogramThread.hpp"
 
@@ -11,7 +11,7 @@ SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<double>> &sampl
 
 void SpectrogramThread::run() {
     std::vector<double> samples(dft.getSize());
-    std::vector<double> magnitudes;
+    std::vector<std::complex<double>> dftSamples;
     std::vector<uint32_t> pixels(width);
 
     while (true) {
@@ -25,10 +25,10 @@ void SpectrogramThread::run() {
         memcpy(samples.data()+(samples.size()-newSamples.size()), newSamples.data(), sizeof(double)*newSamples.size());
 
         /* Compute DFT */
-        dft.compute(magnitudes, samples);
+        dft.compute(dftSamples, samples);
 
         /* Render spectrogram line */
-        spectrogram.render(pixels, magnitudes);
+        spectrogram.render(pixels, dftSamples);
 
         /* Put into pixels queue */
         pixelsQueue.push(pixels);

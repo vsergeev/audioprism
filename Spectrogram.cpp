@@ -1,4 +1,5 @@
 #include <vector>
+#include <complex>
 #include <cstdint>
 #include <cstring>
 
@@ -22,19 +23,19 @@ uint32_t Spectrogram::magnitude2pixel(double magnitude) {
     return static_cast<uint16_t>(magnitude);
 }
 
-void Spectrogram::render(std::vector<uint32_t> &pixels, const std::vector<double> &magnitudes) {
+void Spectrogram::render(std::vector<uint32_t> &pixels, const std::vector<std::complex<double>> &dft) {
     unsigned int i;
 
     /* Generate pixel row for this DFT */
-    if (magnitudes.size() < pixels.size()) {
-        for (i = 0; i < magnitudes.size()-1; i++)
-            pixels[i] = magnitude2pixel(magnitudes[i+1]);
-        for (i = magnitudes.size()-1; i < pixels.size(); i++)
+    if (dft.size() < pixels.size()) {
+        for (i = 0; i < dft.size()-1; i++)
+            pixels[i] = magnitude2pixel(20*std::log10(std::abs(dft[i+1])));
+        for (i = dft.size()-1; i < pixels.size(); i++)
             pixels[i] = 0x00;
     } else {
-        float index_scale = float(magnitudes.size()-1) / float(pixels.size());
+        float index_scale = float(dft.size()-1) / float(pixels.size());
         for (i = 0; i < pixels.size(); i++)
-            pixels[i] = magnitude2pixel(magnitudes[1+int(index_scale*i)]);
+            pixels[i] = magnitude2pixel(20*std::log10(std::abs(dft[1+int(index_scale*i)])));
     }
 }
 
