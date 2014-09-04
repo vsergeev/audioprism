@@ -11,7 +11,7 @@
 
 class SpectrogramThread {
   public:
-    SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, unsigned int sampleRate, unsigned int width);
+    SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, unsigned int sampleRate, unsigned int width, unsigned int dftSize, WindowFunction wf, double magnitudeMin, double magnitudeMax);
     void run();
 
     unsigned int getDftSize();
@@ -28,7 +28,6 @@ class SpectrogramThread {
   private:
     ThreadSafeQueue<std::vector<double>> &samplesQueue;
     ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue;
-
     unsigned int sampleRate;
     unsigned int width;
     RealDft dft;

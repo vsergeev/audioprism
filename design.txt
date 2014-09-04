@@ -64,7 +64,6 @@ InterfaceThread
 
 ################################################################################
 
-- propagate more settings to top-level
 - add source directory, build directory to makefile
 - interfacethread add keyboard events to cycle through settings
 

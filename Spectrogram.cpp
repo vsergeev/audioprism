@@ -5,10 +5,7 @@
 
 #include "Spectrogram.hpp"
 
-#define DEFAULT_MAGNITUDE_MIN   0.0
-#define DEFAULT_MAGNITUDE_MAX   60.0
-
-Spectrogram::Spectrogram() : settings({0.0, 60.0}) {}
+Spectrogram::Spectrogram(double magnitudeMin, double magnitudeMax) : settings({magnitudeMin, magnitudeMax}) {}
 
 uint32_t Spectrogram::magnitude2pixel(double magnitude) {
     /* Clamp magnitude at min and max */

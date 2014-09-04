@@ -2,9 +2,7 @@
 #include "AudioThread.hpp"
 #include "ThreadSafeQueue.hpp"
 
-#define DEFAULT_READ_SIZE   128
-
-AudioThread::AudioThread(AudioSource &source, ThreadSafeQueue<std::vector<double>> &samplesQueue) : readSize(DEFAULT_READ_SIZE), source(source), samplesQueue(samplesQueue) { }
+AudioThread::AudioThread(AudioSource &source, ThreadSafeQueue<std::vector<double>> &samplesQueue, size_t readSize) : readSize(readSize), source(source), samplesQueue(samplesQueue) { }
 
 void AudioThread::run() {
     std::vector<double> samples(readSize);

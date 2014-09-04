@@ -7,7 +7,7 @@
 
 class Spectrogram {
   public:
-    Spectrogram();
+    Spectrogram(double magnitudeMin, double magnitudeMax);
     void render(std::vector<uint32_t> &pixels, const std::vector<std::complex<double>> &dft);
     float getHzPerPixel(unsigned int width, unsigned int dftSize, unsigned int sampleRate);
 
