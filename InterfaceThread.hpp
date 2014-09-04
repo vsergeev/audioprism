@@ -2,6 +2,7 @@
 #define _INTERFACE_THREAD_HPP
 
 #include <SDL.h>
+#include <SDL_ttf.h>
 
 #include "AudioThread.hpp"
 #include "SpectrogramThread.hpp"
@@ -24,6 +25,10 @@ class InterfaceThread {
     SDL_Renderer *renderer;
     SDL_Texture *pixelsTexture;
     SDL_Texture *infoTexture;
+    SDL_Rect infoRect;
+    TTF_Font *font;
+
+    void renderInfo();
 };
 
 #endif

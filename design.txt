@@ -64,20 +64,24 @@ InterfaceThread
 
 ################################################################################
 
+- add hz/pixel calculation
+- interfacethread add cursor info
+
 - propagate more settings to top-level
-+ interfacethread add settings info (cached)
-+ interfacethread add cursor info (based on cached)
 - add source directory, build directory to makefile
-- spectrogram fix color scheme
-- spectrogram fix stretch
+
 - interfacethread add keyboard events to cycle through settings
+
+- spectrogram fix color scheme
+- spectrogram fix stretch when N < width
 - spectrogram add logarithmic/linear amplitude
-- spectrogram add averaging?
-- spectrogram add bandwidth selection
 - all add clean exit
+
 - add PNG output stream
 - add GIF output stream
 
-- spectrogram add logarithimic/linear frequency
+- spectrogram add bandwidth selection
+- spectrogram add averaging?
+- spectrogram add logarithimic/linear frequency?
 - add realtime sample rate update?
 

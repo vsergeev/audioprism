@@ -20,7 +20,7 @@ REMOVE = rm -f
 CPPFLAGS = -std=c++11 -W -Wall -Wextra -pedantic -O3 -g
 CPPFLAGS += $(shell sdl2-config --cflags)
 
-LDFLAGS = $(shell sdl2-config --libs)
+LDFLAGS = $(shell sdl2-config --libs) -lSDL2_ttf
 LDFLAGS += -lpulse -lpulse-simple
 LDFLAGS += -lfftw3
 

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include <complex>
+#include <unistd.h>
 
 #include "SpectrogramThread.hpp"
 
@@ -15,23 +16,27 @@ void SpectrogramThread::run() {
     std::vector<uint32_t> pixels(width);
 
     while (true) {
-        std::lock_guard<std::mutex> lg(settingsLock);
+        {
+            std::lock_guard<std::mutex> lg(settingsLock);
 
-        std::vector<double> newSamples(samplesQueue.pop());
+            std::vector<double> newSamples(samplesQueue.pop());
 
-        /* Move down old samples */
-        memmove(samples.data(), samples.data()+newSamples.size(), sizeof(double)*(samples.size()-newSamples.size()));
-        /* Copy new samples */
-        memcpy(samples.data()+(samples.size()-newSamples.size()), newSamples.data(), sizeof(double)*newSamples.size());
+            /* Move down old samples */
+            memmove(samples.data(), samples.data()+newSamples.size(), sizeof(double)*(samples.size()-newSamples.size()));
+            /* Copy new samples */
+            memcpy(samples.data()+(samples.size()-newSamples.size()), newSamples.data(), sizeof(double)*newSamples.size());
 
-        /* Compute DFT */
-        dft.compute(dftSamples, samples);
+            /* Compute DFT */
+            dft.compute(dftSamples, samples);
 
-        /* Render spectrogram line */
-        spectrogram.render(pixels, dftSamples);
+            /* Render spectrogram line */
+            spectrogram.render(pixels, dftSamples);
 
-        /* Put into pixels queue */
-        pixelsQueue.push(pixels);
+            /* Put into pixels queue */
+            pixelsQueue.push(pixels);
+        }
+        /* Spare a few microseconds for other threads to grab settingsLock */
+        usleep(5);
     }
 }
 
