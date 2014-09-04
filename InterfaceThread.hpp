@@ -20,15 +20,19 @@ class InterfaceThread {
     AudioThread &audioThread;
     SpectrogramThread &spectrogramThread;
     const unsigned int width, height;
+    float hzPerPixel;
 
     SDL_Window *win;
     SDL_Renderer *renderer;
     SDL_Texture *pixelsTexture;
     SDL_Texture *infoTexture;
+    SDL_Texture *cursorTexture;
     SDL_Rect infoRect;
+    SDL_Rect cursorRect;
     TTF_Font *font;
 
     void renderInfo();
+    void renderCursor(int x);
 };
 
 #endif

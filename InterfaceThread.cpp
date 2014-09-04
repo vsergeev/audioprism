@@ -29,6 +29,7 @@ InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQ
         throw std::runtime_error("Erroring creating SDL texture: SDL_CreateTexture(): " + std::string(SDL_GetError()));
 
     infoTexture = nullptr;
+    cursorTexture = nullptr;
 
     font = TTF_OpenFont("/usr/share/fonts/TTF/DejaVuSansMono-Bold.ttf", 11);
     if (font == nullptr)
@@ -121,12 +122,13 @@ void InterfaceThread::renderInfo() {
 
     unsigned int dftSize = spectrogramThread.getDftSize();
     unsigned int overlap = static_cast<unsigned int>((1.0-(static_cast<float>(audioThread.readSize)/static_cast<float>(dftSize)))*100.0);
+    hzPerPixel = spectrogramThread.getHzPerPixel();
 
     textSurfaces.push_back(renderString(format("Sample Rate: %d Hz", audioThread.getSampleRate()), font, infoColor));
     textSurfaces.push_back(renderString(format("Sample Overlap: %d%%", overlap), font, infoColor));
     textSurfaces.push_back(renderString("Window: " + to_string(spectrogramThread.getWindowFunction()), font, infoColor));
     textSurfaces.push_back(renderString(format("DFT Size: %d", dftSize), font, infoColor));
-    textSurfaces.push_back(renderString(format("Hz/px: %d", 10), font, infoColor)); /* FIXME */
+    textSurfaces.push_back(renderString(format("Hz/px: %.2f", spectrogramThread.getHzPerPixel()), font, infoColor));
     textSurfaces.push_back(renderString(format("Mag. min: %.2f dB", spectrogramThread.getMagnitudeMin()), font, infoColor));
     textSurfaces.push_back(renderString(format("Mag. max: %.2f dB", spectrogramThread.getMagnitudeMax()), font, infoColor));
 
@@ -142,12 +144,33 @@ void InterfaceThread::renderInfo() {
     if (infoTexture)
         SDL_DestroyTexture(infoTexture);
 
-    /* Create new text from the target surface */
+    /* Create new texture from the target surface */
     infoTexture = SDL_CreateTextureFromSurface(renderer, targetSurface);
     if (infoTexture == NULL)
         throw std::runtime_error("Error creating texture for text: SDL_CreateTextureFromSurface(): " + std::string(SDL_GetError()));
 
     SDL_FreeSurface(targetSurface);
+}
+
+void InterfaceThread::renderCursor(int x) {
+    SDL_Surface *cursorSurface;
+    SDL_Color infoColor = {0xff, 0x00, 0x00, 0x00};
+
+    cursorSurface = renderString(format("%.0f Hz", static_cast<float>(x)*hzPerPixel), font, infoColor);
+
+    cursorRect.x = width - cursorSurface->w - 5;
+    cursorRect.y = infoRect.h + cursorSurface->h;
+    cursorRect.w = cursorSurface->w;
+    cursorRect.h = cursorSurface->h;
+
+    if (cursorTexture)
+        SDL_DestroyTexture(cursorTexture);
+
+    cursorTexture = SDL_CreateTextureFromSurface(renderer, cursorSurface);
+    if (cursorTexture == NULL)
+        throw std::runtime_error("Error creating texture for cursor text: SDL_CreateTextureFromSurface(): " + std::string(SDL_GetError()));
+
+    SDL_FreeSurface(cursorSurface);
 }
 
 void InterfaceThread::run() {
@@ -159,6 +182,8 @@ void InterfaceThread::run() {
     while (true) {
         SDL_Event e;
         if (SDL_PollEvent(&e)) {
+            int mx;
+
             if (e.type == SDL_QUIT)
                 break;
             if (e.type == SDL_KEYDOWN) {
@@ -167,6 +192,9 @@ void InterfaceThread::run() {
                     break;
                 }
             }
+
+            SDL_GetMouseState(&mx, NULL);
+            renderCursor(mx);
         }
 
         /* Collect all new pixel rows */
@@ -197,6 +225,7 @@ void InterfaceThread::run() {
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, pixelsTexture, nullptr, nullptr);
         SDL_RenderCopy(renderer, infoTexture, nullptr, &infoRect);
+        SDL_RenderCopy(renderer, cursorTexture, nullptr, &cursorRect);
         SDL_RenderPresent(renderer);
         SDL_Delay(10);
     }
