@@ -10,12 +10,16 @@ SRCS += SpectrogramThread.cpp
 SRCS += InterfaceThread.cpp
 SRCS += spectrogram.cpp
 
-OBJS = $(patsubst %.cpp,%.o,$(SRCS))
+SRC_DIR = src
+BUILD_DIR = build
+
+SRCS := $(patsubst %.cpp,$(SRC_DIR)/%.cpp,$(SRCS))
+OBJS = $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(SRCS))
 
 ################################################################################
 
 CXX = g++
-REMOVE = rm -f
+REMOVE = rm -rf
 
 CPPFLAGS = -std=c++11 -W -Wall -Wextra -pedantic -O3 -g
 CPPFLAGS += $(shell sdl2-config --cflags)
@@ -29,13 +33,15 @@ LDFLAGS += -lfftw3
 all: $(PROJECT)
 
 clean:
-	$(REMOVE) $(OBJS) $(PROJECT)
+	$(REMOVE) $(BUILD_DIR)
+	$(REMOVE) $(PROJECT)
 
 ################################################################################
 
 $(PROJECT): $(OBJS)
 	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
 
-%.o: %.cpp
+$(BUILD_DIR)/%.o: %.cpp
+	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) -c $< -o $@
 
