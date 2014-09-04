@@ -4,14 +4,19 @@
 
 #include "RealDft.hpp"
 
-std::ostream &operator<<(std::ostream &os, const WindowFunction &wf) {
+std::string to_string(const WindowFunction &wf) {
     if (wf == WindowFunction::Hanning)
-        os << std::string("Hanning");
+        return std::string("Hanning");
     else if (wf == WindowFunction::Hamming)
-        os << std::string("Hamming");
+        return std::string("Hamming");
     else if (wf == WindowFunction::Rectangular)
-        os << std::string("Rectangular");
+        return std::string("Rectangular");
 
+    return std::string("");
+}
+
+std::ostream &operator<<(std::ostream &os, const WindowFunction &wf) {
+    os << to_string(wf);
     return os;
 }
 

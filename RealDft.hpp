@@ -9,6 +9,7 @@
 enum class WindowFunction { Hanning, Hamming, Rectangular };
 
 std::ostream &operator<<(std::ostream &os, const WindowFunction &wf);
+std::string to_string(const WindowFunction &wf);
 
 class RealDft {
   public:
