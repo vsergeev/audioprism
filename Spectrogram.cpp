@@ -39,3 +39,7 @@ void Spectrogram::render(std::vector<uint32_t> &pixels, const std::vector<std::c
     }
 }
 
+float Spectrogram::getHzPerPixel(unsigned int width, unsigned int dftSize, unsigned int sampleRate) {
+    return ((static_cast<float>(sampleRate)/2.0)/static_cast<float>(dftSize)) * (static_cast<float>(dftSize)/static_cast<float>(width));
+}
+

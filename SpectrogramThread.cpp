@@ -60,6 +60,11 @@ double SpectrogramThread::getMagnitudeMax() {
     return spectrogram.settings.magnitudeMax;
 }
 
+float SpectrogramThread::getHzPerPixel() {
+    std::lock_guard<std::mutex> lg(settingsLock);
+    return spectrogram.getHzPerPixel(width, dft.getSize(), sampleRate);
+}
+
 void SpectrogramThread::setDftSize(unsigned int N) {
     std::lock_guard<std::mutex> lg(settingsLock);
     dft.setSize(N);
