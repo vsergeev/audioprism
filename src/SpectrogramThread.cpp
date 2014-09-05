@@ -18,10 +18,15 @@ void SpectrogramThread::run() {
 
             std::vector<double> newSamples(samplesQueue.pop());
 
-            /* Move down old samples */
-            memmove(samples.data(), samples.data()+newSamples.size(), sizeof(double)*(samples.size()-newSamples.size()));
-            /* Copy new samples */
-            memcpy(samples.data()+(samples.size()-newSamples.size()), newSamples.data(), sizeof(double)*newSamples.size());
+            if (newSamples.size() >= samples.size()) {
+                /* Copy over new samples */
+                memcpy(samples.data(), newSamples.data(), samples.size()*sizeof(double));
+            } else {
+                /* Move down old samples */
+                memmove(samples.data(), samples.data()+newSamples.size(), sizeof(double)*(samples.size()-newSamples.size()));
+                /* Copy new samples */
+                memcpy(samples.data()+(samples.size()-newSamples.size()), newSamples.data(), sizeof(double)*newSamples.size());
+            }
 
             /* Compute DFT */
             dft.compute(dftSamples, samples);
