@@ -64,22 +64,10 @@ InterfaceThread
 
 ################################################################################
 
-- interfacethread add keyboard events to cycle through settings
-    w for window [Hanning,Hamming,Rectangular]
-    l for logarithimic/linear
-    right for DFT N down [2**5 -- 2**13]
-    left for DFT N up
-    up for read size up [64 -- 64*x <= N]
-    down for read size down
-    - for magnitude min down +5dB
-    - for magnitude min up -5dB
-    _ for magnitude max down +5dB
-    + for magnitude max up -5dB
-    h for hide info
-
-- spectrogram fix color scheme
-- spectrogram add logarithmic/linear amplitude
-- all add clean exit
+- fix color scheme in spectogram
+- fix sample overlap calculation
+- add logarithmic/linear amplitude option
+- all clean exit
 
 - add WAV audio source
 - add PNG output stream

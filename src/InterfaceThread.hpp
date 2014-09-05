@@ -21,20 +21,35 @@ class InterfaceThread {
     ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue;
     AudioThread &audioThread;
     SpectrogramThread &spectrogramThread;
-    const unsigned int width, height;
-    std::function<float (int)> fPixelToHz;
 
     SDL_Window *win;
     SDL_Renderer *renderer;
     SDL_Texture *pixelsTexture;
-    SDL_Texture *infoTexture;
+    SDL_Texture *settingsTexture;
     SDL_Texture *cursorTexture;
-    SDL_Rect infoRect;
+    SDL_Rect settingsRect;
     SDL_Rect cursorRect;
     TTF_Font *font;
 
-    void renderInfo();
+    void updateSettings();
+    void renderSettings();
     void renderCursor(int x);
+    void handleKeyDown(const uint8_t *state);
+
+    /* Interface settings */
+    const unsigned int width, height;
+    bool hideInfo;
+
+    /* Cached settings from AudioThread and SpectrogramThread */
+    struct {
+        unsigned int sampleRate;
+        unsigned int readSize;
+        WindowFunction wf;
+        unsigned int dftSize;
+        std::function<float (int)> fPixelToHz;
+        double magnitudeMin;
+        double magnitudeMax;
+    } settings;
 };
 
 #endif
