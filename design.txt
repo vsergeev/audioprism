@@ -15,7 +15,7 @@ Spectrogram
 
     dft (input) -> pixel row (output)
 
-    get/set     magnitude min, magnitude max
+    get/set     pixel to hz lambda, magnitude min, magnitude max
 
 ################################################################################
 
@@ -64,19 +64,33 @@ InterfaceThread
 
 ################################################################################
 
-- add source directory, build directory to makefile
 - interfacethread add keyboard events to cycle through settings
+    w for window [Hanning,Hamming,Rectangular]
+    l for logarithimic/linear
+    right for DFT N down [2**5 -- 2**13]
+    left for DFT N up
+    up for read size up [64 -- 64*x <= N]
+    down for read size down
+    - for magnitude min down +5dB
+    - for magnitude min up -5dB
+    _ for magnitude max down +5dB
+    + for magnitude max up -5dB
+    h for hide info
 
 - spectrogram fix color scheme
-- spectrogram fix stretch when N < width
 - spectrogram add logarithmic/linear amplitude
 - all add clean exit
 
+- add WAV audio source
 - add PNG output stream
 - add GIF output stream
+- add image writer
 
-- spectrogram add bandwidth selection
-- spectrogram add averaging?
+- add bandwidth selection
+- add pick out large peak
+- add dft averaging
+
 - spectrogram add logarithimic/linear frequency?
-- add realtime sample rate update?
+- add realtime sample rate change?
+- add realtime window size change?
 

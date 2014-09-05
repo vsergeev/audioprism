@@ -25,16 +25,9 @@ void Spectrogram::render(std::vector<uint32_t> &pixels, const std::vector<std::c
     unsigned int i;
 
     /* Generate pixel row for this DFT */
-    if (dft.size() < pixels.size()) {
-        for (i = 0; i < dft.size()-1; i++)
-            pixels[i] = magnitude2pixel(20*std::log10(std::abs(dft[i+1])));
-        for (i = dft.size()-1; i < pixels.size(); i++)
-            pixels[i] = 0x00;
-    } else {
-        float index_scale = float(dft.size()-1) / float(pixels.size());
-        for (i = 0; i < pixels.size(); i++)
-            pixels[i] = magnitude2pixel(20*std::log10(std::abs(dft[1+int(index_scale*i)])));
-    }
+    float index_scale = static_cast<float>(dft.size()) / static_cast<float>(pixels.size());
+    for (i = 0; i < pixels.size(); i++)
+        pixels[i] = magnitude2pixel(20*std::log10(std::abs(dft[int(index_scale*i)])));
 }
 
 std::function<float (int)> Spectrogram::getPixelToHz(unsigned int width, unsigned int dftSize, unsigned int sampleRate) {
