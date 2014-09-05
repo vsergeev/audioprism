@@ -122,13 +122,12 @@ void InterfaceThread::renderInfo() {
 
     unsigned int dftSize = spectrogramThread.getDftSize();
     unsigned int overlap = static_cast<unsigned int>((1.0-(static_cast<float>(audioThread.readSize)/static_cast<float>(dftSize)))*100.0);
-    hzPerPixel = spectrogramThread.getHzPerPixel();
+    fPixelToHz = spectrogramThread.getPixelToHz();
 
     textSurfaces.push_back(renderString(format("Sample Rate: %d Hz", audioThread.getSampleRate()), font, infoColor));
     textSurfaces.push_back(renderString(format("Sample Overlap: %d%%", overlap), font, infoColor));
     textSurfaces.push_back(renderString("Window: " + to_string(spectrogramThread.getWindowFunction()), font, infoColor));
     textSurfaces.push_back(renderString(format("DFT Size: %d", dftSize), font, infoColor));
-    textSurfaces.push_back(renderString(format("Hz/px: %.2f", spectrogramThread.getHzPerPixel()), font, infoColor));
     textSurfaces.push_back(renderString(format("Mag. min: %.2f dB", spectrogramThread.getMagnitudeMin()), font, infoColor));
     textSurfaces.push_back(renderString(format("Mag. max: %.2f dB", spectrogramThread.getMagnitudeMax()), font, infoColor));
 
@@ -155,8 +154,11 @@ void InterfaceThread::renderInfo() {
 void InterfaceThread::renderCursor(int x) {
     SDL_Surface *cursorSurface;
     SDL_Color infoColor = {0xff, 0x00, 0x00, 0x00};
+    float frequency;
 
-    cursorSurface = renderString(format("%.0f Hz", static_cast<float>(x)*hzPerPixel), font, infoColor);
+    frequency = fPixelToHz(x);
+
+    cursorSurface = renderString(format("%.0f Hz", frequency), font, infoColor);
 
     cursorRect.x = width - cursorSurface->w - 5;
     cursorRect.y = infoRect.h + cursorSurface->h;

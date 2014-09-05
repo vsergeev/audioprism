@@ -18,7 +18,7 @@ class SpectrogramThread {
     WindowFunction getWindowFunction();
     double getMagnitudeMin();
     double getMagnitudeMax();
-    float getHzPerPixel();
+    std::function<float (int)> getPixelToHz();
 
     void setDftSize(unsigned int N);
     void setWindowFunction(WindowFunction wf);

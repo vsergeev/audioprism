@@ -1,6 +1,8 @@
 #ifndef _INTERFACE_THREAD_HPP
 #define _INTERFACE_THREAD_HPP
 
+#include <functional>
+
 #include <SDL.h>
 #include <SDL_ttf.h>
 
@@ -20,7 +22,7 @@ class InterfaceThread {
     AudioThread &audioThread;
     SpectrogramThread &spectrogramThread;
     const unsigned int width, height;
-    float hzPerPixel;
+    std::function<float (int)> fPixelToHz;
 
     SDL_Window *win;
     SDL_Renderer *renderer;
