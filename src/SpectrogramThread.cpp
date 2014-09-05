@@ -16,6 +16,9 @@ void SpectrogramThread::run() {
         {
             std::lock_guard<std::mutex> lg(settingsLock);
 
+            if (samples.size() != dft.getSize())
+                samples.resize(dft.getSize());
+
             std::vector<double> newSamples(samplesQueue.pop());
 
             if (newSamples.size() >= samples.size()) {
