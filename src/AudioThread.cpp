@@ -6,7 +6,10 @@ AudioThread::AudioThread(AudioSource &source, ThreadSafeQueue<std::vector<double
 
 void AudioThread::run() {
     std::vector<double> samples(readSize);
-    while (true) {
+
+    running = true;
+
+    while (running) {
         if (samples.size() != readSize)
             samples.resize(readSize);
 

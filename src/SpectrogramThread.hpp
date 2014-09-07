@@ -13,6 +13,7 @@ class SpectrogramThread {
   public:
     SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, unsigned int sampleRate, unsigned int width, unsigned int dftSize, WindowFunction wf, double magnitudeMin, double magnitudeMax, Spectrogram::ColorScheme colors);
     void run();
+    std::atomic<bool> running;
 
     unsigned int getDftSize();
     WindowFunction getWindowFunction();

@@ -187,7 +187,11 @@ void InterfaceThread::renderCursor(int x) {
 #include <iostream>
 
 void InterfaceThread::handleKeyDown(const uint8_t *state) {
-    if (state[SDL_SCANCODE_W]) {
+    if (state[SDL_SCANCODE_Q]) {
+        audioThread.running = false;
+        spectrogramThread.running = false;
+        running = false;
+    } else if (state[SDL_SCANCODE_W]) {
         /* Change window function */
         WindowFunction next_wf;
 
@@ -274,20 +278,20 @@ void InterfaceThread::run() {
     updateSettings();
     renderSettings();
 
-    while (true) {
+    running = true;
+
+    while (running) {
         SDL_Event e;
         if (SDL_PollEvent(&e)) {
             int mx;
 
             if (e.type == SDL_QUIT) {
-                break;
+                audioThread.running = false;
+                spectrogramThread.running = false;
+                running = false;
             } else if (e.type == SDL_KEYDOWN) {
                 const uint8_t *state = SDL_GetKeyboardState(nullptr);
-                if (state[SDL_SCANCODE_Q]) {
-                    break;
-                } else {
-                    handleKeyDown(state);
-                }
+                handleKeyDown(state);
             } else if (e.type == SDL_MOUSEMOTION) {
                 SDL_GetMouseState(&mx, NULL);
                 renderCursor(mx);

@@ -64,7 +64,6 @@ InterfaceThread
 
 ################################################################################
 
-- all clean exit
 - add logarithmic/linear amplitude option
 
 - add WAV audio source (libsndfile)

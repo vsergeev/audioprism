@@ -16,6 +16,7 @@ class InterfaceThread {
     ~InterfaceThread();
 
     void run();
+    std::atomic<bool> running;
 
   private:
     ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue;

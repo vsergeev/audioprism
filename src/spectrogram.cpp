@@ -29,9 +29,8 @@ int main(int argc, char *argv[]) {
     std::thread t2(&SpectrogramThread::run, &spectrogramThread);
 
     interfaceThread.run();
-
-    //t1.join();
-    //t2.join();
+    t1.join();
+    t2.join();
 
     return 0;
 }

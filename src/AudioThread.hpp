@@ -11,6 +11,7 @@ class AudioThread {
   public:
     AudioThread(AudioSource &source, ThreadSafeQueue<std::vector<double>> &samplesQueue, size_t readSize);
     void run();
+    std::atomic<bool> running;
 
     std::atomic<size_t> readSize;
 

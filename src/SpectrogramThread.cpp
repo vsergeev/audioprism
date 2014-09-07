@@ -12,7 +12,9 @@ void SpectrogramThread::run() {
     std::vector<std::complex<double>> dftSamples;
     std::vector<uint32_t> pixels(width);
 
-    while (true) {
+    running = true;
+
+    while (running) {
         std::vector<double> newSamples(samplesQueue.pop());
 
         {
