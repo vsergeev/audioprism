@@ -64,19 +64,18 @@ InterfaceThread
 
 ################################################################################
 
-- add logarithmic/linear amplitude option
 - all clean exit
+- add logarithmic/linear amplitude option
 - try with separate audio thread
 
 - add WAV audio source (libsndfile)
 - add PNG output stream (magick++)
 - add GIF output stream (magick++)
 - add image writer
+- add console options
 
-- add console output
-
+- add magnitude cursor info
 - add bandwidth selection
-- add pick out large peak
 - add dft averaging
 
 - add frequency cursors

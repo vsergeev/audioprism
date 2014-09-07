@@ -9,7 +9,7 @@
 #define SAMPLE_RATE     48000
 #define WIDTH           640
 #define HEIGHT          480
-#define READ_SIZE       128
+#define READ_SIZE       1024
 #define DFT_SIZE        2048
 #define WINDOW_FUNC     WindowFunction::Hanning
 #define COLORS          Spectrogram::ColorScheme::Heat

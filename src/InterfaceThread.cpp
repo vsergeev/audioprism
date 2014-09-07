@@ -209,16 +209,20 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         /* DFT N up */
         unsigned int next_dftSize = std::min<unsigned int>(settings.dftSize*2, 8192);
 
-        if (settings.readSize > next_dftSize)
-            audioThread.readSize = next_dftSize;
-        spectrogramThread.setDftSize(next_dftSize);
+        if (next_dftSize != settings.dftSize) {
+            /* Set readSize for 50% overlap */
+            audioThread.readSize = std::max<unsigned int>((next_dftSize/2), 32);
+            spectrogramThread.setDftSize(next_dftSize);
+        }
     } else if (state[SDL_SCANCODE_LEFT]) {
         /* DFT N down */
         unsigned int next_dftSize = std::max<unsigned int>(settings.dftSize/2, 32);
 
-        if (settings.readSize > next_dftSize)
-            audioThread.readSize = next_dftSize;
-        spectrogramThread.setDftSize(next_dftSize);
+        if (next_dftSize != settings.dftSize) {
+            /* Set readSize for 50% overlap */
+            audioThread.readSize = std::max<unsigned int>((next_dftSize/2), 32);
+            spectrogramThread.setDftSize(next_dftSize);
+        }
     } else if (state[SDL_SCANCODE_DOWN]) {
         /* Read size up */
         unsigned int next_readSize = std::min<int>(settings.readSize + 64, settings.dftSize);
