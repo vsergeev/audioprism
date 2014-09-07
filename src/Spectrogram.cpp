@@ -18,34 +18,30 @@ static constexpr T normalize(T value, T min, T max) {
 static uint32_t valueToPixel_Heat(double value) {
     uint8_t r, g, b;
 
-    if (value < (1.0/6.0)) {
+    if (value < (1.0/5.0)) {
         /* Black (0,0,0) - Blue (0,0,1) */
         r = 0;
         g = 0;
-        b = static_cast<uint8_t>(255.0*normalize(value, 0.0, 1.0/6.0));
-    } else if (value < (2.0/6.0)) {
-        /* Blue (0,0,1) - Cyan (0,1,1) */
+        b = static_cast<uint8_t>(255.0*normalize(value, 0.0, 1.0/5.0));
+    } else if (value < (2.0/5.0)) {
+        /* Blue (0,0,1) - Green (0,1,0) */
+        uint8_t c = static_cast<uint8_t>(255.0*normalize(value, 1.0/5.0, 2.0/5.0));
         r = 0;
-        g = static_cast<uint8_t>(255.0*normalize(value, 1.0/6.0, 2.0/6.0));
-        b = 255;
-    } else if (value < (3.0/6.0)) {
-        /* Cyan (0,1,1) - Green (0,1,0) */
-        r = 0;
-        g = 255;
-        b = 255 - static_cast<uint8_t>(255.0*normalize(value, 2.0/6.0, 3.0/6.0));
-    } else if (value < (4.0/6.0)) {
+        g = c;
+        b = 255-c;
+    } else if (value < (3.0/5.0)) {
         /* Green (0,1,0) - Yellow (1,1,0) */
-        r = static_cast<uint8_t>(255.0*normalize(value, 3.0/6.0, 4.0/6.0));
+        r = static_cast<uint8_t>(255.0*normalize(value, 2.0/5.0, 3.0/5.0));
         g = 255;
         b = 0;
-    } else if (value < (5.0/6.0)) {
+    } else if (value < (4.0/5.0)) {
         /* Yellow (1,1,0) - Red (1,0,0) */
         r = 255;
-        g = 255 - static_cast<uint8_t>(255.0*normalize(value, 4.0/6.0, 5.0/6.0));
+        g = 255 - static_cast<uint8_t>(255.0*normalize(value, 3.0/5.0, 4.0/5.0));
         b = 0;
     } else {
         /* Red (1,0,0) - White (1,1,1) */
-        uint8_t c = static_cast<uint8_t>(255.0*normalize(value, 5.0/6.0, 6.0/6.0));
+        uint8_t c = static_cast<uint8_t>(255.0*normalize(value, 4.0/5.0, 5.0/5.0));
         r = 255;
         g = c;
         b = c;
