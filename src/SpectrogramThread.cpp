@@ -5,7 +5,7 @@
 
 #include "SpectrogramThread.hpp"
 
-SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, unsigned int sampleRate, unsigned int width, unsigned int dftSize, WindowFunction wf, double magnitudeMin, double magnitudeMax, Spectrogram::ColorScheme colors) : samplesQueue(samplesQueue), pixelsQueue(pixelsQueue), sampleRate(sampleRate), width(width), dft(dftSize, wf), spectrogram(magnitudeMin, magnitudeMax, colors) { }
+SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, unsigned int sampleRate, unsigned int width, unsigned int dftSize, WindowFunction wf, double magnitudeMin, double magnitudeMax, bool magnitudeLog, Spectrogram::ColorScheme colors) : samplesQueue(samplesQueue), pixelsQueue(pixelsQueue), sampleRate(sampleRate), width(width), dft(dftSize, wf), spectrogram(magnitudeMin, magnitudeMax, magnitudeLog, colors) { }
 
 void SpectrogramThread::run() {
     std::vector<double> samples(dft.getSize());
@@ -65,6 +65,11 @@ double SpectrogramThread::getMagnitudeMax() {
     return spectrogram.settings.magnitudeMax;
 }
 
+bool SpectrogramThread::getMagnitudeLog() {
+    std::lock_guard<std::mutex> lg(settingsLock);
+    return spectrogram.settings.magnitudeLog;
+}
+
 std::function<float (int)> SpectrogramThread::getPixelToHz() {
     std::lock_guard<std::mutex> lg(settingsLock);
     return spectrogram.getPixelToHz(width, dft.getSize(), sampleRate);
@@ -88,5 +93,10 @@ void SpectrogramThread::setMagnitudeMin(double min) {
 void SpectrogramThread::setMagnitudeMax(double max) {
     std::lock_guard<std::mutex> lg(settingsLock);
     spectrogram.settings.magnitudeMax = max;
+}
+
+void SpectrogramThread::setMagnitudeLog(bool value) {
+    std::lock_guard<std::mutex> lg(settingsLock);
+    spectrogram.settings.magnitudeLog = value;
 }
 

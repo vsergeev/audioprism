@@ -50,6 +50,7 @@ class InterfaceThread {
         std::function<float (int)> fPixelToHz;
         double magnitudeMin;
         double magnitudeMax;
+        bool magnitudeLog;
     } settings;
 };
 

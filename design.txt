@@ -64,7 +64,7 @@ InterfaceThread
 
 ################################################################################
 
-- add logarithmic/linear amplitude option
+- add color scheme selection
 
 - add WAV audio source (libsndfile)
 - add PNG output stream (magick++)

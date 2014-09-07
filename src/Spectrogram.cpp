@@ -7,7 +7,7 @@
 
 #include "Spectrogram.hpp"
 
-Spectrogram::Spectrogram(double magnitudeMin, double magnitudeMax, ColorScheme colors) : settings({magnitudeMin, magnitudeMax, colors}) {}
+Spectrogram::Spectrogram(double magnitudeMin, double magnitudeMax, bool magnitudeLog, ColorScheme colors) : settings({magnitudeMin, magnitudeMax, magnitudeLog, colors}) {}
 
 template <typename T>
 static constexpr T normalize(T value, T min, T max) {
@@ -77,6 +77,7 @@ static uint32_t valueToPixel_Grayscale(double value) {
 void Spectrogram::render(std::vector<uint32_t> &pixels, const std::vector<std::complex<double>> &dft) {
     unsigned int i;
     uint32_t (*valueToPixel)(double) = nullptr;
+    double (*processMagnitude)(double) = nullptr;
 
     if (settings.colors == Spectrogram::ColorScheme::Heat)
         valueToPixel = valueToPixel_Heat;
@@ -85,11 +86,16 @@ void Spectrogram::render(std::vector<uint32_t> &pixels, const std::vector<std::c
     else if (settings.colors == Spectrogram::ColorScheme::Grayscale)
         valueToPixel = valueToPixel_Grayscale;
 
+    if (settings.magnitudeLog)
+        processMagnitude = [](double x) -> double { return 20*std::log10(x); };
+    else
+        processMagnitude = [](double x) -> double { return x; };
+
     /* Generate pixel row for this DFT */
     float index_scale = static_cast<float>(dft.size()) / static_cast<float>(pixels.size());
     for (i = 0; i < pixels.size(); i++) {
-        double logMagnitude = 20*std::log10(std::abs(dft[static_cast<int>(index_scale*i)]));
-        pixels[i] = valueToPixel(normalize(logMagnitude, settings.magnitudeMin, settings.magnitudeMax));
+        double magnitude = processMagnitude(std::abs(dft[static_cast<int>(index_scale*i)]));
+        pixels[i] = valueToPixel(normalize(magnitude, settings.magnitudeMin, settings.magnitudeMax));
     }
 }
 

@@ -6,7 +6,7 @@
 #include "SpectrogramThread.hpp"
 #include "InterfaceThread.hpp"
 
-#define SAMPLE_RATE     48000
+#define SAMPLE_RATE     24000
 #define WIDTH           640
 #define HEIGHT          480
 #define READ_SIZE       1024
@@ -15,6 +15,7 @@
 #define COLORS          Spectrogram::ColorScheme::Heat
 #define MAGNITUDE_MIN   0.0
 #define MAGNITUDE_MAX   60.0
+#define MAGNITUDE_LOG   true
 
 int main(int argc, char *argv[]) {
     ThreadSafeQueue<std::vector<double>> samplesQueue;
@@ -22,7 +23,7 @@ int main(int argc, char *argv[]) {
 
     PulseAudioSource audioSource(SAMPLE_RATE);
     AudioThread audioThread(audioSource, samplesQueue, READ_SIZE);
-    SpectrogramThread spectrogramThread(samplesQueue, pixelsQueue, SAMPLE_RATE, WIDTH, DFT_SIZE, WINDOW_FUNC, MAGNITUDE_MIN, MAGNITUDE_MAX, COLORS);
+    SpectrogramThread spectrogramThread(samplesQueue, pixelsQueue, SAMPLE_RATE, WIDTH, DFT_SIZE, WINDOW_FUNC, MAGNITUDE_MIN, MAGNITUDE_MAX, MAGNITUDE_LOG, COLORS);
     InterfaceThread interfaceThread(pixelsQueue, audioThread, spectrogramThread, WIDTH, HEIGHT);
 
     std::thread t1(&AudioThread::run, &audioThread);
