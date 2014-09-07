@@ -12,6 +12,7 @@
 #define READ_SIZE       128
 #define DFT_SIZE        2048
 #define WINDOW_FUNC     WindowFunction::Hanning
+#define COLORS          Spectrogram::ColorScheme::Heat
 #define MAGNITUDE_MIN   0.0
 #define MAGNITUDE_MAX   60.0
 
@@ -21,7 +22,7 @@ int main(int argc, char *argv[]) {
 
     PulseAudioSource audioSource(SAMPLE_RATE);
     AudioThread audioThread(audioSource, samplesQueue, READ_SIZE);
-    SpectrogramThread spectrogramThread(samplesQueue, pixelsQueue, SAMPLE_RATE, WIDTH, DFT_SIZE, WINDOW_FUNC, MAGNITUDE_MIN, MAGNITUDE_MAX);
+    SpectrogramThread spectrogramThread(samplesQueue, pixelsQueue, SAMPLE_RATE, WIDTH, DFT_SIZE, WINDOW_FUNC, MAGNITUDE_MIN, MAGNITUDE_MAX, COLORS);
     InterfaceThread interfaceThread(pixelsQueue, audioThread, spectrogramThread, WIDTH, HEIGHT);
 
     std::thread t1(&AudioThread::run, &audioThread);

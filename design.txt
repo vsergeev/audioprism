@@ -15,7 +15,7 @@ Spectrogram
 
     dft (input) -> pixel row (output)
 
-    get/set     pixel to hz lambda, magnitude min, magnitude max
+    get/set     magnitude min, magnitude max, color scheme, pixel to hz lambda
 
 ################################################################################
 
@@ -64,21 +64,23 @@ InterfaceThread
 
 ################################################################################
 
-- fix color scheme in spectogram
-- fix sample overlap calculation
 - add logarithmic/linear amplitude option
 - all clean exit
+- try with separate audio thread
 
-- add WAV audio source
-- add PNG output stream
-- add GIF output stream
+- add WAV audio source (libsndfile)
+- add PNG output stream (magick++)
+- add GIF output stream (magick++)
 - add image writer
+
+- add console output
 
 - add bandwidth selection
 - add pick out large peak
 - add dft averaging
 
-- spectrogram add logarithimic/linear frequency?
+- add frequency cursors
+- add logarithimic/linear frequency?
 - add realtime sample rate change?
 - add realtime window size change?
 
