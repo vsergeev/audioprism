@@ -21,12 +21,14 @@ class SpectrogramThread {
     double getMagnitudeMax();
     bool getMagnitudeLog();
     std::function<float (int)> getPixelToHz();
+    Spectrogram::ColorScheme getColorScheme();
 
     void setDftSize(unsigned int N);
     void setWindowFunction(WindowFunction wf);
     void setMagnitudeMin(double min);
     void setMagnitudeMax(double max);
     void setMagnitudeLog(bool value);
+    void setColorScheme(Spectrogram::ColorScheme colors);
 
   private:
     ThreadSafeQueue<std::vector<double>> &samplesQueue;

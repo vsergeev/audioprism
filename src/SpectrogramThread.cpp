@@ -1,4 +1,3 @@
-#include <iostream>
 #include <cstring>
 #include <complex>
 #include <unistd.h>
@@ -75,6 +74,11 @@ std::function<float (int)> SpectrogramThread::getPixelToHz() {
     return spectrogram.getPixelToHz(width, dft.getSize(), sampleRate);
 }
 
+Spectrogram::ColorScheme SpectrogramThread::getColorScheme() {
+    std::lock_guard<std::mutex> lg(settingsLock);
+    return spectrogram.settings.colors;
+}
+
 void SpectrogramThread::setDftSize(unsigned int N) {
     std::lock_guard<std::mutex> lg(settingsLock);
     dft.setSize(N);
@@ -100,3 +104,7 @@ void SpectrogramThread::setMagnitudeLog(bool value) {
     spectrogram.settings.magnitudeLog = value;
 }
 
+void SpectrogramThread::setColorScheme(Spectrogram::ColorScheme colors) {
+    std::lock_guard<std::mutex> lg(settingsLock);
+    spectrogram.settings.colors = colors;
+}

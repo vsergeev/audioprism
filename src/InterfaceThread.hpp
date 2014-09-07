@@ -51,6 +51,7 @@ class InterfaceThread {
         double magnitudeMin;
         double magnitudeMax;
         bool magnitudeLog;
+        Spectrogram::ColorScheme colors;
     } settings;
 };
 

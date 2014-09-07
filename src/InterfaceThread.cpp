@@ -125,6 +125,7 @@ void InterfaceThread::updateSettings() {
     settings.magnitudeMin = spectrogramThread.getMagnitudeMin();
     settings.magnitudeMax = spectrogramThread.getMagnitudeMax();
     settings.magnitudeLog = spectrogramThread.getMagnitudeLog();
+    settings.colors = spectrogramThread.getColorScheme();
 }
 
 void InterfaceThread::renderSettings() {
@@ -207,17 +208,27 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         audioThread.running = false;
         spectrogramThread.running = false;
         running = false;
+    } else if (state[SDL_SCANCODE_C]) {
+        /* Change color scheme */
+        Spectrogram::ColorScheme next_colors = Spectrogram::ColorScheme::Heat;
+
+        if (settings.colors == Spectrogram::ColorScheme::Heat)
+            next_colors = Spectrogram::ColorScheme::Blue;
+        else if (settings.colors == Spectrogram::ColorScheme::Blue)
+            next_colors = Spectrogram::ColorScheme::Grayscale;
+        else if (settings.colors == Spectrogram::ColorScheme::Grayscale)
+            next_colors = Spectrogram::ColorScheme::Heat;
+
+        spectrogramThread.setColorScheme(next_colors);
     } else if (state[SDL_SCANCODE_W]) {
         /* Change window function */
-        WindowFunction next_wf;
+        WindowFunction next_wf = WindowFunction::Hanning;
 
         if (settings.wf == WindowFunction::Hanning)
             next_wf = WindowFunction::Hamming;
         else if (settings.wf == WindowFunction::Hamming)
             next_wf = WindowFunction::Rectangular;
         else if (settings.wf == WindowFunction::Rectangular)
-            next_wf = WindowFunction::Hanning;
-        else
             next_wf = WindowFunction::Hanning;
 
         spectrogramThread.setWindowFunction(next_wf);
