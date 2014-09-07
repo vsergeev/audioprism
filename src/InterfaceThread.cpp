@@ -134,7 +134,7 @@ void InterfaceThread::renderSettings() {
     unsigned int overlap = static_cast<unsigned int>(std::round((1.0-(static_cast<float>(settings.readSize)/static_cast<float>(settings.dftSize)))*100.0));
 
     textSurfaces.push_back(renderString(format("Sample Rate: %d Hz", settings.sampleRate), font, settingsColor));
-    textSurfaces.push_back(renderString(format("Sample Overlap: %d%%", overlap), font, settingsColor));
+    textSurfaces.push_back(renderString(format("Overlap: %d%%", overlap), font, settingsColor));
     textSurfaces.push_back(renderString("Window: " + to_string(settings.wf), font, settingsColor));
     textSurfaces.push_back(renderString(format("DFT Size: %d", settings.dftSize), font, settingsColor));
     textSurfaces.push_back(renderString(format("Mag. min: %.2f dB", settings.magnitudeMin), font, settingsColor));
@@ -231,24 +231,24 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         audioThread.readSize = next_readSize;
     } else if (state[SDL_SCANCODE_MINUS]) {
         /* Magnitude min down */
-        double next_magnitudeMin = std::max<double>(settings.magnitudeMin - 5, -60.0);
+        double next_magnitudeMin = std::max<double>(settings.magnitudeMin - 5, -80.0);
 
         spectrogramThread.setMagnitudeMin(next_magnitudeMin);
     } else if (state[SDL_SCANCODE_EQUALS]) {
         /* Magnitude min up */
-        double next_magnitudeMin = std::min<double>(settings.magnitudeMin + 5, 60.0);
+        double next_magnitudeMin = std::min<double>(settings.magnitudeMin + 5, 80.0);
         next_magnitudeMin = std::min<double>(next_magnitudeMin, settings.magnitudeMax - 5);
 
         spectrogramThread.setMagnitudeMin(next_magnitudeMin);
     } else if (state[SDL_SCANCODE_LEFTBRACKET]) {
         /* Magnitude max down */
-        double next_magnitudeMax = std::max<double>(settings.magnitudeMax - 5, -60.0);
+        double next_magnitudeMax = std::max<double>(settings.magnitudeMax - 5, -80.0);
         next_magnitudeMax = std::max<double>(next_magnitudeMax, settings.magnitudeMin + 5);
 
         spectrogramThread.setMagnitudeMax(next_magnitudeMax);
     } else if (state[SDL_SCANCODE_RIGHTBRACKET]) {
         /* Magnitude max up */
-        double next_magnitudeMax = std::min<double>(settings.magnitudeMax + 5, 60.0);
+        double next_magnitudeMax = std::min<double>(settings.magnitudeMax + 5, 80.0);
 
         spectrogramThread.setMagnitudeMax(next_magnitudeMax);
     } else if (state[SDL_SCANCODE_H]) {
