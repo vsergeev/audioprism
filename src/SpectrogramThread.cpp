@@ -13,13 +13,13 @@ void SpectrogramThread::run() {
     std::vector<uint32_t> pixels(width);
 
     while (true) {
+        std::vector<double> newSamples(samplesQueue.pop());
+
         {
             std::lock_guard<std::mutex> lg(settingsLock);
 
             if (samples.size() != dft.getSize())
                 samples.resize(dft.getSize());
-
-            std::vector<double> newSamples(samplesQueue.pop());
 
             if (newSamples.size() >= samples.size()) {
                 /* Copy over new samples */
@@ -40,8 +40,6 @@ void SpectrogramThread::run() {
             /* Put into pixels queue */
             pixelsQueue.push(pixels);
         }
-        /* Spare a few microseconds for other threads to grab settingsLock */
-        usleep(5);
     }
 }
 
