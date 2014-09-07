@@ -16,7 +16,7 @@ class ThreadSafeQueue {
     bool empty();
 
     template <typename Rep, typename Period>
-    void wait(const std::chrono::duration<Rep, Period> &rel_time);
+    bool wait(const std::chrono::duration<Rep, Period> &rel_time);
 
   private:
     std::mutex lock;
@@ -55,10 +55,11 @@ T ThreadSafeQueue<T>::pop() {
 
 template <typename T>
 template <typename Rep, typename Period>
-void ThreadSafeQueue<T>::wait(const std::chrono::duration<Rep, Period> &rel_time) {
+bool ThreadSafeQueue<T>::wait(const std::chrono::duration<Rep, Period> &rel_time) {
     std::unique_lock<std::mutex> lg(lock);
     if (queue.empty())
-        cvNotEmpty.wait_for(lg, rel_time);
+        return (cvNotEmpty.wait_for(lg, rel_time) == std::cv_status::no_timeout);
+    return true;
 }
 
 #endif
