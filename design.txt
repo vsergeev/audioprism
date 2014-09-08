@@ -64,16 +64,15 @@ InterfaceThread
 
 ################################################################################
 
-- add PNG output stream (magick++)
-- add GIF output stream (magick++)
-- add image writer
+- add orientation selection
 - add console options
+- add bandwidth selection
+- add animated GIF output stream (magick++)
 
 - add magnitude cursor info
-- add bandwidth selection
 - add dft averaging
 
-- add frequency cursors
+- add frequency cursor delta
 - add logarithimic/linear frequency?
 - add realtime sample rate change?
 - add realtime window size change?

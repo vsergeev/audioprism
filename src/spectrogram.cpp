@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <Magick++.h>
+
 #include "ThreadSafeQueue.hpp"
 #include "PulseAudioSource.hpp"
 #include "AudioThread.hpp"
@@ -9,6 +11,7 @@
 #include "InterfaceThread.hpp"
 
 #include "WaveAudioSource.hpp"
+#include "MagickImageSink.hpp"
 
 #define SAMPLE_RATE     24000
 #define WIDTH           640
@@ -38,11 +41,11 @@ void spectrogram_realtime() {
     t2.join();
 }
 
-void spectrogram_audiofile(std::string path) {
-    WaveAudioSource source(path);
+void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
+    WaveAudioSource audio(audioPath);
     RealDft dft(DFT_SIZE, WINDOW_FUNC);
-    Spectrogram spectrogram(MAGNITUDE_MIN-20, MAGNITUDE_MAX, MAGNITUDE_LOG, COLORS);
-    //PngImageSink png;
+    Spectrogram spectrogram(MAGNITUDE_MIN, MAGNITUDE_MAX, MAGNITUDE_LOG, COLORS);
+    MagickImageSink image(imagePath, WIDTH);
 
     std::vector<double> samples(dft.getSize());
     std::vector<std::complex<double>> dftSamples(dft.getSize());
@@ -50,7 +53,7 @@ void spectrogram_audiofile(std::string path) {
     std::vector<double> newSamples(READ_SIZE);
 
     while (true) {
-        source.read(newSamples);
+        audio.read(newSamples);
 
         if (newSamples.size() == 0)
             break;
@@ -64,20 +67,19 @@ void spectrogram_audiofile(std::string path) {
 
         spectrogram.render(pixels, dftSamples);
 
-        for (auto pixel : pixels) {
-            std::cout << pixel << " ";
-        }
-        std::cout << std::endl;
-
-        //png.write(pixels);
+        image.append(pixels);
     }
 
-    //png.close();
+    image.write();
 }
 
 int main(int argc, char *argv[]) {
-    //spectrogram_realtime();
-    spectrogram_audiofile("test.wav");
+    if (argc == 3) {
+        Magick::InitializeMagick(argv[0]);
+        spectrogram_audiofile(std::string(argv[1]), std::string(argv[2]));
+    } else {
+        spectrogram_realtime();
+    }
 
     return 0;
 }
