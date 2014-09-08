@@ -1,10 +1,14 @@
 #include <thread>
 
+#include <iostream>
+
 #include "ThreadSafeQueue.hpp"
 #include "PulseAudioSource.hpp"
 #include "AudioThread.hpp"
 #include "SpectrogramThread.hpp"
 #include "InterfaceThread.hpp"
+
+#include "WaveAudioSource.hpp"
 
 #define SAMPLE_RATE     24000
 #define WIDTH           640
@@ -17,7 +21,7 @@
 #define MAGNITUDE_MAX   60.0
 #define MAGNITUDE_LOG   true
 
-int main(int argc, char *argv[]) {
+void spectrogram_realtime() {
     ThreadSafeQueue<std::vector<double>> samplesQueue;
     ThreadSafeQueue<std::vector<uint32_t>> pixelsQueue;
 
@@ -32,6 +36,48 @@ int main(int argc, char *argv[]) {
     interfaceThread.run();
     t1.join();
     t2.join();
+}
+
+void spectrogram_audiofile(std::string path) {
+    WaveAudioSource source(path);
+    RealDft dft(DFT_SIZE, WINDOW_FUNC);
+    Spectrogram spectrogram(MAGNITUDE_MIN-20, MAGNITUDE_MAX, MAGNITUDE_LOG, COLORS);
+    //PngImageSink png;
+
+    std::vector<double> samples(dft.getSize());
+    std::vector<std::complex<double>> dftSamples(dft.getSize());
+    std::vector<uint32_t> pixels(WIDTH);
+    std::vector<double> newSamples(READ_SIZE);
+
+    while (true) {
+        source.read(newSamples);
+
+        if (newSamples.size() == 0)
+            break;
+
+        /* Move down old samples */
+        memmove(samples.data(), samples.data()+newSamples.size(), sizeof(double)*(samples.size()-newSamples.size()));
+        /* Copy new samples */
+        memcpy(samples.data()+(samples.size()-newSamples.size()), newSamples.data(), sizeof(double)*newSamples.size());
+
+        dft.compute(dftSamples, samples);
+
+        spectrogram.render(pixels, dftSamples);
+
+        for (auto pixel : pixels) {
+            std::cout << pixel << " ";
+        }
+        std::cout << std::endl;
+
+        //png.write(pixels);
+    }
+
+    //png.close();
+}
+
+int main(int argc, char *argv[]) {
+    //spectrogram_realtime();
+    spectrogram_audiofile("test.wav");
 
     return 0;
 }
