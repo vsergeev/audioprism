@@ -64,7 +64,6 @@ InterfaceThread
 
 ################################################################################
 
-- add WAV audio source (libsndfile)
 - add PNG output stream (magick++)
 - add GIF output stream (magick++)
 - add image writer

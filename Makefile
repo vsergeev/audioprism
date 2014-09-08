@@ -9,6 +9,7 @@ SRCS += AudioThread.cpp
 SRCS += SpectrogramThread.cpp
 SRCS += InterfaceThread.cpp
 SRCS += spectrogram.cpp
+SRCS += WaveAudioSource.cpp
 
 SRC_DIR = src
 BUILD_DIR = build
@@ -27,6 +28,7 @@ CPPFLAGS += $(shell sdl2-config --cflags)
 LDFLAGS = $(shell sdl2-config --libs) -lSDL2_ttf
 LDFLAGS += -lpulse -lpulse-simple
 LDFLAGS += -lfftw3
+LDFLAGS += -lsndfile
 
 ################################################################################
 
