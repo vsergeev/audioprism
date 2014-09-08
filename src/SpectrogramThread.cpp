@@ -7,7 +7,7 @@
 SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, unsigned int sampleRate, unsigned int width, unsigned int dftSize, WindowFunction wf, double magnitudeMin, double magnitudeMax, bool magnitudeLog, Spectrogram::ColorScheme colors) : samplesQueue(samplesQueue), pixelsQueue(pixelsQueue), sampleRate(sampleRate), width(width), dft(dftSize, wf), spectrogram(magnitudeMin, magnitudeMax, magnitudeLog, colors) { }
 
 void SpectrogramThread::run() {
-    std::vector<double> samples(dft.getSize());
+    std::vector<double> samples;
     std::vector<std::complex<double>> dftSamples;
     std::vector<uint32_t> pixels(width);
 
@@ -19,8 +19,10 @@ void SpectrogramThread::run() {
         {
             std::lock_guard<std::mutex> lg(settingsLock);
 
-            if (samples.size() != dft.getSize())
+            if (samples.size() != dft.getSize()) {
                 samples.resize(dft.getSize());
+                dftSamples.resize(dft.getSize());
+            }
 
             if (newSamples.size() >= samples.size()) {
                 /* Copy over new samples */
