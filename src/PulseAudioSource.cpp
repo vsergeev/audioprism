@@ -20,20 +20,19 @@ PulseAudioSource::PulseAudioSource(unsigned int sampleRate) : sampleRate(sampleR
 }
 
 PulseAudioSource::~PulseAudioSource() {
-    if (s) {
+    if (s)
         pa_simple_free(s);
-        s = NULL;
-    }
 }
 
-void PulseAudioSource::read(double *samples, size_t num) {
-    std::vector<float> fsamples(num);
+void PulseAudioSource::read(std::vector<double> &samples) {
+    unsigned int count = samples.size();
+    std::vector<float> fsamples(count);
     int error;
 
-    if (pa_simple_read(s, fsamples.data(), num*sizeof(float), &error) < 0)
+    if (pa_simple_read(s, fsamples.data(), count*sizeof(float), &error) < 0)
         throw std::runtime_error("Reading PulseAudio: pa_simple_read(): " + std::string(pa_strerror(error)));
 
-    for (unsigned int i = 0; i < num; i++)
+    for (unsigned int i = 0; i < count; i++)
         samples[i] = static_cast<double>(fsamples[i]);
 }
 

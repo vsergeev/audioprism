@@ -13,7 +13,7 @@ void AudioThread::run() {
         if (samples.size() != readSize)
             samples.resize(readSize);
 
-        source.read(samples.data(), samples.size());
+        source.read(samples);
         samplesQueue.push(samples);
     }
 }
