@@ -65,9 +65,8 @@ InterfaceThread
 ################################################################################
 
 - add orientation selection
-- add console options
 - add bandwidth selection
-- add animated GIF output stream (magick++)
+- add console options
 
 - add magnitude cursor info
 - add dft averaging

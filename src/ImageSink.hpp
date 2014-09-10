@@ -6,14 +6,11 @@
 
 class ImageSink {
   public:
-    ImageSink(unsigned int width) : width(width) { }
+    ImageSink() { }
     virtual ~ImageSink() { }
 
     virtual void append(const std::vector<uint32_t> &pixels) = 0;
     virtual void write() = 0;
-
-  protected:
-    const unsigned int width;
 };
 
 #endif

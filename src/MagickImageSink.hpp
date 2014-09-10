@@ -14,6 +14,7 @@ class MagickImageSink : public ImageSink {
 
   private:
     const std::string path;
+    const unsigned int width;
     std::vector<uint32_t> imagePixels;
 };
 
