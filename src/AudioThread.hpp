@@ -11,14 +11,14 @@
 
 class AudioThread {
   public:
-    AudioThread(ThreadSafeResource<AudioSource> &audioSourceResource, ThreadSafeQueue<std::vector<double>> &samplesQueue, size_t readSize);
+    AudioThread(ThreadSafeResource<AudioSource> &audioResource, ThreadSafeQueue<std::vector<double>> &samplesQueue, size_t readSize);
     void run();
     std::atomic<bool> running;
 
     std::atomic<size_t> readSize;
 
   private:
-    ThreadSafeResource<AudioSource> &audioSourceResource;
+    ThreadSafeResource<AudioSource> &audioResource;
     ThreadSafeQueue<std::vector<double>> &samplesQueue;
 };
 

@@ -17,7 +17,7 @@
 
 class InterfaceThread {
   public:
-    InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioSourceResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height);
+    InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height);
     ~InterfaceThread();
 
     void run();
@@ -25,7 +25,7 @@ class InterfaceThread {
 
   private:
     ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue;
-    ThreadSafeResource<AudioSource> &audioSourceResource;
+    ThreadSafeResource<AudioSource> &audioResource;
     ThreadSafeResource<RealDft> &dftResource;
     ThreadSafeResource<Spectrogram> &spectrogramResource;
     AudioThread &audioThread;

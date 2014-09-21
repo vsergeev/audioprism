@@ -2,7 +2,7 @@
 #include "AudioThread.hpp"
 #include "ThreadSafeQueue.hpp"
 
-AudioThread::AudioThread(ThreadSafeResource<AudioSource> &audioSourceResource, ThreadSafeQueue<std::vector<double>> &samplesQueue, size_t readSize) : readSize(readSize), audioSourceResource(audioSourceResource), samplesQueue(samplesQueue) { }
+AudioThread::AudioThread(ThreadSafeResource<AudioSource> &audioResource, ThreadSafeQueue<std::vector<double>> &samplesQueue, size_t readSize) : readSize(readSize), audioResource(audioResource), samplesQueue(samplesQueue) { }
 
 void AudioThread::run() {
     std::vector<double> samples(readSize);
@@ -14,8 +14,8 @@ void AudioThread::run() {
             samples.resize(readSize);
 
         {
-            std::lock_guard<ThreadSafeResource<AudioSource>> lg(audioSourceResource);
-            audioSourceResource.get().read(samples);
+            std::lock_guard<ThreadSafeResource<AudioSource>> lg(audioResource);
+            audioResource.get().read(samples);
         }
 
         samplesQueue.push(samples);

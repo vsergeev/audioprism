@@ -6,7 +6,7 @@
 
 #include "InterfaceThread.hpp"
 
-InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioSourceResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height) : pixelsQueue(pixelsQueue), audioSourceResource(audioSourceResource), dftResource(dftResource), spectrogramResource(spectrogramResource), audioThread(audioThread), spectrogramThread(spectrogramThread), width(width), height(height), hideInfo(false) {
+InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height) : pixelsQueue(pixelsQueue), audioResource(audioResource), dftResource(dftResource), spectrogramResource(spectrogramResource), audioThread(audioThread), spectrogramThread(spectrogramThread), width(width), height(height), hideInfo(false) {
     int ret;
 
     ret = SDL_Init(SDL_INIT_VIDEO);
@@ -118,8 +118,8 @@ static SDL_Surface *vcatSurfaces(std::vector<SDL_Surface *> surfaces, Alignment 
 
 void InterfaceThread::updateSettings() {
     {
-        std::lock_guard<ThreadSafeResource<AudioSource>> lg(audioSourceResource);
-        settings.sampleRate = audioSourceResource.get().getSampleRate();
+        std::lock_guard<ThreadSafeResource<AudioSource>> lg(audioResource);
+        settings.sampleRate = audioResource.get().getSampleRate();
     }
 
     settings.readSize = audioThread.readSize;

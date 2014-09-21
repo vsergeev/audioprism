@@ -34,19 +34,19 @@ struct {
 } Settings;
 
 void spectrogram_realtime() {
-    PulseAudioSource audioSource(Settings.audioSampleRate);
+    PulseAudioSource audio(Settings.audioSampleRate);
     RealDft dft(Settings.dftSize, Settings.dftWf);
     Spectrogram spectrogram(Settings.magnitudeMin, Settings.magnitudeMax, Settings.magnitudeLog, Settings.colors);
 
-    ThreadSafeResource<AudioSource> audioSourceResource(audioSource);
+    ThreadSafeResource<AudioSource> audioResource(audio);
     ThreadSafeResource<RealDft> dftResource(dft);
     ThreadSafeResource<Spectrogram> spectrogramResource(spectrogram);
     ThreadSafeQueue<std::vector<double>> samplesQueue;
     ThreadSafeQueue<std::vector<uint32_t>> pixelsQueue;
 
-    AudioThread audioThread(audioSourceResource, samplesQueue, Settings.audioReadSize);
+    AudioThread audioThread(audioResource, samplesQueue, Settings.audioReadSize);
     SpectrogramThread spectrogramThread(samplesQueue, pixelsQueue, dftResource, spectrogramResource, Settings.audioSampleRate, Settings.width);
-    InterfaceThread interfaceThread(pixelsQueue, audioSourceResource, dftResource, spectrogramResource, audioThread, spectrogramThread, Settings.width, Settings.height);
+    InterfaceThread interfaceThread(pixelsQueue, audioResource, dftResource, spectrogramResource, audioThread, spectrogramThread, Settings.width, Settings.height);
 
     std::thread t1(&AudioThread::run, &audioThread);
     std::thread t2(&SpectrogramThread::run, &spectrogramThread);
