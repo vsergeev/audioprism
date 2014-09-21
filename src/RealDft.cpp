@@ -57,7 +57,7 @@ RealDft::~RealDft() {
 void RealDft::compute(std::vector<std::complex<double>> &dft, const std::vector<double> &samples) {
     /* Assert sample buffer size */
     if (samples.size() != N)
-        throw std::runtime_error("Samples size does not match DFT size!");
+        throw SizeMismatchException("Samples size does not match DFT size!");
 
     /* Size dft buffer correctly */
     dft.resize(N/2+1);
@@ -101,12 +101,12 @@ void RealDft::setSize(unsigned int N) {
     /* Allocate windowed samples buffer */
     wsamples = fftw_alloc_real(N);
     if (wsamples == nullptr)
-        throw std::runtime_error("Allocating sample memory.");
+        throw AllocationException("Allocating sample memory.");
 
     /* Allocate DFT buffer */
     dft = fftw_alloc_complex(N/2+1);
     if (dft == nullptr)
-        throw std::runtime_error("Allocating DFT memory.");
+        throw AllocationException("Allocating DFT memory.");
 
     /* Rebuild our plan */
     plan = fftw_plan_dft_r2c_1d(N, wsamples, dft, FFTW_MEASURE);

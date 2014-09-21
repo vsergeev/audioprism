@@ -41,6 +41,16 @@ class RealDft {
     fftw_plan plan;
 };
 
+class AllocationException : public std::runtime_error {
+  public:
+    using std::runtime_error::runtime_error;
+};
+
+class SizeMismatchException : public std::length_error {
+  public:
+    using std::length_error::length_error;
+};
+
 std::ostream &operator<<(std::ostream &os, const RealDft::WindowFunction &wf);
 std::string to_string(const RealDft::WindowFunction &wf);
 

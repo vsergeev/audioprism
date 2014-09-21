@@ -11,30 +11,30 @@ InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQ
 
     ret = SDL_Init(SDL_INIT_VIDEO);
     if (ret < 0)
-        throw std::runtime_error("Unable to initialize SDL: SDL_Init(): " + std::string(SDL_GetError()));
+        throw SDLException("Unable to initialize SDL: SDL_Init(): " + std::string(SDL_GetError()));
 
     ret = TTF_Init();
     if (ret < 0)
-        throw std::runtime_error("Unable to initialize TTF: TTF_Init(): " + std::string(TTF_GetError()));
+        throw TTFException("Unable to initialize TTF: TTF_Init(): " + std::string(TTF_GetError()));
 
     win = SDL_CreateWindow("Spectrogram", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
     if (win == nullptr)
-        throw std::runtime_error("Erroring creating SDL window: SDL_CreateWindow(): " + std::string(SDL_GetError()));
+        throw SDLException("Erroring creating SDL window: SDL_CreateWindow(): " + std::string(SDL_GetError()));
 
     renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == nullptr)
-        throw std::runtime_error("Erroring creating SDL renderer: SDL_CreateRenderer(): " + std::string(SDL_GetError()));
+        throw SDLException("Erroring creating SDL renderer: SDL_CreateRenderer(): " + std::string(SDL_GetError()));
 
     pixelsTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STATIC, width, height);
     if (pixelsTexture == nullptr)
-        throw std::runtime_error("Erroring creating SDL texture: SDL_CreateTexture(): " + std::string(SDL_GetError()));
+        throw SDLException("Erroring creating SDL texture: SDL_CreateTexture(): " + std::string(SDL_GetError()));
 
     settingsTexture = nullptr;
     cursorTexture = nullptr;
 
     font = TTF_OpenFont("/usr/share/fonts/TTF/DejaVuSansMono-Bold.ttf", 11);
     if (font == nullptr)
-        throw std::runtime_error("Erroring opening TTF font: TTF_OpenFont(): " + std::string(TTF_GetError()));
+        throw TTFException("Erroring opening TTF font: TTF_OpenFont(): " + std::string(TTF_GetError()));
 }
 
 InterfaceThread::~InterfaceThread() {
@@ -63,7 +63,7 @@ static SDL_Surface *renderString(std::string s, TTF_Font *font, const SDL_Color 
 
     surface = TTF_RenderText_Solid(font, s.c_str(), color);
     if (surface == nullptr)
-        throw std::runtime_error("Error rendering text: TTF_RenderText_Solid(): " + std::string(TTF_GetError()));
+        throw TTFException("Error rendering text: TTF_RenderText_Solid(): " + std::string(TTF_GetError()));
 
     return surface;
 }
@@ -88,7 +88,7 @@ static SDL_Surface *vcatSurfaces(std::vector<SDL_Surface *> surfaces, Alignment 
     targetSurface = SDL_CreateRGBSurface(0, targetSurfaceWidth, targetSurfaceHeight, 32, 0xff, 0xff << 8, 0xff << 16, 0xff << 24);
     #endif
     if (targetSurface == nullptr)
-        throw std::runtime_error("Error creating target surface: SDL_CreateRGBSurface(): " + std::string(SDL_GetError()));
+        throw SDLException("Error creating target surface: SDL_CreateRGBSurface(): " + std::string(SDL_GetError()));
 
     /* Blit each text surface onto the target surface */
     int offset = 0;
@@ -109,7 +109,7 @@ static SDL_Surface *vcatSurfaces(std::vector<SDL_Surface *> surfaces, Alignment 
         offset += surface->h;
 
         if (SDL_BlitSurface(surface, nullptr, targetSurface, &targetRect) < 0)
-            throw std::runtime_error("Error blitting text surfaces: SDL_BlitSurface(): " + std::string(SDL_GetError()));
+            throw SDLException("Error blitting text surfaces: SDL_BlitSurface(): " + std::string(SDL_GetError()));
         SDL_FreeSurface(surface);
     }
 
@@ -176,7 +176,7 @@ void InterfaceThread::renderSettings() {
     /* Create new texture from the target surface */
     settingsTexture = SDL_CreateTextureFromSurface(renderer, targetSurface);
     if (settingsTexture == nullptr)
-        throw std::runtime_error("Error creating texture for text: SDL_CreateTextureFromSurface(): " + std::string(SDL_GetError()));
+        throw SDLException("Error creating texture for text: SDL_CreateTextureFromSurface(): " + std::string(SDL_GetError()));
 
     SDL_FreeSurface(targetSurface);
 }
@@ -200,7 +200,7 @@ void InterfaceThread::renderCursor(int x) {
 
     cursorTexture = SDL_CreateTextureFromSurface(renderer, cursorSurface);
     if (cursorTexture == nullptr)
-        throw std::runtime_error("Error creating texture for cursor text: SDL_CreateTextureFromSurface(): " + std::string(SDL_GetError()));
+        throw SDLException("Error creating texture for cursor text: SDL_CreateTextureFromSurface(): " + std::string(SDL_GetError()));
 
     SDL_FreeSurface(cursorSurface);
 }

@@ -6,6 +6,7 @@ AudioSource
     get         sample rate
 
 RealDft
+    owns fftw plan and buffers
 
     samples (input) -> windowed samples -> dft (output)
 
@@ -15,7 +16,8 @@ Spectrogram
 
     dft (input) -> pixel row (output)
 
-    get/set     magnitude min, magnitude max, color scheme, pixel to hz lambda
+    get/set     magnitude min, magnitude max, magnitude log., color scheme
+    get         pixel to hz lambda
 
 ################################################################################
 
@@ -60,9 +62,7 @@ InterfaceThread
 
 ################################################################################
 
-- add custom exceptions
-- add orientation configuration
-
+- add orientation setting
 - add console options to configure initial configuration
     width
         -w, --width
@@ -88,7 +88,10 @@ InterfaceThread
         --magnitude-max
     magnitude linear/logarithimic
         --magnitude-scale <linear, logarithmic>
+
 - add bandwidth selection?
+- add font file
+- release
 
 todo:
 - add magnitude cursor info

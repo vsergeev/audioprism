@@ -23,7 +23,7 @@ PulseAudioSource::PulseAudioSource(unsigned int sampleRate) : sampleRate(sampleR
 
     s = pa_simple_new(nullptr, "spectrogram", PA_STREAM_RECORD, nullptr, "audio in", &ss, nullptr, &attr, &error);
     if (s == nullptr)
-        throw std::runtime_error("Opening PulseAudio: pa_simple_new(): " + std::string(pa_strerror(error)));
+        throw AudioOpenException("Opening PulseAudio: pa_simple_new(): " + std::string(pa_strerror(error)));
 }
 
 PulseAudioSource::~PulseAudioSource() {
@@ -37,7 +37,7 @@ void PulseAudioSource::read(std::vector<double> &samples) {
     int error;
 
     if (pa_simple_read(s, fsamples.data(), count*sizeof(float), &error) < 0)
-        throw std::runtime_error("Reading PulseAudio: pa_simple_read(): " + std::string(pa_strerror(error)));
+        throw AudioReadException("Reading PulseAudio: pa_simple_read(): " + std::string(pa_strerror(error)));
 
     for (unsigned int i = 0; i < count; i++)
         samples[i] = static_cast<double>(fsamples[i]);
