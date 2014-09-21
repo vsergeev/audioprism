@@ -6,13 +6,10 @@
 
 #include <fftw3.h>
 
-enum class WindowFunction { Hanning, Hamming, Rectangular };
-
-std::ostream &operator<<(std::ostream &os, const WindowFunction &wf);
-std::string to_string(const WindowFunction &wf);
-
 class RealDft {
   public:
+    enum class WindowFunction { Hanning, Hamming, Rectangular };
+
     RealDft(unsigned int N, WindowFunction wf);
     ~RealDft();
 
@@ -37,6 +34,9 @@ class RealDft {
     fftw_complex *dft;
     std::vector<double> window;
 };
+
+std::ostream &operator<<(std::ostream &os, const RealDft::WindowFunction &wf);
+std::string to_string(const RealDft::WindowFunction &wf);
 
 #endif
 

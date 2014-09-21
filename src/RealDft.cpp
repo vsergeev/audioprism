@@ -4,37 +4,37 @@
 
 #include "RealDft.hpp"
 
-std::string to_string(const WindowFunction &wf) {
-    if (wf == WindowFunction::Hanning)
+std::string to_string(const RealDft::WindowFunction &wf) {
+    if (wf == RealDft::WindowFunction::Hanning)
         return std::string("Hanning");
-    else if (wf == WindowFunction::Hamming)
+    else if (wf == RealDft::WindowFunction::Hamming)
         return std::string("Hamming");
-    else if (wf == WindowFunction::Rectangular)
+    else if (wf == RealDft::WindowFunction::Rectangular)
         return std::string("Rectangular");
 
     return std::string("");
 }
 
-std::ostream &operator<<(std::ostream &os, const WindowFunction &wf) {
+std::ostream &operator<<(std::ostream &os, const RealDft::WindowFunction &wf) {
     os << to_string(wf);
     return os;
 }
 
-static void calculateWindow(std::vector<double> &window, WindowFunction windowFunction) {
+static void calculateWindow(std::vector<double> &window, RealDft::WindowFunction windowFunction) {
     unsigned int N = window.size();
-    if (windowFunction == WindowFunction::Hanning) {
+    if (windowFunction == RealDft::WindowFunction::Hanning) {
         for (unsigned int n = 0; n < N; n++)
             window[n] = 0.5*(1-std::cos((2*M_PI*n)/(N-1)));
-    } else if (windowFunction == WindowFunction::Hamming) {
+    } else if (windowFunction == RealDft::WindowFunction::Hamming) {
         for (unsigned int n = 0; n < N; n++)
             window[n] = 0.54 - 0.46*std::cos((2*M_PI*n)/(N-1));
-    } else if (windowFunction == WindowFunction::Rectangular) {
+    } else if (windowFunction == RealDft::WindowFunction::Rectangular) {
         for (unsigned int n = 0; n < N; n++)
             window[n] = 1.0;
     }
 }
 
-RealDft::RealDft(unsigned int N, WindowFunction wf) : N(N), windowFunction(wf), plan(nullptr), wsamples(nullptr), dft(nullptr) {
+RealDft::RealDft(unsigned int N, RealDft::WindowFunction wf) : N(N), windowFunction(wf), plan(nullptr), wsamples(nullptr), dft(nullptr) {
     setSize(N);
 }
 
@@ -115,7 +115,7 @@ void RealDft::setSize(unsigned int N) {
     this->N = N;
 }
 
-WindowFunction RealDft::getWindowFunction() {
+RealDft::WindowFunction RealDft::getWindowFunction() {
     return windowFunction;
 }
 
