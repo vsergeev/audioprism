@@ -1,8 +1,12 @@
 #include <thread>
 #include <iostream>
 
+#include "ThreadSafeResource.hpp"
 #include "ThreadSafeQueue.hpp"
+
 #include "PulseAudioSource.hpp"
+#include "RealDft.hpp"
+#include "Spectrogram.hpp"
 #include "AudioThread.hpp"
 #include "SpectrogramThread.hpp"
 #include "InterfaceThread.hpp"

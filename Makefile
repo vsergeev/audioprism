@@ -8,9 +8,9 @@ SRCS += Spectrogram.cpp
 SRCS += AudioThread.cpp
 SRCS += SpectrogramThread.cpp
 SRCS += InterfaceThread.cpp
-SRCS += spectrogram.cpp
 SRCS += WaveAudioSource.cpp
 SRCS += MagickImageSink.cpp
+SRCS += main.cpp
 
 SRC_DIR = src
 BUILD_DIR = build
