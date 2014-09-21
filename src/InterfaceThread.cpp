@@ -6,7 +6,7 @@
 
 #include "InterfaceThread.hpp"
 
-InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height) : pixelsQueue(pixelsQueue), audioThread(audioThread), spectrogramThread(spectrogramThread), width(width), height(height), hideInfo(false) {
+InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, AudioSource &audioSource, std::mutex &audioSourceLock, RealDft &dft, std::mutex &dftLock, Spectrogram &spectrogram, std::mutex &spectrogramLock, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height) : pixelsQueue(pixelsQueue), audioSource(audioSource), audioSourceLock(audioSourceLock), dft(dft), dftLock(dftLock), spectrogram(spectrogram), spectrogramLock(spectrogramLock), audioThread(audioThread), spectrogramThread(spectrogramThread), width(width), height(height), hideInfo(false) {
     int ret;
 
     ret = SDL_Init(SDL_INIT_VIDEO);
@@ -117,15 +117,27 @@ static SDL_Surface *vcatSurfaces(std::vector<SDL_Surface *> surfaces, Alignment 
 }
 
 void InterfaceThread::updateSettings() {
-    settings.sampleRate = audioThread.getSampleRate();
+    {
+        std::lock_guard<std::mutex> lg(audioSourceLock);
+        settings.sampleRate = audioSource.getSampleRate();
+    }
+
     settings.readSize = audioThread.readSize;
-    settings.wf = spectrogramThread.getWindowFunction();
-    settings.dftSize = spectrogramThread.getDftSize();
-    settings.fPixelToHz = spectrogramThread.getPixelToHz();
-    settings.magnitudeMin = spectrogramThread.getMagnitudeMin();
-    settings.magnitudeMax = spectrogramThread.getMagnitudeMax();
-    settings.magnitudeLog = spectrogramThread.getMagnitudeLog();
-    settings.colors = spectrogramThread.getColorScheme();
+
+    {
+        std::lock_guard<std::mutex> lg(dftLock);
+        settings.dftSize = dft.getSize();
+        settings.wf = dft.getWindowFunction();
+    }
+
+    {
+        std::lock_guard<std::mutex> lg(spectrogramLock);
+        settings.fPixelToHz = spectrogram.getPixelToHz(width, settings.dftSize, settings.sampleRate);
+        settings.magnitudeMin = spectrogram.settings.magnitudeMin;
+        settings.magnitudeMax = spectrogram.settings.magnitudeMax;
+        settings.magnitudeLog = spectrogram.settings.magnitudeLog;
+        settings.colors = spectrogram.settings.colors;
+    }
 }
 
 void InterfaceThread::renderSettings() {
@@ -219,31 +231,40 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         else if (settings.colors == Spectrogram::ColorScheme::Grayscale)
             next_colors = Spectrogram::ColorScheme::Heat;
 
-        spectrogramThread.setColorScheme(next_colors);
+        {
+            std::lock_guard<std::mutex> lg(spectrogramLock);
+            spectrogram.settings.colors = next_colors;
+        }
     } else if (state[SDL_SCANCODE_W]) {
         /* Change window function */
-        WindowFunction next_wf = WindowFunction::Hanning;
+        RealDft::WindowFunction next_wf = RealDft::WindowFunction::Hanning;
 
-        if (settings.wf == WindowFunction::Hanning)
-            next_wf = WindowFunction::Hamming;
-        else if (settings.wf == WindowFunction::Hamming)
-            next_wf = WindowFunction::Rectangular;
-        else if (settings.wf == WindowFunction::Rectangular)
-            next_wf = WindowFunction::Hanning;
+        if (settings.wf == RealDft::WindowFunction::Hanning)
+            next_wf = RealDft::WindowFunction::Hamming;
+        else if (settings.wf == RealDft::WindowFunction::Hamming)
+            next_wf = RealDft::WindowFunction::Rectangular;
+        else if (settings.wf == RealDft::WindowFunction::Rectangular)
+            next_wf = RealDft::WindowFunction::Hanning;
 
-        spectrogramThread.setWindowFunction(next_wf);
+        {
+            std::lock_guard<std::mutex> lg(dftLock);
+            dft.setWindowFunction(next_wf);
+        }
     } else if (state[SDL_SCANCODE_L]) {
         /* Toggle between Logarithimic/Linear */
         bool next_magnitudeLog = !settings.magnitudeLog;
 
-        spectrogramThread.setMagnitudeLog(next_magnitudeLog);
-        if (next_magnitudeLog) {
-            /* FIXME defaults */
-            spectrogramThread.setMagnitudeMin(0.0);
-            spectrogramThread.setMagnitudeMax(60.0);
-        } else {
-            spectrogramThread.setMagnitudeMin(0);
-            spectrogramThread.setMagnitudeMax(1000);
+        {
+            std::lock_guard<std::mutex> lg(spectrogramLock);
+            spectrogram.settings.magnitudeLog = next_magnitudeLog;
+            if (next_magnitudeLog) {
+                /* FIXME defaults */
+                spectrogram.settings.magnitudeMin = 0.0;
+                spectrogram.settings.magnitudeMax = 60.0;
+            } else {
+                spectrogram.settings.magnitudeMin = 0;
+                spectrogram.settings.magnitudeMax = 1000;
+            }
         }
     } else if (state[SDL_SCANCODE_RIGHT]) {
         /* DFT N up */
@@ -252,7 +273,8 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         if (next_dftSize != settings.dftSize) {
             /* Set readSize for 50% overlap */
             audioThread.readSize = std::max<unsigned int>(next_dftSize/2, DFT_SIZE_MIN);
-            spectrogramThread.setDftSize(next_dftSize);
+            std::lock_guard<std::mutex> lg(dftLock);
+            dft.setSize(next_dftSize);
         }
     } else if (state[SDL_SCANCODE_LEFT]) {
         /* DFT N down */
@@ -261,7 +283,8 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         if (next_dftSize != settings.dftSize) {
             /* Set readSize for 50% overlap */
             audioThread.readSize = std::max<unsigned int>(next_dftSize/2, DFT_SIZE_MIN);
-            spectrogramThread.setDftSize(next_dftSize);
+            std::lock_guard<std::mutex> lg(dftLock);
+            dft.setSize(next_dftSize);
         }
     } else if (state[SDL_SCANCODE_DOWN]) {
         /* Read size up */
@@ -282,7 +305,10 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         else
             next_magnitudeMin = std::max<double>(settings.magnitudeMin - MAGNITUDE_LINEAR_STEP, MAGNITUDE_LINEAR_MIN);
 
-        spectrogramThread.setMagnitudeMin(next_magnitudeMin);
+        {
+            std::lock_guard<std::mutex> lg(spectrogramLock);
+            spectrogram.settings.magnitudeMin = next_magnitudeMin;
+        }
     } else if (state[SDL_SCANCODE_EQUALS]) {
         /* Magnitude min up */
         double next_magnitudeMin;
@@ -292,7 +318,10 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         else
             next_magnitudeMin = std::min<double>(settings.magnitudeMin + MAGNITUDE_LINEAR_STEP, settings.magnitudeMax - MAGNITUDE_LINEAR_STEP);
 
-        spectrogramThread.setMagnitudeMin(next_magnitudeMin);
+        {
+            std::lock_guard<std::mutex> lg(spectrogramLock);
+            spectrogram.settings.magnitudeMin = next_magnitudeMin;
+        }
     } else if (state[SDL_SCANCODE_LEFTBRACKET]) {
         /* Magnitude max down */
         double next_magnitudeMax;
@@ -302,7 +331,10 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         else
             next_magnitudeMax = std::max<double>(settings.magnitudeMax - MAGNITUDE_LINEAR_STEP, settings.magnitudeMin + MAGNITUDE_LINEAR_STEP);
 
-        spectrogramThread.setMagnitudeMax(next_magnitudeMax);
+        {
+            std::lock_guard<std::mutex> lg(spectrogramLock);
+            spectrogram.settings.magnitudeMax = next_magnitudeMax;
+        }
     } else if (state[SDL_SCANCODE_RIGHTBRACKET]) {
         /* Magnitude max up */
         double next_magnitudeMax;
@@ -312,7 +344,10 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         else
             next_magnitudeMax = std::min<double>(settings.magnitudeMax + MAGNITUDE_LINEAR_STEP, MAGNITUDE_LINEAR_MAX);
 
-        spectrogramThread.setMagnitudeMax(next_magnitudeMax);
+        {
+            std::lock_guard<std::mutex> lg(spectrogramLock);
+            spectrogram.settings.magnitudeMax = next_magnitudeMax;
+        }
     } else if (state[SDL_SCANCODE_H]) {
         /* Hide info */
         hideInfo = !hideInfo;

@@ -12,7 +12,7 @@
 
 class InterfaceThread {
   public:
-    InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height);
+    InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, AudioSource &audioSource, std::mutex &audioSourceLock, RealDft &dft, std::mutex &dftLock, Spectrogram &spectrogram, std::mutex &spectrogramLock, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height);
     ~InterfaceThread();
 
     void run();
@@ -20,6 +20,12 @@ class InterfaceThread {
 
   private:
     ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue;
+    AudioSource &audioSource;
+    std::mutex &audioSourceLock;
+    RealDft &dft;
+    std::mutex &dftLock;
+    Spectrogram &spectrogram;
+    std::mutex &spectrogramLock;
     AudioThread &audioThread;
     SpectrogramThread &spectrogramThread;
 
@@ -41,11 +47,11 @@ class InterfaceThread {
     const unsigned int width, height;
     bool hideInfo;
 
-    /* Cached settings from AudioThread and SpectrogramThread */
+    /* Cached settings from audio source, dft, and spectrogram classes */
     struct {
         unsigned int sampleRate;
         unsigned int readSize;
-        WindowFunction wf;
+        RealDft::WindowFunction wf;
         unsigned int dftSize;
         std::function<float (int)> fPixelToHz;
         double magnitudeMin;

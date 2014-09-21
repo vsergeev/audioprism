@@ -9,16 +9,15 @@
 
 class AudioThread {
   public:
-    AudioThread(AudioSource &source, ThreadSafeQueue<std::vector<double>> &samplesQueue, size_t readSize);
+    AudioThread(AudioSource &audioSource, std::mutex &audioSourceLock, ThreadSafeQueue<std::vector<double>> &samplesQueue, size_t readSize);
     void run();
     std::atomic<bool> running;
 
     std::atomic<size_t> readSize;
 
-    unsigned int getSampleRate();
-
   private:
-    AudioSource &source;
+    AudioSource &audioSource;
+    std::mutex &audioSourceLock;
     ThreadSafeQueue<std::vector<double>> &samplesQueue;
 };
 

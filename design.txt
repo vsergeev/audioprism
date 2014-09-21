@@ -27,14 +27,13 @@ AudioThread
         read audio samples from source
         push samples into samples queue
 
-    get         sample rate
     get/set     read size
 
 SpectrogramThread
     ref to samples queue (input)
     ref to pixels queue (output)
-    owns RealDft
-    owns Spectrogram
+    ref to RealDft
+    ref to Spectrogram
 
     while True:
         pop samples from samples queue
@@ -43,13 +42,12 @@ SpectrogramThread
         run Spectrogram on dft to produce pixels
         push pixels into pixels queue
 
-    get/set     dft size, window function, magnitude min, magnitude max
-
 InterfaceThread
     ref to pixels queue (input)
     owns SDL (output)
-    ref to AudioThread (for user control)
-    ref to SpectrogramThread (for user control)
+    ref to AudioSource (for configuration)
+    ref to RealDft (for configuration)
+    ref to Spectrogram (for configuration)
 
     while True:
         check for and handle SDL events
@@ -57,20 +55,43 @@ InterfaceThread
         update pixel buffer with new pixels
         draw spectrogram pixels
         draw settings info
-            Window Function
-            Overlap %, DFT Size
-            Min/Max dB
-            Hz/Px, Cursor Hz
 
 ################################################################################
 
-- add orientation selection
-- add bandwidth selection
-- add console options
+- add custom exceptions
+- add initial configuration struct
+- add orientation configuration
 
+- add console options to configure initial configuration
+    width
+        -w, --width
+    height
+        -h, --height
+    orientation
+        --horizontal, --vertical ?
+    color scheme
+        --colors <heat, grayscale, blue>
+
+    sample rate
+        -r, --sample-rate
+    overlap %
+        --overlap ?
+    dft size
+        --dft-size ?
+    window function
+        --window <hanning, hamming, rectangular>
+
+    magnitude min
+        --magnitude-min
+    magnitude max
+        --magnitude-max
+    magnitude linear/logarithimic
+        --magnitude-scale <linear, logarithmic>
+- add bandwidth selection?
+
+todo:
 - add magnitude cursor info
 - add dft averaging
-
 - add frequency cursor delta
 - add logarithimic/linear frequency?
 - add realtime sample rate change?

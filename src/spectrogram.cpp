@@ -15,25 +15,30 @@
 #define HEIGHT          480
 #define READ_SIZE       1024
 #define DFT_SIZE        2048
-#define WINDOW_FUNC     WindowFunction::Hanning
+#define WINDOW_FUNC     RealDft::WindowFunction::Hanning
 #define COLORS          Spectrogram::ColorScheme::Heat
 #define MAGNITUDE_MIN   0.0
 #define MAGNITUDE_MAX   60.0
 #define MAGNITUDE_LOG   true
 
 void spectrogram_realtime() {
+    PulseAudioSource audioSource(SAMPLE_RATE);
+    RealDft dft(DFT_SIZE, WINDOW_FUNC);
+    Spectrogram spectrogram(MAGNITUDE_MIN, MAGNITUDE_MAX, MAGNITUDE_LOG, COLORS);
+
+    std::mutex audioSourceLock, dftLock, spectrogramLock;
+
     ThreadSafeQueue<std::vector<double>> samplesQueue;
     ThreadSafeQueue<std::vector<uint32_t>> pixelsQueue;
 
-    PulseAudioSource audioSource(SAMPLE_RATE);
-    AudioThread audioThread(audioSource, samplesQueue, READ_SIZE);
-    SpectrogramThread spectrogramThread(samplesQueue, pixelsQueue, SAMPLE_RATE, WIDTH, DFT_SIZE, WINDOW_FUNC, MAGNITUDE_MIN, MAGNITUDE_MAX, MAGNITUDE_LOG, COLORS);
-    InterfaceThread interfaceThread(pixelsQueue, audioThread, spectrogramThread, WIDTH, HEIGHT);
+    AudioThread audioThread(audioSource, audioSourceLock, samplesQueue, READ_SIZE);
+    SpectrogramThread spectrogramThread(samplesQueue, pixelsQueue, dft, dftLock, spectrogram, spectrogramLock, SAMPLE_RATE, WIDTH);
+    InterfaceThread interfaceThread(pixelsQueue, audioSource, audioSourceLock, dft, dftLock, spectrogram, spectrogramLock, audioThread, spectrogramThread, WIDTH, HEIGHT);
 
     std::thread t1(&AudioThread::run, &audioThread);
     std::thread t2(&SpectrogramThread::run, &spectrogramThread);
-
     interfaceThread.run();
+
     t1.join();
     t2.join();
 }
