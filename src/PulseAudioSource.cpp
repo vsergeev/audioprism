@@ -9,12 +9,19 @@
 PulseAudioSource::PulseAudioSource(unsigned int sampleRate) : sampleRate(sampleRate) {
     int error;
     pa_sample_spec ss;
+    pa_buffer_attr attr;
 
     ss.format = PA_SAMPLE_FLOAT32LE;
     ss.rate = sampleRate;
     ss.channels = 1;
 
-    s = pa_simple_new(nullptr, "spectrogram", PA_STREAM_RECORD, nullptr, "audio in", &ss, nullptr, nullptr, &error);
+    attr.maxlength = -1;
+    attr.tlength = -1;
+    attr.prebuf = -1;
+    attr.minreq = -1;
+    attr.fragsize = 1024;
+
+    s = pa_simple_new(nullptr, "spectrogram", PA_STREAM_RECORD, nullptr, "audio in", &ss, nullptr, &attr, &error);
     if (s == nullptr)
         throw std::runtime_error("Opening PulseAudio: pa_simple_new(): " + std::string(pa_strerror(error)));
 }
