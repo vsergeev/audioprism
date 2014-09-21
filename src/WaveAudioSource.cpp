@@ -23,7 +23,7 @@ void WaveAudioSource::read(std::vector<double> &samples) {
 
     ret = sf_read_double(sndfile, samples.data(), samples.size());
 
-    if (ret < samples.size())
+    if (ret < static_cast<sf_count_t>(samples.size()))
         samples.resize(ret);
 }
 
