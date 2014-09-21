@@ -163,7 +163,7 @@ void InterfaceThread::renderSettings() {
 
     /* Create new texture from the target surface */
     settingsTexture = SDL_CreateTextureFromSurface(renderer, targetSurface);
-    if (settingsTexture == NULL)
+    if (settingsTexture == nullptr)
         throw std::runtime_error("Error creating texture for text: SDL_CreateTextureFromSurface(): " + std::string(SDL_GetError()));
 
     SDL_FreeSurface(targetSurface);
@@ -187,7 +187,7 @@ void InterfaceThread::renderCursor(int x) {
         SDL_DestroyTexture(cursorTexture);
 
     cursorTexture = SDL_CreateTextureFromSurface(renderer, cursorSurface);
-    if (cursorTexture == NULL)
+    if (cursorTexture == nullptr)
         throw std::runtime_error("Error creating texture for cursor text: SDL_CreateTextureFromSurface(): " + std::string(SDL_GetError()));
 
     SDL_FreeSurface(cursorSurface);
@@ -347,7 +347,7 @@ void InterfaceThread::run() {
                 const uint8_t *state = SDL_GetKeyboardState(nullptr);
                 handleKeyDown(state);
             } else if (e.type == SDL_MOUSEMOTION) {
-                SDL_GetMouseState(&mx, NULL);
+                SDL_GetMouseState(&mx, nullptr);
                 renderCursor(mx);
             }
         }

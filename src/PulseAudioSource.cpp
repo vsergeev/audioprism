@@ -14,8 +14,8 @@ PulseAudioSource::PulseAudioSource(unsigned int sampleRate) : sampleRate(sampleR
     ss.rate = sampleRate;
     ss.channels = 1;
 
-    s = pa_simple_new(NULL, "spectrogram", PA_STREAM_RECORD, NULL, "audio in", &ss, NULL, NULL, &error);
-    if (s == NULL)
+    s = pa_simple_new(nullptr, "spectrogram", PA_STREAM_RECORD, nullptr, "audio in", &ss, nullptr, nullptr, &error);
+    if (s == nullptr)
         throw std::runtime_error("Opening PulseAudio: pa_simple_new(): " + std::string(pa_strerror(error)));
 }
 

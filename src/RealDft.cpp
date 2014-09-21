@@ -100,12 +100,12 @@ void RealDft::setSize(unsigned int N) {
 
     /* Allocate DFT buffer */
     dft = fftw_alloc_complex(N/2+1);
-    if (dft == NULL)
+    if (dft == nullptr)
         throw std::runtime_error("Allocating DFT memory.");
 
     /* Allocate windowed samples buffer */
     wsamples = fftw_alloc_real(N);
-    if (wsamples == NULL)
+    if (wsamples == nullptr)
         throw std::runtime_error("Allocating sample memory.");
 
     /* Rebuild our plan */

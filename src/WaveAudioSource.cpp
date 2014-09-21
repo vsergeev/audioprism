@@ -7,7 +7,7 @@
 
 WaveAudioSource::WaveAudioSource(std::string path) : sfinfo() {
     if ((sndfile = sf_open(path.c_str(), SFM_READ, &sfinfo)) == nullptr)
-        throw std::runtime_error("Error opening WAV file: " + std::string(sf_strerror(NULL)));
+        throw std::runtime_error("Error opening WAV file: " + std::string(sf_strerror(nullptr)));
 
     if (sfinfo.channels != 1)
         throw std::runtime_error("Error: only one channel supported.");
