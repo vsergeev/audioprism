@@ -61,7 +61,6 @@ InterfaceThread
 ################################################################################
 
 - add custom exceptions
-- add initial configuration struct
 - add orientation configuration
 
 - add console options to configure initial configuration

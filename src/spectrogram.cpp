@@ -10,21 +10,29 @@
 #include "WaveAudioSource.hpp"
 #include "MagickImageSink.hpp"
 
-#define SAMPLE_RATE     24000
-#define WIDTH           640
-#define HEIGHT          480
-#define READ_SIZE       1024
-#define DFT_SIZE        2048
-#define WINDOW_FUNC     RealDft::WindowFunction::Hanning
-#define COLORS          Spectrogram::ColorScheme::Heat
-#define MAGNITUDE_MIN   0.0
-#define MAGNITUDE_MAX   60.0
-#define MAGNITUDE_LOG   true
+struct {
+    /* Dimensions */
+    unsigned int width = 640;
+    unsigned int height = 480;
+    /* Audio Settings */
+    unsigned int audioSampleRate = 24000;
+    unsigned int audioReadSize = 1024;
+    /* DFT Settings */
+    unsigned int dftSize = 2048;
+    RealDft::WindowFunction dftWf = RealDft::WindowFunction::Hanning;
+    /* Spectrogram Settings */
+    double magnitudeMin = 0.0;
+    double magnitudeMax = 60.0;
+    bool magnitudeLog = true;
+    Spectrogram::ColorScheme colors = Spectrogram::ColorScheme::Heat;
+    /* Interface settings */
+    bool interfaceHideInfo = false;
+} Settings;
 
 void spectrogram_realtime() {
-    PulseAudioSource audioSource(SAMPLE_RATE);
-    RealDft dft(DFT_SIZE, WINDOW_FUNC);
-    Spectrogram spectrogram(MAGNITUDE_MIN, MAGNITUDE_MAX, MAGNITUDE_LOG, COLORS);
+    PulseAudioSource audioSource(Settings.audioSampleRate);
+    RealDft dft(Settings.dftSize, Settings.dftWf);
+    Spectrogram spectrogram(Settings.magnitudeMin, Settings.magnitudeMax, Settings.magnitudeLog, Settings.colors);
 
     ThreadSafeResource<AudioSource> audioSourceResource(audioSource);
     ThreadSafeResource<RealDft> dftResource(dft);
@@ -32,9 +40,9 @@ void spectrogram_realtime() {
     ThreadSafeQueue<std::vector<double>> samplesQueue;
     ThreadSafeQueue<std::vector<uint32_t>> pixelsQueue;
 
-    AudioThread audioThread(audioSourceResource, samplesQueue, READ_SIZE);
-    SpectrogramThread spectrogramThread(samplesQueue, pixelsQueue, dftResource, spectrogramResource, SAMPLE_RATE, WIDTH);
-    InterfaceThread interfaceThread(pixelsQueue, audioSourceResource, dftResource, spectrogramResource, audioThread, spectrogramThread, WIDTH, HEIGHT);
+    AudioThread audioThread(audioSourceResource, samplesQueue, Settings.audioReadSize);
+    SpectrogramThread spectrogramThread(samplesQueue, pixelsQueue, dftResource, spectrogramResource, Settings.audioSampleRate, Settings.width);
+    InterfaceThread interfaceThread(pixelsQueue, audioSourceResource, dftResource, spectrogramResource, audioThread, spectrogramThread, Settings.width, Settings.height);
 
     std::thread t1(&AudioThread::run, &audioThread);
     std::thread t2(&SpectrogramThread::run, &spectrogramThread);
@@ -46,14 +54,14 @@ void spectrogram_realtime() {
 
 void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
     WaveAudioSource audio(audioPath);
-    RealDft dft(DFT_SIZE, WINDOW_FUNC);
-    Spectrogram spectrogram(MAGNITUDE_MIN, MAGNITUDE_MAX, MAGNITUDE_LOG, COLORS);
-    MagickImageSink image(imagePath, WIDTH);
+    RealDft dft(Settings.dftSize, Settings.dftWf);
+    Spectrogram spectrogram(Settings.magnitudeMin, Settings.magnitudeMax, Settings.magnitudeLog, Settings.colors);
+    MagickImageSink image(imagePath, Settings.width);
 
-    std::vector<double> samples(dft.getSize());
-    std::vector<std::complex<double>> dftSamples(dft.getSize());
-    std::vector<uint32_t> pixels(WIDTH);
-    std::vector<double> newSamples(READ_SIZE);
+    std::vector<double> newSamples(Settings.audioReadSize);
+    std::vector<double> samples(Settings.dftSize);
+    std::vector<std::complex<double>> dftSamples(Settings.dftSize);
+    std::vector<uint32_t> pixels(Settings.width);
 
     while (true) {
         audio.read(newSamples);
