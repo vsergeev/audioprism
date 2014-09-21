@@ -34,7 +34,7 @@ static void calculateWindow(std::vector<double> &window, RealDft::WindowFunction
     }
 }
 
-RealDft::RealDft(unsigned int N, RealDft::WindowFunction wf) : N(N), windowFunction(wf), plan(nullptr), wsamples(nullptr), dft(nullptr) {
+RealDft::RealDft(unsigned int N, RealDft::WindowFunction wf) : N(N), windowFunction(wf), wsamples(nullptr), dft(nullptr), plan(nullptr) {
     setSize(N);
 }
 
@@ -43,13 +43,13 @@ RealDft::~RealDft() {
         fftw_destroy_plan(plan);
         plan = nullptr;
     }
-    if (wsamples) {
-        fftw_free(wsamples);
-        wsamples = nullptr;
-    }
     if (dft) {
         fftw_free(dft);
         dft = nullptr;
+    }
+    if (wsamples) {
+        fftw_free(wsamples);
+        wsamples = nullptr;
     }
     fftw_cleanup();
 }
@@ -84,13 +84,13 @@ void RealDft::setSize(unsigned int N) {
         fftw_destroy_plan(plan);
         plan = nullptr;
     }
-    if (wsamples) {
-        fftw_free(wsamples);
-        wsamples = nullptr;
-    }
     if (dft) {
         fftw_free(dft);
         dft = nullptr;
+    }
+    if (wsamples) {
+        fftw_free(wsamples);
+        wsamples = nullptr;
     }
 
     /* Resize window */
@@ -98,15 +98,15 @@ void RealDft::setSize(unsigned int N) {
     /* Recalculate window function */
     calculateWindow(window, windowFunction);
 
-    /* Allocate DFT buffer */
-    dft = fftw_alloc_complex(N/2+1);
-    if (dft == nullptr)
-        throw std::runtime_error("Allocating DFT memory.");
-
     /* Allocate windowed samples buffer */
     wsamples = fftw_alloc_real(N);
     if (wsamples == nullptr)
         throw std::runtime_error("Allocating sample memory.");
+
+    /* Allocate DFT buffer */
+    dft = fftw_alloc_complex(N/2+1);
+    if (dft == nullptr)
+        throw std::runtime_error("Allocating DFT memory.");
 
     /* Rebuild our plan */
     plan = fftw_plan_dft_r2c_1d(N, wsamples, dft, FFTW_MEASURE);

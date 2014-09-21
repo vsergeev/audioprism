@@ -36,8 +36,8 @@ SpectrogramThread
     ref to Spectrogram
 
     while True:
-        pop samples from samples queue
-        shift into sample buffer
+        pop new samples from samples queue
+        shift new samples into sample buffer
         run RealDft on sample buffer to produce dft
         run Spectrogram on dft to produce pixels
         push pixels into pixels queue
@@ -48,12 +48,14 @@ InterfaceThread
     ref to AudioSource (for configuration)
     ref to RealDft (for configuration)
     ref to Spectrogram (for configuration)
+    ref to AudioThread (for configuration, control)
+    ref to SpectrogramThread (for control)
 
     while True:
-        check for and handle SDL events
-        pop pixels from pixels queue
-        update pixel buffer with new pixels
-        draw spectrogram pixels
+        check and handle SDL events
+        pop new pixels from pixels queue
+        shift new pixels into pixel buffer
+        draw pixels
         draw settings info
 
 ################################################################################

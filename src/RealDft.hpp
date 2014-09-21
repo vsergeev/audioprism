@@ -27,12 +27,18 @@ class RealDft {
     void setWindowFunction(WindowFunction wf);
 
   private:
+    /* DFT Size */
     unsigned int N;
+    /* Window Function */
     WindowFunction windowFunction;
-    fftw_plan plan;
-    double *wsamples;
-    fftw_complex *dft;
+    /* Window */
     std::vector<double> window;
+    /* Windowed Samples */
+    double *wsamples;
+    /* Complex DFT */
+    fftw_complex *dft;
+    /* FFTW Plan */
+    fftw_plan plan;
 };
 
 std::ostream &operator<<(std::ostream &os, const RealDft::WindowFunction &wf);

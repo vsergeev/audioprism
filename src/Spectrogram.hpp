@@ -11,7 +11,9 @@ class Spectrogram {
     enum class ColorScheme { Heat, Blue, Grayscale };
 
     Spectrogram(double magnitudeMin, double magnitudeMax, bool magnitudeLog, ColorScheme colors);
+
     void render(std::vector<uint32_t> &pixels, const std::vector<std::complex<double>> &dft);
+
     std::function<float (int)> getPixelToHz(unsigned int width, unsigned int dftSize, unsigned int sampleRate);
 
     struct {
