@@ -5,7 +5,9 @@
 
 #include "MagickImageSink.hpp"
 
-MagickImageSink::MagickImageSink(std::string path, unsigned int width) : path(path), width(width) { }
+MagickImageSink::MagickImageSink(std::string path, unsigned int width) : path(path), width(width) {
+    Magick::InitializeMagick(nullptr);
+}
 
 void MagickImageSink::append(const std::vector<uint32_t> &pixels) {
     imagePixels.insert(imagePixels.end(), pixels.begin(), pixels.end());

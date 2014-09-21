@@ -1,8 +1,5 @@
 #include <thread>
-
 #include <iostream>
-
-#include <Magick++.h>
 
 #include "ThreadSafeQueue.hpp"
 #include "PulseAudioSource.hpp"
@@ -75,7 +72,6 @@ void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
 
 int main(int argc, char *argv[]) {
     if (argc == 3) {
-        Magick::InitializeMagick(argv[0]);
         spectrogram_audiofile(std::string(argv[1]), std::string(argv[2]));
     } else {
         spectrogram_realtime();
