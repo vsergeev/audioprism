@@ -6,13 +6,18 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
+#include "ThreadSafeQueue.hpp"
+#include "ThreadSafeResource.hpp"
+
+#include "AudioSource.hpp"
+#include "RealDft.hpp"
+#include "Spectrogram.hpp"
 #include "AudioThread.hpp"
 #include "SpectrogramThread.hpp"
-#include "ThreadSafeQueue.hpp"
 
 class InterfaceThread {
   public:
-    InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, AudioSource &audioSource, std::mutex &audioSourceLock, RealDft &dft, std::mutex &dftLock, Spectrogram &spectrogram, std::mutex &spectrogramLock, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height);
+    InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioSourceResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height);
     ~InterfaceThread();
 
     void run();
@@ -20,12 +25,9 @@ class InterfaceThread {
 
   private:
     ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue;
-    AudioSource &audioSource;
-    std::mutex &audioSourceLock;
-    RealDft &dft;
-    std::mutex &dftLock;
-    Spectrogram &spectrogram;
-    std::mutex &spectrogramLock;
+    ThreadSafeResource<AudioSource> &audioSourceResource;
+    ThreadSafeResource<RealDft> &dftResource;
+    ThreadSafeResource<Spectrogram> &spectrogramResource;
     AudioThread &audioThread;
     SpectrogramThread &spectrogramThread;
 

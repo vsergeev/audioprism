@@ -26,14 +26,15 @@ void spectrogram_realtime() {
     RealDft dft(DFT_SIZE, WINDOW_FUNC);
     Spectrogram spectrogram(MAGNITUDE_MIN, MAGNITUDE_MAX, MAGNITUDE_LOG, COLORS);
 
-    std::mutex audioSourceLock, dftLock, spectrogramLock;
-
+    ThreadSafeResource<AudioSource> audioSourceResource(audioSource);
+    ThreadSafeResource<RealDft> dftResource(dft);
+    ThreadSafeResource<Spectrogram> spectrogramResource(spectrogram);
     ThreadSafeQueue<std::vector<double>> samplesQueue;
     ThreadSafeQueue<std::vector<uint32_t>> pixelsQueue;
 
-    AudioThread audioThread(audioSource, audioSourceLock, samplesQueue, READ_SIZE);
-    SpectrogramThread spectrogramThread(samplesQueue, pixelsQueue, dft, dftLock, spectrogram, spectrogramLock, SAMPLE_RATE, WIDTH);
-    InterfaceThread interfaceThread(pixelsQueue, audioSource, audioSourceLock, dft, dftLock, spectrogram, spectrogramLock, audioThread, spectrogramThread, WIDTH, HEIGHT);
+    AudioThread audioThread(audioSourceResource, samplesQueue, READ_SIZE);
+    SpectrogramThread spectrogramThread(samplesQueue, pixelsQueue, dftResource, spectrogramResource, SAMPLE_RATE, WIDTH);
+    InterfaceThread interfaceThread(pixelsQueue, audioSourceResource, dftResource, spectrogramResource, audioThread, spectrogramThread, WIDTH, HEIGHT);
 
     std::thread t1(&AudioThread::run, &audioThread);
     std::thread t2(&SpectrogramThread::run, &spectrogramThread);

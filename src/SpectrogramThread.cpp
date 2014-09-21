@@ -4,7 +4,7 @@
 
 #include "SpectrogramThread.hpp"
 
-SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, RealDft &dft, std::mutex &dftLock, Spectrogram &spectrogram, std::mutex &spectrogramLock, unsigned int sampleRate, unsigned int width) : samplesQueue(samplesQueue), pixelsQueue(pixelsQueue), dft(dft), dftLock(dftLock), spectrogram(spectrogram), spectrogramLock(spectrogramLock), sampleRate(sampleRate), width(width) { }
+SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, unsigned int sampleRate, unsigned int width) : samplesQueue(samplesQueue), pixelsQueue(pixelsQueue), dftResource(dftResource), spectrogramResource(spectrogramResource), sampleRate(sampleRate), width(width) { }
 
 void SpectrogramThread::run() {
     std::vector<double> samples;
@@ -17,13 +17,13 @@ void SpectrogramThread::run() {
         std::vector<double> newSamples(samplesQueue.pop());
 
         {
-            std::lock_guard<std::mutex> dftLg(dftLock);
-            std::lock_guard<std::mutex> spectrogramLg(spectrogramLock);
+            std::lock_guard<ThreadSafeResource<RealDft>> dftLg(dftResource);
+            std::lock_guard<ThreadSafeResource<Spectrogram>> spectrogramLg(spectrogramResource);
 
             /* Resize samples buffer and dft samples buffer */
-            if (samples.size() != dft.getSize()) {
-                samples.resize(dft.getSize());
-                dftSamples.resize(dft.getSize());
+            if (samples.size() != dftResource.get().getSize()) {
+                samples.resize(dftResource.get().getSize());
+                dftSamples.resize(dftResource.get().getSize());
             }
 
             if (newSamples.size() >= samples.size()) {
@@ -37,10 +37,10 @@ void SpectrogramThread::run() {
             }
 
             /* Compute DFT */
-            dft.compute(dftSamples, samples);
+            dftResource.get().compute(dftSamples, samples);
 
             /* Render spectrogram line */
-            spectrogram.render(pixels, dftSamples);
+            spectrogramResource.get().render(pixels, dftSamples);
 
             /* Put into pixels queue */
             pixelsQueue.push(pixels);

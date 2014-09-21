@@ -6,7 +6,7 @@
 
 #include "InterfaceThread.hpp"
 
-InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, AudioSource &audioSource, std::mutex &audioSourceLock, RealDft &dft, std::mutex &dftLock, Spectrogram &spectrogram, std::mutex &spectrogramLock, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height) : pixelsQueue(pixelsQueue), audioSource(audioSource), audioSourceLock(audioSourceLock), dft(dft), dftLock(dftLock), spectrogram(spectrogram), spectrogramLock(spectrogramLock), audioThread(audioThread), spectrogramThread(spectrogramThread), width(width), height(height), hideInfo(false) {
+InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioSourceResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height) : pixelsQueue(pixelsQueue), audioSourceResource(audioSourceResource), dftResource(dftResource), spectrogramResource(spectrogramResource), audioThread(audioThread), spectrogramThread(spectrogramThread), width(width), height(height), hideInfo(false) {
     int ret;
 
     ret = SDL_Init(SDL_INIT_VIDEO);
@@ -118,25 +118,25 @@ static SDL_Surface *vcatSurfaces(std::vector<SDL_Surface *> surfaces, Alignment 
 
 void InterfaceThread::updateSettings() {
     {
-        std::lock_guard<std::mutex> lg(audioSourceLock);
-        settings.sampleRate = audioSource.getSampleRate();
+        std::lock_guard<ThreadSafeResource<AudioSource>> lg(audioSourceResource);
+        settings.sampleRate = audioSourceResource.get().getSampleRate();
     }
 
     settings.readSize = audioThread.readSize;
 
     {
-        std::lock_guard<std::mutex> lg(dftLock);
-        settings.dftSize = dft.getSize();
-        settings.wf = dft.getWindowFunction();
+        std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
+        settings.dftSize = dftResource.get().getSize();
+        settings.wf = dftResource.get().getWindowFunction();
     }
 
     {
-        std::lock_guard<std::mutex> lg(spectrogramLock);
-        settings.fPixelToHz = spectrogram.getPixelToHz(width, settings.dftSize, settings.sampleRate);
-        settings.magnitudeMin = spectrogram.settings.magnitudeMin;
-        settings.magnitudeMax = spectrogram.settings.magnitudeMax;
-        settings.magnitudeLog = spectrogram.settings.magnitudeLog;
-        settings.colors = spectrogram.settings.colors;
+        std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
+        settings.fPixelToHz = spectrogramResource.get().getPixelToHz(width, settings.dftSize, settings.sampleRate);
+        settings.magnitudeMin = spectrogramResource.get().settings.magnitudeMin;
+        settings.magnitudeMax = spectrogramResource.get().settings.magnitudeMax;
+        settings.magnitudeLog = spectrogramResource.get().settings.magnitudeLog;
+        settings.colors = spectrogramResource.get().settings.colors;
     }
 }
 
@@ -232,8 +232,8 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             next_colors = Spectrogram::ColorScheme::Heat;
 
         {
-            std::lock_guard<std::mutex> lg(spectrogramLock);
-            spectrogram.settings.colors = next_colors;
+            std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
+            spectrogramResource.get().settings.colors = next_colors;
         }
     } else if (state[SDL_SCANCODE_W]) {
         /* Change window function */
@@ -247,23 +247,23 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             next_wf = RealDft::WindowFunction::Hanning;
 
         {
-            std::lock_guard<std::mutex> lg(dftLock);
-            dft.setWindowFunction(next_wf);
+            std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
+            dftResource.get().setWindowFunction(next_wf);
         }
     } else if (state[SDL_SCANCODE_L]) {
         /* Toggle between Logarithimic/Linear */
         bool next_magnitudeLog = !settings.magnitudeLog;
 
         {
-            std::lock_guard<std::mutex> lg(spectrogramLock);
-            spectrogram.settings.magnitudeLog = next_magnitudeLog;
+            std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
+            spectrogramResource.get().settings.magnitudeLog = next_magnitudeLog;
             if (next_magnitudeLog) {
                 /* FIXME defaults */
-                spectrogram.settings.magnitudeMin = 0.0;
-                spectrogram.settings.magnitudeMax = 60.0;
+                spectrogramResource.get().settings.magnitudeMin = 0.0;
+                spectrogramResource.get().settings.magnitudeMax = 60.0;
             } else {
-                spectrogram.settings.magnitudeMin = 0;
-                spectrogram.settings.magnitudeMax = 1000;
+                spectrogramResource.get().settings.magnitudeMin = 0;
+                spectrogramResource.get().settings.magnitudeMax = 1000;
             }
         }
     } else if (state[SDL_SCANCODE_RIGHT]) {
@@ -273,8 +273,8 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         if (next_dftSize != settings.dftSize) {
             /* Set readSize for 50% overlap */
             audioThread.readSize = std::max<unsigned int>(next_dftSize/2, DFT_SIZE_MIN);
-            std::lock_guard<std::mutex> lg(dftLock);
-            dft.setSize(next_dftSize);
+            std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
+            dftResource.get().setSize(next_dftSize);
         }
     } else if (state[SDL_SCANCODE_LEFT]) {
         /* DFT N down */
@@ -283,8 +283,8 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         if (next_dftSize != settings.dftSize) {
             /* Set readSize for 50% overlap */
             audioThread.readSize = std::max<unsigned int>(next_dftSize/2, DFT_SIZE_MIN);
-            std::lock_guard<std::mutex> lg(dftLock);
-            dft.setSize(next_dftSize);
+            std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
+            dftResource.get().setSize(next_dftSize);
         }
     } else if (state[SDL_SCANCODE_DOWN]) {
         /* Read size up */
@@ -306,8 +306,8 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             next_magnitudeMin = std::max<double>(settings.magnitudeMin - MAGNITUDE_LINEAR_STEP, MAGNITUDE_LINEAR_MIN);
 
         {
-            std::lock_guard<std::mutex> lg(spectrogramLock);
-            spectrogram.settings.magnitudeMin = next_magnitudeMin;
+            std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
+            spectrogramResource.get().settings.magnitudeMin = next_magnitudeMin;
         }
     } else if (state[SDL_SCANCODE_EQUALS]) {
         /* Magnitude min up */
@@ -319,8 +319,8 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             next_magnitudeMin = std::min<double>(settings.magnitudeMin + MAGNITUDE_LINEAR_STEP, settings.magnitudeMax - MAGNITUDE_LINEAR_STEP);
 
         {
-            std::lock_guard<std::mutex> lg(spectrogramLock);
-            spectrogram.settings.magnitudeMin = next_magnitudeMin;
+            std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
+            spectrogramResource.get().settings.magnitudeMin = next_magnitudeMin;
         }
     } else if (state[SDL_SCANCODE_LEFTBRACKET]) {
         /* Magnitude max down */
@@ -332,8 +332,8 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             next_magnitudeMax = std::max<double>(settings.magnitudeMax - MAGNITUDE_LINEAR_STEP, settings.magnitudeMin + MAGNITUDE_LINEAR_STEP);
 
         {
-            std::lock_guard<std::mutex> lg(spectrogramLock);
-            spectrogram.settings.magnitudeMax = next_magnitudeMax;
+            std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
+            spectrogramResource.get().settings.magnitudeMax = next_magnitudeMax;
         }
     } else if (state[SDL_SCANCODE_RIGHTBRACKET]) {
         /* Magnitude max up */
@@ -345,8 +345,8 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             next_magnitudeMax = std::min<double>(settings.magnitudeMax + MAGNITUDE_LINEAR_STEP, MAGNITUDE_LINEAR_MAX);
 
         {
-            std::lock_guard<std::mutex> lg(spectrogramLock);
-            spectrogram.settings.magnitudeMax = next_magnitudeMax;
+            std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
+            spectrogramResource.get().settings.magnitudeMax = next_magnitudeMax;
         }
     } else if (state[SDL_SCANCODE_H]) {
         /* Hide info */
@@ -419,7 +419,7 @@ void InterfaceThread::run() {
             SDL_RenderCopy(renderer, cursorTexture, nullptr, &cursorRect);
         }
         SDL_RenderPresent(renderer);
-        SDL_Delay(10);
+        SDL_Delay(5);
     }
 }
 

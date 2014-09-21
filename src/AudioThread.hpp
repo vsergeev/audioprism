@@ -4,20 +4,21 @@
 #include <vector>
 #include <atomic>
 
-#include "AudioSource.hpp"
+#include "ThreadSafeResource.hpp"
 #include "ThreadSafeQueue.hpp"
+
+#include "AudioSource.hpp"
 
 class AudioThread {
   public:
-    AudioThread(AudioSource &audioSource, std::mutex &audioSourceLock, ThreadSafeQueue<std::vector<double>> &samplesQueue, size_t readSize);
+    AudioThread(ThreadSafeResource<AudioSource> &audioSourceResource, ThreadSafeQueue<std::vector<double>> &samplesQueue, size_t readSize);
     void run();
     std::atomic<bool> running;
 
     std::atomic<size_t> readSize;
 
   private:
-    AudioSource &audioSource;
-    std::mutex &audioSourceLock;
+    ThreadSafeResource<AudioSource> &audioSourceResource;
     ThreadSafeQueue<std::vector<double>> &samplesQueue;
 };
 
