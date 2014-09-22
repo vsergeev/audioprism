@@ -4,10 +4,11 @@
 #include <string>
 
 #include "ImageSink.hpp"
+#include "Orientation.hpp"
 
 class MagickImageSink : public ImageSink {
   public:
-    MagickImageSink(std::string path, unsigned int width);
+    MagickImageSink(std::string path, unsigned int width, Orientation orientation);
 
     virtual void append(const std::vector<uint32_t> &pixels);
     virtual void write();
@@ -15,6 +16,7 @@ class MagickImageSink : public ImageSink {
   private:
     const std::string path;
     const unsigned int width;
+    const Orientation orientation;
     std::vector<uint32_t> imagePixels;
 };
 
