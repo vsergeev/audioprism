@@ -4,6 +4,7 @@
 #include "ThreadSafeResource.hpp"
 #include "ThreadSafeQueue.hpp"
 
+#include "Orientation.hpp"
 #include "PulseAudioSource.hpp"
 #include "RealDft.hpp"
 #include "Spectrogram.hpp"
@@ -15,9 +16,10 @@
 #include "MagickImageSink.hpp"
 
 struct {
-    /* Dimensions */
+    /* Interface Settings */
     unsigned int width = 640;
     unsigned int height = 480;
+    Orientation orientation = Orientation::Horizontal;
     /* Audio Settings */
     unsigned int audioSampleRate = 24000;
     unsigned int audioReadSize = 1024;
@@ -60,7 +62,7 @@ void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
     WaveAudioSource audio(audioPath);
     RealDft dft(Settings.dftSize, Settings.dftWf);
     Spectrogram spectrogram(Settings.magnitudeMin, Settings.magnitudeMax, Settings.magnitudeLog, Settings.colors);
-    MagickImageSink image(imagePath, Settings.width);
+    MagickImageSink image(imagePath, Settings.width, Settings.orientation);
 
     std::vector<double> newSamples(Settings.audioReadSize);
     std::vector<double> samples(Settings.dftSize);
