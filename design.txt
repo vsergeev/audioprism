@@ -64,17 +64,20 @@ InterfaceThread
 
 - add orientation setting
 - add console options to configure initial configuration
+
+    Interface Settings
     width
         -w, --width
     height
         -h, --height
     orientation
         --horizontal, --vertical ?
-    color scheme
-        --colors <heat, grayscale, blue>
 
+    Audio Settings
     sample rate
         -r, --sample-rate
+
+    DFT Settings
     overlap %
         --overlap ?
     dft size
@@ -82,18 +85,23 @@ InterfaceThread
     window function
         --window <hanning, hamming, rectangular>
 
+    Spectrogram Settings
     magnitude min
         --magnitude-min
     magnitude max
         --magnitude-max
     magnitude linear/logarithimic
         --magnitude-scale <linear, logarithmic>
+    color scheme
+        --colors <heat, grayscale, blue>
 
-- add bandwidth selection?
+- revisit architecture
 - add font file
+- add readme, license, changelog
 - release
 
 todo:
+- add bandwidth selection?
 - add magnitude cursor info
 - add dft averaging
 - add frequency cursor delta
