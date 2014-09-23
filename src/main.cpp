@@ -28,11 +28,9 @@ struct {
     RealDft::WindowFunction dftWf = RealDft::WindowFunction::Hanning;
     /* Spectrogram Settings */
     double magnitudeMin = 0.0;
-    double magnitudeMax = 60.0;
+    double magnitudeMax = 45.0;
     bool magnitudeLog = true;
     Spectrogram::ColorScheme colors = Spectrogram::ColorScheme::Heat;
-    /* Interface settings */
-    bool interfaceHideInfo = false;
 } Settings;
 
 void spectrogram_realtime() {
