@@ -9,6 +9,7 @@
 #include "ThreadSafeQueue.hpp"
 #include "ThreadSafeResource.hpp"
 
+#include "Orientation.hpp"
 #include "AudioSource.hpp"
 #include "RealDft.hpp"
 #include "Spectrogram.hpp"
@@ -17,7 +18,7 @@
 
 class InterfaceThread {
   public:
-    InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height);
+    InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height, Orientation orientation);
     ~InterfaceThread();
 
     void run();
@@ -42,18 +43,19 @@ class InterfaceThread {
 
     void updateSettings();
     void renderSettings();
-    void renderCursor(int x);
+    void renderCursor(int x, int y);
     void handleKeyDown(const uint8_t *state);
 
     /* Interface settings */
     const unsigned int width, height;
+    const Orientation orientation;
     bool hideInfo;
 
     /* Cached settings from audio source, dft, and spectrogram classes */
     struct {
-        unsigned int sampleRate;
-        unsigned int readSize;
-        RealDft::WindowFunction wf;
+        unsigned int audioSampleRate;
+        unsigned int audioReadSize;
+        RealDft::WindowFunction dftWf;
         unsigned int dftSize;
         std::function<float (int)> fPixelToHz;
         double magnitudeMin;

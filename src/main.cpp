@@ -47,8 +47,8 @@ void spectrogram_realtime() {
     ThreadSafeQueue<std::vector<uint32_t>> pixelsQueue;
 
     AudioThread audioThread(audioResource, samplesQueue, Settings.audioReadSize);
-    SpectrogramThread spectrogramThread(samplesQueue, pixelsQueue, dftResource, spectrogramResource, Settings.audioSampleRate, Settings.width);
-    InterfaceThread interfaceThread(pixelsQueue, audioResource, dftResource, spectrogramResource, audioThread, spectrogramThread, Settings.width, Settings.height);
+    SpectrogramThread spectrogramThread(samplesQueue, pixelsQueue, dftResource, spectrogramResource, Settings.audioSampleRate, (Settings.orientation == Orientation::Vertical) ? Settings.width : Settings.height);
+    InterfaceThread interfaceThread(pixelsQueue, audioResource, dftResource, spectrogramResource, audioThread, spectrogramThread, Settings.width, Settings.height, Settings.orientation);
 
     std::thread t1(&AudioThread::run, &audioThread);
     std::thread t2(&SpectrogramThread::run, &spectrogramThread);

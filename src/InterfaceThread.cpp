@@ -6,7 +6,7 @@
 
 #include "InterfaceThread.hpp"
 
-InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height) : pixelsQueue(pixelsQueue), audioResource(audioResource), dftResource(dftResource), spectrogramResource(spectrogramResource), audioThread(audioThread), spectrogramThread(spectrogramThread), width(width), height(height), hideInfo(false) {
+InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height, Orientation orientation) : pixelsQueue(pixelsQueue), audioResource(audioResource), dftResource(dftResource), spectrogramResource(spectrogramResource), audioThread(audioThread), spectrogramThread(spectrogramThread), width(width), height(height), orientation(orientation), hideInfo(false) {
     int ret;
 
     ret = SDL_Init(SDL_INIT_VIDEO);
@@ -119,20 +119,24 @@ static SDL_Surface *vcatSurfaces(std::vector<SDL_Surface *> surfaces, Alignment 
 void InterfaceThread::updateSettings() {
     {
         std::lock_guard<ThreadSafeResource<AudioSource>> lg(audioResource);
-        settings.sampleRate = audioResource.get().getSampleRate();
+        settings.audioSampleRate = audioResource.get().getSampleRate();
     }
 
-    settings.readSize = audioThread.readSize;
+    settings.audioReadSize = audioThread.readSize;
 
     {
         std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
         settings.dftSize = dftResource.get().getSize();
-        settings.wf = dftResource.get().getWindowFunction();
+        settings.dftWf = dftResource.get().getWindowFunction();
     }
 
     {
         std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
-        settings.fPixelToHz = spectrogramResource.get().getPixelToHz(width, settings.dftSize, settings.sampleRate);
+
+        if (orientation == Orientation::Vertical)
+            settings.fPixelToHz = spectrogramResource.get().getPixelToHz(width, settings.dftSize, settings.audioSampleRate);
+        else
+            settings.fPixelToHz = spectrogramResource.get().getPixelToHz(height, settings.dftSize, settings.audioSampleRate);
         settings.magnitudeMin = spectrogramResource.get().settings.magnitudeMin;
         settings.magnitudeMax = spectrogramResource.get().settings.magnitudeMax;
         settings.magnitudeLog = spectrogramResource.get().settings.magnitudeLog;
@@ -145,11 +149,11 @@ void InterfaceThread::renderSettings() {
     SDL_Surface *targetSurface;
     SDL_Color settingsColor = {0xff, 0x00, 0x00, 0x00};
 
-    unsigned int overlap = static_cast<unsigned int>(std::round((1.0-(static_cast<float>(settings.readSize)/static_cast<float>(settings.dftSize)))*100.0));
+    unsigned int overlap = static_cast<unsigned int>(std::round((1.0-(static_cast<float>(settings.audioReadSize)/static_cast<float>(settings.dftSize)))*100.0));
 
-    textSurfaces.push_back(renderString(format("Sample Rate: %d Hz", settings.sampleRate), font, settingsColor));
+    textSurfaces.push_back(renderString(format("Sample Rate: %d Hz", settings.audioSampleRate), font, settingsColor));
     textSurfaces.push_back(renderString(format("Overlap: %d%%", overlap), font, settingsColor));
-    textSurfaces.push_back(renderString("Window: " + to_string(settings.wf), font, settingsColor));
+    textSurfaces.push_back(renderString("Window: " + to_string(settings.dftWf), font, settingsColor));
     textSurfaces.push_back(renderString(format("DFT Size: %d", settings.dftSize), font, settingsColor));
     if (settings.magnitudeLog) {
         textSurfaces.push_back(renderString(format("Mag. min: %.2f dB", settings.magnitudeMin), font, settingsColor));
@@ -181,12 +185,15 @@ void InterfaceThread::renderSettings() {
     SDL_FreeSurface(targetSurface);
 }
 
-void InterfaceThread::renderCursor(int x) {
+void InterfaceThread::renderCursor(int x, int y) {
     SDL_Surface *cursorSurface;
     SDL_Color settingsColor = {0xff, 0x00, 0x00, 0x00};
     float frequency;
 
-    frequency = settings.fPixelToHz(x);
+    if (orientation == Orientation::Vertical)
+        frequency = settings.fPixelToHz(x);
+    else
+        frequency = settings.fPixelToHz(height-y);
 
     cursorSurface = renderString(format("%.0f Hz", frequency), font, settingsColor);
 
@@ -239,11 +246,11 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         /* Change window function */
         RealDft::WindowFunction next_wf = RealDft::WindowFunction::Hanning;
 
-        if (settings.wf == RealDft::WindowFunction::Hanning)
+        if (settings.dftWf == RealDft::WindowFunction::Hanning)
             next_wf = RealDft::WindowFunction::Hamming;
-        else if (settings.wf == RealDft::WindowFunction::Hamming)
+        else if (settings.dftWf == RealDft::WindowFunction::Hamming)
             next_wf = RealDft::WindowFunction::Rectangular;
-        else if (settings.wf == RealDft::WindowFunction::Rectangular)
+        else if (settings.dftWf == RealDft::WindowFunction::Rectangular)
             next_wf = RealDft::WindowFunction::Hanning;
 
         {
@@ -288,12 +295,12 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         }
     } else if (state[SDL_SCANCODE_DOWN]) {
         /* Read size up */
-        unsigned int next_readSize = std::min<int>(settings.readSize + READ_SIZE_STEP, settings.dftSize);
+        unsigned int next_readSize = std::min<int>(settings.audioReadSize + READ_SIZE_STEP, settings.dftSize);
 
         audioThread.readSize = next_readSize;
     } else if (state[SDL_SCANCODE_UP]) {
         /* Read size down */
-        unsigned int next_readSize = std::max<int>(settings.readSize - READ_SIZE_STEP, DFT_SIZE_MIN);
+        unsigned int next_readSize = std::max<int>(settings.audioReadSize - READ_SIZE_STEP, DFT_SIZE_MIN);
 
         audioThread.readSize = next_readSize;
     } else if (state[SDL_SCANCODE_MINUS]) {
@@ -362,7 +369,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
 
 void InterfaceThread::run() {
     std::unique_ptr<uint32_t []> pixels = std::unique_ptr<uint32_t []>(new uint32_t[width*height]);
-    std::vector<uint32_t> newPixelRows;
+    std::vector<uint32_t> newPixels;
 
     updateSettings();
     renderSettings();
@@ -372,8 +379,6 @@ void InterfaceThread::run() {
     while (running) {
         SDL_Event e;
         if (SDL_PollEvent(&e)) {
-            int mx;
-
             if (e.type == SDL_QUIT) {
                 audioThread.running = false;
                 spectrogramThread.running = false;
@@ -382,38 +387,61 @@ void InterfaceThread::run() {
                 const uint8_t *state = SDL_GetKeyboardState(nullptr);
                 handleKeyDown(state);
             } else if (e.type == SDL_MOUSEMOTION) {
-                SDL_GetMouseState(&mx, nullptr);
-                renderCursor(mx);
+                int mx, my;
+                SDL_GetMouseState(&mx, &my);
+                renderCursor(mx, my);
             }
         }
 
         /* Collect all new pixel rows */
         while (!pixelsQueue.empty()) {
             std::vector<uint32_t> pixelRow(pixelsQueue.pop());
-            newPixelRows.insert(newPixelRows.end(), pixelRow.begin(), pixelRow.end());
+            newPixels.insert(newPixels.end(), pixelRow.begin(), pixelRow.end());
         }
 
-        if (newPixelRows.size() > 0) {
-            if (newPixelRows.size() >= width*height) {
-                /* This should seldom happen. */
+        /* Update pixel buffer with new pixels */
+        if (newPixels.size() > 0) {
+            uint32_t *data = newPixels.data();
+            unsigned int size = newPixels.size();
 
-                /* Overwrite all pixels */
-                memcpy(pixels.get(), newPixelRows.data()+(newPixelRows.size()-width*height), width*height);
-                /* Clear new pixels */
-                newPixelRows.clear();
-            } else if (newPixelRows.size() < width*height) {
-                /* Move old pixels up */
-                memmove(pixels.get(), pixels.get()+newPixelRows.size(), (width*height-newPixelRows.size())*sizeof(uint32_t));
-                /* Copy new pixels over */
-                memcpy(pixels.get()+(width*height-newPixelRows.size()), newPixelRows.data(), newPixelRows.size()*sizeof(uint32_t));
-                /* Clear new pixels */
-                newPixelRows.clear();
+            if (size > width*height) {
+                /* Pixel buffer overrun (this should seldom happen). */
+                /* Use the last width*height pixels */
+                data = newPixels.data() + (width*height - size);
+                size = width*height;
             }
+
+            if (orientation == Orientation::Vertical) {
+                /* Move old pixels up */
+                memmove(pixels.get(), pixels.get()+size, (width*height-size)*sizeof(uint32_t));
+
+                /* Copy new pixels over */
+                memcpy(pixels.get()+(width*height-size), data, size*sizeof(uint32_t));
+            } else {
+                unsigned int colsToShift = std::min(static_cast<unsigned int>(size/height), width);
+
+                /* Move old pixels to the left */
+                for (unsigned int x = 0; x < (width - colsToShift); x++)
+                    for (unsigned int y = 0; y < height; y++)
+                        pixels[y*width + x] = pixels[y*width + x + colsToShift];
+
+                /* Copy new pixels over */
+                unsigned int i = 0;
+                for (unsigned int x = width - colsToShift; x < width; x++)
+                    for (unsigned int y = 0; y < height; y++)
+                        pixels[(height-y)*width + x] = data[i++];
+            }
+
+            /* Clear new pixels */
+            newPixels.clear();
+
             SDL_UpdateTexture(pixelsTexture, nullptr, pixels.get(), width * sizeof(uint32_t));
         }
 
         SDL_RenderClear(renderer);
+        /* Render pixels */
         SDL_RenderCopy(renderer, pixelsTexture, nullptr, nullptr);
+        /* Render settings info */
         if (!hideInfo) {
             SDL_RenderCopy(renderer, settingsTexture, nullptr, &settingsRect);
             SDL_RenderCopy(renderer, cursorTexture, nullptr, &cursorRect);
