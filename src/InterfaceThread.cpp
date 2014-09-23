@@ -6,6 +6,8 @@
 
 #include "InterfaceThread.hpp"
 
+#include "Configuration.hpp"
+
 InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height, Orientation orientation) : pixelsQueue(pixelsQueue), audioResource(audioResource), dftResource(dftResource), spectrogramResource(spectrogramResource), audioThread(audioThread), spectrogramThread(spectrogramThread), width(width), height(height), orientation(orientation), hideInfo(false) {
     int ret;
 
@@ -212,16 +214,6 @@ void InterfaceThread::renderCursor(int x, int y) {
     SDL_FreeSurface(cursorSurface);
 }
 
-#define MAGNITUDE_LINEAR_MIN        0.0
-#define MAGNITUDE_LINEAR_MAX        1000.0
-#define MAGNITUDE_LINEAR_STEP       25.0
-#define MAGNITUDE_LOGARITHMIC_MIN   -80.0
-#define MAGNITUDE_LOGARITHMIC_MAX   80.0
-#define MAGNITUDE_LOGARITHMIC_STEP  5.0
-#define DFT_SIZE_MAX                8192
-#define DFT_SIZE_MIN                32
-#define READ_SIZE_STEP              32
-
 void InterfaceThread::handleKeyDown(const uint8_t *state) {
     if (state[SDL_SCANCODE_Q]) {
         audioThread.running = false;
@@ -265,42 +257,41 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
             spectrogramResource.get().settings.magnitudeLog = next_magnitudeLog;
             if (next_magnitudeLog) {
-                /* FIXME defaults */
-                spectrogramResource.get().settings.magnitudeMin = 0.0;
-                spectrogramResource.get().settings.magnitudeMax = 60.0;
+                spectrogramResource.get().settings.magnitudeMin = InitialSettings.magnitudeLogMin;
+                spectrogramResource.get().settings.magnitudeMax = InitialSettings.magnitudeLogMax;
             } else {
-                spectrogramResource.get().settings.magnitudeMin = 0;
-                spectrogramResource.get().settings.magnitudeMax = 1000;
+                spectrogramResource.get().settings.magnitudeMin = InitialSettings.magnitudeLinearMin;
+                spectrogramResource.get().settings.magnitudeMax = InitialSettings.magnitudeLinearMax;
             }
         }
     } else if (state[SDL_SCANCODE_RIGHT]) {
         /* DFT N up */
-        unsigned int next_dftSize = std::min<unsigned int>(settings.dftSize*2, DFT_SIZE_MAX);
+        unsigned int next_dftSize = std::min<unsigned int>(settings.dftSize*2, UserLimits.dftSizeMax);
 
         if (next_dftSize != settings.dftSize) {
             /* Set readSize for 50% overlap */
-            audioThread.readSize = std::max<unsigned int>(next_dftSize/2, DFT_SIZE_MIN);
+            audioThread.readSize = std::max<unsigned int>(next_dftSize/2, UserLimits.dftSizeMin);
             std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
             dftResource.get().setSize(next_dftSize);
         }
     } else if (state[SDL_SCANCODE_LEFT]) {
         /* DFT N down */
-        unsigned int next_dftSize = std::max<unsigned int>(settings.dftSize/2, DFT_SIZE_MIN);
+        unsigned int next_dftSize = std::max<unsigned int>(settings.dftSize/2, UserLimits.dftSizeMin);
 
         if (next_dftSize != settings.dftSize) {
             /* Set readSize for 50% overlap */
-            audioThread.readSize = std::max<unsigned int>(next_dftSize/2, DFT_SIZE_MIN);
+            audioThread.readSize = std::max<unsigned int>(next_dftSize/2, UserLimits.dftSizeMin);
             std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
             dftResource.get().setSize(next_dftSize);
         }
     } else if (state[SDL_SCANCODE_DOWN]) {
         /* Read size up */
-        unsigned int next_readSize = std::min<int>(settings.audioReadSize + READ_SIZE_STEP, settings.dftSize);
+        unsigned int next_readSize = std::min<int>(settings.audioReadSize + UserLimits.audioReadSizeStep, settings.dftSize);
 
         audioThread.readSize = next_readSize;
     } else if (state[SDL_SCANCODE_UP]) {
         /* Read size down */
-        unsigned int next_readSize = std::max<int>(settings.audioReadSize - READ_SIZE_STEP, DFT_SIZE_MIN);
+        unsigned int next_readSize = std::max<int>(settings.audioReadSize - UserLimits.audioReadSizeStep, UserLimits.dftSizeMin);
 
         audioThread.readSize = next_readSize;
     } else if (state[SDL_SCANCODE_MINUS]) {
@@ -308,9 +299,9 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         double next_magnitudeMin;
 
         if (settings.magnitudeLog)
-            next_magnitudeMin = std::max<double>(settings.magnitudeMin - MAGNITUDE_LOGARITHMIC_STEP, MAGNITUDE_LOGARITHMIC_MIN);
+            next_magnitudeMin = std::max<double>(settings.magnitudeMin - UserLimits.magnitudeLogStep, UserLimits.magnitudeLogMin);
         else
-            next_magnitudeMin = std::max<double>(settings.magnitudeMin - MAGNITUDE_LINEAR_STEP, MAGNITUDE_LINEAR_MIN);
+            next_magnitudeMin = std::max<double>(settings.magnitudeMin - UserLimits.magnitudeLinearStep, UserLimits.magnitudeLinearMin);
 
         {
             std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
@@ -321,9 +312,9 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         double next_magnitudeMin;
 
         if (settings.magnitudeLog)
-            next_magnitudeMin = std::min<double>(settings.magnitudeMin + MAGNITUDE_LOGARITHMIC_STEP, settings.magnitudeMax - MAGNITUDE_LOGARITHMIC_STEP);
+            next_magnitudeMin = std::min<double>(settings.magnitudeMin + UserLimits.magnitudeLogStep, settings.magnitudeMax - UserLimits.magnitudeLogStep);
         else
-            next_magnitudeMin = std::min<double>(settings.magnitudeMin + MAGNITUDE_LINEAR_STEP, settings.magnitudeMax - MAGNITUDE_LINEAR_STEP);
+            next_magnitudeMin = std::min<double>(settings.magnitudeMin + UserLimits.magnitudeLinearStep, settings.magnitudeMax - UserLimits.magnitudeLinearStep);
 
         {
             std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
@@ -334,9 +325,9 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         double next_magnitudeMax;
 
         if (settings.magnitudeLog)
-            next_magnitudeMax = std::max<double>(settings.magnitudeMax - MAGNITUDE_LOGARITHMIC_STEP, settings.magnitudeMin + MAGNITUDE_LOGARITHMIC_STEP);
+            next_magnitudeMax = std::max<double>(settings.magnitudeMax - UserLimits.magnitudeLogStep, settings.magnitudeMin + UserLimits.magnitudeLogStep);
         else
-            next_magnitudeMax = std::max<double>(settings.magnitudeMax - MAGNITUDE_LINEAR_STEP, settings.magnitudeMin + MAGNITUDE_LINEAR_STEP);
+            next_magnitudeMax = std::max<double>(settings.magnitudeMax - UserLimits.magnitudeLinearStep, settings.magnitudeMin + UserLimits.magnitudeLinearStep);
 
         {
             std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
@@ -347,9 +338,9 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         double next_magnitudeMax;
 
         if (settings.magnitudeLog)
-            next_magnitudeMax = std::min<double>(settings.magnitudeMax + MAGNITUDE_LOGARITHMIC_STEP, MAGNITUDE_LOGARITHMIC_MAX);
+            next_magnitudeMax = std::min<double>(settings.magnitudeMax + UserLimits.magnitudeLogStep, UserLimits.magnitudeLogMax);
         else
-            next_magnitudeMax = std::min<double>(settings.magnitudeMax + MAGNITUDE_LINEAR_STEP, MAGNITUDE_LINEAR_MAX);
+            next_magnitudeMax = std::min<double>(settings.magnitudeMax + UserLimits.magnitudeLinearStep, UserLimits.magnitudeLinearMax);
 
         {
             std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);

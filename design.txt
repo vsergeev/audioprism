@@ -62,7 +62,6 @@ InterfaceThread
 
 ################################################################################
 
-- put limits somewhere visible to main
 - add console options to configure initial configuration
 
     Interface Settings
