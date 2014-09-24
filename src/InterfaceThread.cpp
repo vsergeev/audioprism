@@ -8,7 +8,7 @@
 
 #include "Configuration.hpp"
 
-InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height, Orientation orientation) : pixelsQueue(pixelsQueue), audioResource(audioResource), dftResource(dftResource), spectrogramResource(spectrogramResource), audioThread(audioThread), spectrogramThread(spectrogramThread), width(width), height(height), orientation(orientation), hideInfo(false) {
+InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, std::atomic<size_t> &audioReadSize, std::atomic<bool> &running, unsigned int width, unsigned int height, Orientation orientation) : pixelsQueue(pixelsQueue), audioResource(audioResource), dftResource(dftResource), spectrogramResource(spectrogramResource), audioReadSize(audioReadSize), running(running), width(width), height(height), orientation(orientation), hideInfo(false) {
     int ret;
 
     ret = SDL_Init(SDL_INIT_VIDEO);
@@ -124,7 +124,7 @@ void InterfaceThread::updateSettings() {
         settings.audioSampleRate = audioResource.get().getSampleRate();
     }
 
-    settings.audioReadSize = audioThread.readSize;
+    settings.audioReadSize = audioReadSize;
 
     {
         std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
@@ -216,8 +216,6 @@ void InterfaceThread::renderCursor(int x, int y) {
 
 void InterfaceThread::handleKeyDown(const uint8_t *state) {
     if (state[SDL_SCANCODE_Q]) {
-        audioThread.running = false;
-        spectrogramThread.running = false;
         running = false;
     } else if (state[SDL_SCANCODE_C]) {
         /* Change color scheme */
@@ -270,7 +268,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
 
         if (next_dftSize != settings.dftSize) {
             /* Set readSize for 50% overlap */
-            audioThread.readSize = std::max<unsigned int>(next_dftSize/2, UserLimits.dftSizeMin);
+            audioReadSize = std::max<unsigned int>(next_dftSize/2, UserLimits.dftSizeMin);
             std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
             dftResource.get().setSize(next_dftSize);
         }
@@ -280,7 +278,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
 
         if (next_dftSize != settings.dftSize) {
             /* Set readSize for 50% overlap */
-            audioThread.readSize = std::max<unsigned int>(next_dftSize/2, UserLimits.dftSizeMin);
+            audioReadSize = std::max<unsigned int>(next_dftSize/2, UserLimits.dftSizeMin);
             std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
             dftResource.get().setSize(next_dftSize);
         }
@@ -288,12 +286,12 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         /* Read size up */
         unsigned int next_readSize = std::min<int>(settings.audioReadSize + UserLimits.audioReadSizeStep, settings.dftSize);
 
-        audioThread.readSize = next_readSize;
+        audioReadSize = next_readSize;
     } else if (state[SDL_SCANCODE_UP]) {
         /* Read size down */
         unsigned int next_readSize = std::max<int>(settings.audioReadSize - UserLimits.audioReadSizeStep, UserLimits.dftSizeMin);
 
-        audioThread.readSize = next_readSize;
+        audioReadSize = next_readSize;
     } else if (state[SDL_SCANCODE_MINUS]) {
         /* Magnitude min down */
         double next_magnitudeMin;
@@ -365,14 +363,10 @@ void InterfaceThread::run() {
     updateSettings();
     renderSettings();
 
-    running = true;
-
     while (running) {
         SDL_Event e;
         if (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
-                audioThread.running = false;
-                spectrogramThread.running = false;
                 running = false;
             } else if (e.type == SDL_KEYDOWN) {
                 const uint8_t *state = SDL_GetKeyboardState(nullptr);

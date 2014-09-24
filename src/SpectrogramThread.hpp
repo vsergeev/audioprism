@@ -10,20 +10,7 @@
 #include "RealDft.hpp"
 #include "Spectrogram.hpp"
 
-class SpectrogramThread {
-  public:
-    SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, unsigned int sampleRate, unsigned int width);
-    void run();
-    std::atomic<bool> running;
-
-  private:
-    ThreadSafeQueue<std::vector<double>> &samplesQueue;
-    ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue;
-    ThreadSafeResource<RealDft> &dftResource;
-    ThreadSafeResource<Spectrogram> &spectrogramResource;
-    unsigned int sampleRate;
-    unsigned int width;
-};
+void SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, unsigned int width, std::atomic<bool> &running);
 
 #endif
 

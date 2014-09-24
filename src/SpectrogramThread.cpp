@@ -4,14 +4,10 @@
 
 #include "SpectrogramThread.hpp"
 
-SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, unsigned int sampleRate, unsigned int width) : samplesQueue(samplesQueue), pixelsQueue(pixelsQueue), dftResource(dftResource), spectrogramResource(spectrogramResource), sampleRate(sampleRate), width(width) { }
-
-void SpectrogramThread::run() {
+void SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, unsigned int width, std::atomic<bool> &running) {
     std::vector<double> samples;
     std::vector<std::complex<double>> dftSamples;
     std::vector<uint32_t> pixels(width);
-
-    running = true;
 
     while (running) {
         std::vector<double> newSamples(samplesQueue.pop());

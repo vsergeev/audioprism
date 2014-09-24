@@ -30,17 +30,20 @@ void spectrogram_realtime() {
     ThreadSafeResource<Spectrogram> spectrogramResource(spectrogram);
     ThreadSafeQueue<std::vector<double>> samplesQueue;
     ThreadSafeQueue<std::vector<uint32_t>> pixelsQueue;
+    std::atomic<size_t> audioReadSize;
+    std::atomic<bool> running;
 
-    AudioThread audioThread(audioResource, samplesQueue, InitialSettings.audioReadSize);
-    SpectrogramThread spectrogramThread(samplesQueue, pixelsQueue, dftResource, spectrogramResource, InitialSettings.audioSampleRate, (InitialSettings.orientation == Orientation::Vertical) ? InitialSettings.width : InitialSettings.height);
-    InterfaceThread interfaceThread(pixelsQueue, audioResource, dftResource, spectrogramResource, audioThread, spectrogramThread, InitialSettings.width, InitialSettings.height, InitialSettings.orientation);
+    audioReadSize = InitialSettings.audioReadSize;
+    running = true;
 
-    std::thread t1(&AudioThread::run, &audioThread);
-    std::thread t2(&SpectrogramThread::run, &spectrogramThread);
+    InterfaceThread interfaceThread(pixelsQueue, audioResource, dftResource, spectrogramResource, audioReadSize, running, InitialSettings.width, InitialSettings.height, InitialSettings.orientation);
+
+    std::thread audioThread(AudioThread, std::ref(audioResource), std::ref(samplesQueue), std::ref(audioReadSize), std::ref(running));
+    std::thread spectrogramThread(SpectrogramThread, std::ref(samplesQueue), std::ref(pixelsQueue), std::ref(dftResource), std::ref(spectrogramResource), (InitialSettings.orientation == Orientation::Vertical) ? InitialSettings.width : InitialSettings.height, std::ref(running));
     interfaceThread.run();
 
-    t1.join();
-    t2.join();
+    audioThread.join();
+    spectrogramThread.join();
 }
 
 void spectrogram_audiofile(std::string audioPath, std::string imagePath) {

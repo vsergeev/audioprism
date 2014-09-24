@@ -2,12 +2,8 @@
 #include "AudioThread.hpp"
 #include "ThreadSafeQueue.hpp"
 
-AudioThread::AudioThread(ThreadSafeResource<AudioSource> &audioResource, ThreadSafeQueue<std::vector<double>> &samplesQueue, size_t readSize) : readSize(readSize), audioResource(audioResource), samplesQueue(samplesQueue) { }
-
-void AudioThread::run() {
+void AudioThread(ThreadSafeResource<AudioSource> &audioResource, ThreadSafeQueue<std::vector<double>> &samplesQueue, std::atomic<size_t> &readSize, std::atomic<bool> &running) {
     std::vector<double> samples(readSize);
-
-    running = true;
 
     while (running) {
         if (samples.size() != readSize)

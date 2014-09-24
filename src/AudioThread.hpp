@@ -9,18 +9,7 @@
 
 #include "AudioSource.hpp"
 
-class AudioThread {
-  public:
-    AudioThread(ThreadSafeResource<AudioSource> &audioResource, ThreadSafeQueue<std::vector<double>> &samplesQueue, size_t readSize);
-    void run();
-    std::atomic<bool> running;
-
-    std::atomic<size_t> readSize;
-
-  private:
-    ThreadSafeResource<AudioSource> &audioResource;
-    ThreadSafeQueue<std::vector<double>> &samplesQueue;
-};
+void AudioThread(ThreadSafeResource<AudioSource> &audioResource, ThreadSafeQueue<std::vector<double>> &samplesQueue, std::atomic<size_t> &readSize, std::atomic<bool> &running);
 
 #endif
 

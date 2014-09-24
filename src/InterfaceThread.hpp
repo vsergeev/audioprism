@@ -18,20 +18,21 @@
 
 class InterfaceThread {
   public:
-    InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, AudioThread &audioThread, SpectrogramThread &spectrogramThread, unsigned int width, unsigned int height, Orientation orientation);
+    InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, std::atomic<size_t> &audioReadSize, std::atomic<bool> &running, unsigned int width, unsigned int height, Orientation orientation);
     ~InterfaceThread();
 
     void run();
-    std::atomic<bool> running;
 
   private:
+    /* Shared resources */
     ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue;
     ThreadSafeResource<AudioSource> &audioResource;
     ThreadSafeResource<RealDft> &dftResource;
     ThreadSafeResource<Spectrogram> &spectrogramResource;
-    AudioThread &audioThread;
-    SpectrogramThread &spectrogramThread;
+    std::atomic<size_t> &audioReadSize;
+    std::atomic<bool> &running;
 
+    /* Owned resources (SDL) */
     SDL_Window *win;
     SDL_Renderer *renderer;
     SDL_Texture *pixelsTexture;
@@ -40,16 +41,16 @@ class InterfaceThread {
     SDL_Rect settingsRect;
     SDL_Rect cursorRect;
     TTF_Font *font;
-
-    void updateSettings();
-    void renderSettings();
-    void renderCursor(int x, int y);
-    void handleKeyDown(const uint8_t *state);
-
     /* Interface settings */
     const unsigned int width, height;
     const Orientation orientation;
     bool hideInfo;
+
+    /* Helper functions for SDL */
+    void updateSettings();
+    void renderSettings();
+    void renderCursor(int x, int y);
+    void handleKeyDown(const uint8_t *state);
 
     /* Cached settings from audio source, dft, and spectrogram classes */
     struct {

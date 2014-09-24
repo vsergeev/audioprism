@@ -24,12 +24,11 @@ Spectrogram
 AudioThread
     ref to AudioSource (input)
     ref to samples queue (output)
+    ref to read size
 
     while True:
         read audio samples from source
         push samples into samples queue
-
-    get/set     read size
 
 SpectrogramThread
     ref to samples queue (input)
@@ -50,8 +49,7 @@ InterfaceThread
     ref to AudioSource (for configuration)
     ref to RealDft (for configuration)
     ref to Spectrogram (for configuration)
-    ref to AudioThread (for configuration, control)
-    ref to SpectrogramThread (for control)
+    ref to read size (for control)
 
     while True:
         check and handle SDL events
