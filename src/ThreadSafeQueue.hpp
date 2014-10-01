@@ -40,13 +40,13 @@ template <typename T>
 void ThreadSafeQueue<T>::push(T value) {
     std::lock_guard<std::mutex> lg(lock);
     queue.push(value);
-    cvNotEmpty.notify_all();
+    cvNotEmpty.notify_one();
 }
 
 template <typename T>
 T ThreadSafeQueue<T>::pop() {
     std::unique_lock<std::mutex> lg(lock);
-    if (queue.empty())
+    while (queue.empty())
         cvNotEmpty.wait(lg);
     T value(std::move(queue.front()));
     queue.pop();
@@ -57,7 +57,7 @@ template <typename T>
 template <typename Rep, typename Period>
 bool ThreadSafeQueue<T>::wait(const std::chrono::duration<Rep, Period> &rel_time) {
     std::unique_lock<std::mutex> lg(lock);
-    if (queue.empty())
+    while (queue.empty())
         return (cvNotEmpty.wait_for(lg, rel_time) == std::cv_status::no_timeout);
     return true;
 }
