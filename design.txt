@@ -60,41 +60,12 @@ InterfaceThread
 
 ################################################################################
 
-- add console options to configure initial configuration
-
-    Interface Settings
-    width
-        -w, --width
-    height
-        -h, --height
-    orientation
-        --horizontal, --vertical ?
-
-    Audio Settings
-    sample rate
-        -r, --sample-rate
-
-    DFT Settings
-    overlap %
-        --overlap ?
-    dft size
-        --dft-size ?
-    window function
-        --window <hanning, hamming, rectangular>
-
-    Spectrogram Settings
-    magnitude min
-        --magnitude-min
-    magnitude max
-        --magnitude-max
-    magnitude linear/logarithimic
-        --magnitude-scale <linear, logarithmic>
-    color scheme
-        --colors <heat, grayscale, blue>
-
+- add namespaces
 - revisit architecture
 - add font file
-- add readme, license, changelog
+- add readme
+- add license
+- add release changelog
 - release
 
 todo:
