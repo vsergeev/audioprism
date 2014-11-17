@@ -8,7 +8,7 @@ struct Settings {
     /* Interface Settings */
     unsigned int width = 640;
     unsigned int height = 480;
-    Orientation orientation = Orientation::Horizontal;
+    Orientation orientation = Orientation::Vertical;
     /* Audio Settings */
     unsigned int audioSampleRate = 24000;
     unsigned int audioReadSize = 1024;
@@ -22,7 +22,7 @@ struct Settings {
     Spectrogram::ColorScheme colors = Spectrogram::ColorScheme::Heat;
     /* Initial settings when switching between logarithmic/linear in UI */
     double magnitudeLogMin = 0.0;
-    double magnitudeLogMax = 45.0;
+    double magnitudeLogMax = 50.0;
     double magnitudeLinearMin = 0.0;
     double magnitudeLinearMax = 50.0;
 };
