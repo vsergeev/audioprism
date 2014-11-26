@@ -1,4 +1,3 @@
-- add license
 - add release changelog
 - revisit architecture
 - add font file
