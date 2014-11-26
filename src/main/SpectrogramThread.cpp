@@ -4,7 +4,7 @@
 
 #include "SpectrogramThread.hpp"
 
-void SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, unsigned int width, std::atomic<bool> &running) {
+void SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<DFT::RealDft> &dftResource, ThreadSafeResource<Spectrogram::SpectrumRenderer> &spectrogramResource, unsigned int width, std::atomic<bool> &running) {
     std::vector<double> samples;
     std::vector<std::complex<double>> dftSamples;
     std::vector<uint32_t> pixels(width);
@@ -13,8 +13,8 @@ void SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, Threa
         std::vector<double> newSamples(samplesQueue.pop());
 
         {
-            std::lock_guard<ThreadSafeResource<RealDft>> dftLg(dftResource);
-            std::lock_guard<ThreadSafeResource<Spectrogram>> spectrogramLg(spectrogramResource);
+            std::lock_guard<ThreadSafeResource<DFT::RealDft>> dftLg(dftResource);
+            std::lock_guard<ThreadSafeResource<Spectrogram::SpectrumRenderer>> spectrogramLg(spectrogramResource);
 
             /* Resize samples buffer and dft samples buffer */
             if (samples.size() != dftResource.get().getSize()) {

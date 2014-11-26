@@ -1,5 +1,5 @@
-#ifndef _AUDIO_THREAD_HPP
-#define _AUDIO_THREAD_HPP
+#ifndef _AUDIOTHREAD_HPP
+#define _AUDIOTHREAD_HPP
 
 #include <vector>
 #include <atomic>
@@ -7,9 +7,9 @@
 #include "ThreadSafeResource.hpp"
 #include "ThreadSafeQueue.hpp"
 
-#include "AudioSource.hpp"
+#include "audio/AudioSource.hpp"
 
-void AudioThread(ThreadSafeResource<AudioSource> &audioResource, ThreadSafeQueue<std::vector<double>> &samplesQueue, std::atomic<size_t> &readSize, std::atomic<bool> &running);
+void AudioThread(ThreadSafeResource<Audio::AudioSource> &audioResource, ThreadSafeQueue<std::vector<double>> &samplesQueue, std::atomic<size_t> &readSize, std::atomic<bool> &running);
 
 #endif
 

@@ -5,9 +5,11 @@
 #include <algorithm>
 #include <functional>
 
-#include "Spectrogram.hpp"
+#include "SpectrumRenderer.hpp"
 
-Spectrogram::Spectrogram(double magnitudeMin, double magnitudeMax, bool magnitudeLog, ColorScheme colors) : settings({magnitudeMin, magnitudeMax, magnitudeLog, colors}) {}
+namespace Spectrogram {
+
+SpectrumRenderer::SpectrumRenderer(double magnitudeMin, double magnitudeMax, bool magnitudeLog, ColorScheme colors) : settings({magnitudeMin, magnitudeMax, magnitudeLog, colors}) {}
 
 template <typename T>
 static constexpr T normalize(T value, T min, T max) {
@@ -74,16 +76,16 @@ static uint32_t valueToPixel_Grayscale(double value) {
     return (c << 16) | (c << 8) | (c);
 }
 
-void Spectrogram::render(std::vector<uint32_t> &pixels, const std::vector<std::complex<double>> &dft) {
+void SpectrumRenderer::render(std::vector<uint32_t> &pixels, const std::vector<std::complex<double>> &dft) {
     unsigned int i;
     uint32_t (*valueToPixel)(double) = nullptr;
     double (*processMagnitude)(double) = nullptr;
 
-    if (settings.colors == Spectrogram::ColorScheme::Heat)
+    if (settings.colors == SpectrumRenderer::ColorScheme::Heat)
         valueToPixel = valueToPixel_Heat;
-    else if (settings.colors == Spectrogram::ColorScheme::Blue)
+    else if (settings.colors == SpectrumRenderer::ColorScheme::Blue)
         valueToPixel = valueToPixel_Blue;
-    else if (settings.colors == Spectrogram::ColorScheme::Grayscale)
+    else if (settings.colors == SpectrumRenderer::ColorScheme::Grayscale)
         valueToPixel = valueToPixel_Grayscale;
 
     if (settings.magnitudeLog)
@@ -99,12 +101,14 @@ void Spectrogram::render(std::vector<uint32_t> &pixels, const std::vector<std::c
     }
 }
 
-std::function<float (int)> Spectrogram::getPixelToHz(unsigned int width, unsigned int dftSize, unsigned int sampleRate) {
+std::function<float (int)> SpectrumRenderer::getPixelToHz(unsigned int width, unsigned int dftSize, unsigned int sampleRate) {
     float binPerPixel, hzPerBin;
 
     binPerPixel = static_cast<float>((dftSize/2 + 1))/static_cast<float>(width);
     hzPerBin = ((static_cast<float>(sampleRate))/2.0)/static_cast<float>((dftSize/2 + 1));
 
     return [=] (int x) -> float { return std::floor(static_cast<float>(x)*binPerPixel)*hzPerBin; };
+}
+
 }
 

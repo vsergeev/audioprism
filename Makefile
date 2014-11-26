@@ -2,15 +2,15 @@ PROJECT = spectrogram
 
 ################################################################################
 
-SRCS = PulseAudioSource.cpp
-SRCS += RealDft.cpp
-SRCS += Spectrogram.cpp
-SRCS += AudioThread.cpp
-SRCS += SpectrogramThread.cpp
-SRCS += InterfaceThread.cpp
-SRCS += WaveAudioSource.cpp
-SRCS += MagickImageSink.cpp
-SRCS += main.cpp
+SRCS = audio/PulseAudioSource.cpp
+SRCS += audio/WaveAudioSource.cpp
+SRCS += dft/RealDft.cpp
+SRCS += image/MagickImageSink.cpp
+SRCS += spectrogram/SpectrumRenderer.cpp
+SRCS += main/AudioThread.cpp
+SRCS += main/SpectrogramThread.cpp
+SRCS += main/InterfaceThread.cpp
+SRCS += main/main.cpp
 
 SRC_DIR = src
 BUILD_DIR = build
@@ -23,7 +23,7 @@ OBJS = $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(SRCS))
 CXX = g++
 REMOVE = rm -rf
 
-CPPFLAGS = -std=c++11 -W -Wall -Wextra -pedantic -O3 -g
+CPPFLAGS = -std=c++11 -W -Wall -Wextra -pedantic -O3 -g -Isrc/
 CPPFLAGS += $(shell sdl2-config --cflags)
 CPPFLAGS += $(shell GraphicsMagick++-config --cppflags)
 

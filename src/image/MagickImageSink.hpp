@@ -6,6 +6,8 @@
 #include "ImageSink.hpp"
 #include "Orientation.hpp"
 
+namespace Image {
+
 class MagickImageSink : public ImageSink {
   public:
     MagickImageSink(std::string path, unsigned int width, Orientation orientation);
@@ -19,6 +21,8 @@ class MagickImageSink : public ImageSink {
     const Orientation orientation;
     std::vector<uint32_t> imagePixels;
 };
+
+}
 
 #endif
 

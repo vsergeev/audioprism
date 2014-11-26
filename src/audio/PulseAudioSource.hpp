@@ -5,6 +5,8 @@
 
 #include "AudioSource.hpp"
 
+namespace Audio {
+
 class PulseAudioSource : public AudioSource {
   public:
     PulseAudioSource(unsigned int sampleRate);
@@ -16,6 +18,8 @@ class PulseAudioSource : public AudioSource {
     pa_simple *s;
     unsigned int sampleRate;
 };
+
+}
 
 #endif
 

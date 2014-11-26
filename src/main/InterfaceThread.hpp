@@ -1,24 +1,25 @@
-#ifndef _INTERFACE_THREAD_HPP
-#define _INTERFACE_THREAD_HPP
+#ifndef _INTERFACETHREAD_HPP
+#define _INTERFACETHREAD_HPP
 
 #include <functional>
 
 #include <SDL.h>
 #include <SDL_ttf.h>
 
+#include "image/Orientation.hpp"
+#include "audio/AudioSource.hpp"
+#include "dft/RealDft.hpp"
+#include "spectrogram/SpectrumRenderer.hpp"
+
 #include "ThreadSafeQueue.hpp"
 #include "ThreadSafeResource.hpp"
 
-#include "Orientation.hpp"
-#include "AudioSource.hpp"
-#include "RealDft.hpp"
-#include "Spectrogram.hpp"
 #include "AudioThread.hpp"
 #include "SpectrogramThread.hpp"
 
 class InterfaceThread {
   public:
-    InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, std::atomic<size_t> &audioReadSize, std::atomic<bool> &running, unsigned int width, unsigned int height, Orientation orientation);
+    InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<Audio::AudioSource> &audioResource, ThreadSafeResource<DFT::RealDft> &dftResource, ThreadSafeResource<Spectrogram::SpectrumRenderer> &spectrogramResource, std::atomic<size_t> &audioReadSize, std::atomic<bool> &running, unsigned int width, unsigned int height, Image::Orientation orientation);
     ~InterfaceThread();
 
     void run();
@@ -26,9 +27,9 @@ class InterfaceThread {
   private:
     /* Shared resources */
     ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue;
-    ThreadSafeResource<AudioSource> &audioResource;
-    ThreadSafeResource<RealDft> &dftResource;
-    ThreadSafeResource<Spectrogram> &spectrogramResource;
+    ThreadSafeResource<Audio::AudioSource> &audioResource;
+    ThreadSafeResource<DFT::RealDft> &dftResource;
+    ThreadSafeResource<Spectrogram::SpectrumRenderer> &spectrogramResource;
     std::atomic<size_t> &audioReadSize;
     std::atomic<bool> &running;
 
@@ -43,7 +44,7 @@ class InterfaceThread {
     TTF_Font *font;
     /* Interface settings */
     const unsigned int width, height;
-    const Orientation orientation;
+    const Image::Orientation orientation;
     bool hideInfo;
 
     /* Helper functions for SDL */
@@ -56,13 +57,13 @@ class InterfaceThread {
     struct {
         unsigned int audioSampleRate;
         unsigned int audioReadSize;
-        RealDft::WindowFunction dftWf;
+        DFT::RealDft::WindowFunction dftWf;
         unsigned int dftSize;
         std::function<float (int)> fPixelToHz;
         double magnitudeMin;
         double magnitudeMax;
         bool magnitudeLog;
-        Spectrogram::ColorScheme colors;
+        Spectrogram::SpectrumRenderer::ColorScheme colors;
     } settings;
 };
 

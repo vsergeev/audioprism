@@ -5,10 +5,15 @@
 #include <SDL_ttf.h>
 
 #include "InterfaceThread.hpp"
-
 #include "Configuration.hpp"
 
-InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<Spectrogram> &spectrogramResource, std::atomic<size_t> &audioReadSize, std::atomic<bool> &running, unsigned int width, unsigned int height, Orientation orientation) : pixelsQueue(pixelsQueue), audioResource(audioResource), dftResource(dftResource), spectrogramResource(spectrogramResource), audioReadSize(audioReadSize), running(running), width(width), height(height), orientation(orientation), hideInfo(false) {
+using namespace Audio;
+using namespace DFT;
+using namespace Spectrogram;
+using namespace Image;
+using namespace Configuration;
+
+InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<SpectrumRenderer> &spectrogramResource, std::atomic<size_t> &audioReadSize, std::atomic<bool> &running, unsigned int width, unsigned int height, Orientation orientation) : pixelsQueue(pixelsQueue), audioResource(audioResource), dftResource(dftResource), spectrogramResource(spectrogramResource), audioReadSize(audioReadSize), running(running), width(width), height(height), orientation(orientation), hideInfo(false) {
     int ret;
 
     ret = SDL_Init(SDL_INIT_VIDEO);
@@ -133,9 +138,9 @@ void InterfaceThread::updateSettings() {
     }
 
     {
-        std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
+        std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
 
-        if (orientation == Orientation::Vertical)
+        if (orientation == Image::Orientation::Vertical)
             settings.fPixelToHz = spectrogramResource.get().getPixelToHz(width, settings.dftSize, settings.audioSampleRate);
         else
             settings.fPixelToHz = spectrogramResource.get().getPixelToHz(height, settings.dftSize, settings.audioSampleRate);
@@ -192,7 +197,7 @@ void InterfaceThread::renderCursor(int x, int y) {
     SDL_Color settingsColor = {0xff, 0x00, 0x00, 0x00};
     float frequency;
 
-    if (orientation == Orientation::Vertical)
+    if (orientation == Image::Orientation::Vertical)
         frequency = settings.fPixelToHz(x);
     else
         frequency = settings.fPixelToHz(height-y);
@@ -219,17 +224,17 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         running = false;
     } else if (state[SDL_SCANCODE_C]) {
         /* Change color scheme */
-        Spectrogram::ColorScheme next_colors = Spectrogram::ColorScheme::Heat;
+        SpectrumRenderer::ColorScheme next_colors = SpectrumRenderer::ColorScheme::Heat;
 
-        if (settings.colors == Spectrogram::ColorScheme::Heat)
-            next_colors = Spectrogram::ColorScheme::Blue;
-        else if (settings.colors == Spectrogram::ColorScheme::Blue)
-            next_colors = Spectrogram::ColorScheme::Grayscale;
-        else if (settings.colors == Spectrogram::ColorScheme::Grayscale)
-            next_colors = Spectrogram::ColorScheme::Heat;
+        if (settings.colors == SpectrumRenderer::ColorScheme::Heat)
+            next_colors = SpectrumRenderer::ColorScheme::Blue;
+        else if (settings.colors == SpectrumRenderer::ColorScheme::Blue)
+            next_colors = SpectrumRenderer::ColorScheme::Grayscale;
+        else if (settings.colors == SpectrumRenderer::ColorScheme::Grayscale)
+            next_colors = SpectrumRenderer::ColorScheme::Heat;
 
         {
-            std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
+            std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
             spectrogramResource.get().settings.colors = next_colors;
         }
     } else if (state[SDL_SCANCODE_W]) {
@@ -252,7 +257,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         bool next_magnitudeLog = !settings.magnitudeLog;
 
         {
-            std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
+            std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
             spectrogramResource.get().settings.magnitudeLog = next_magnitudeLog;
             if (next_magnitudeLog) {
                 spectrogramResource.get().settings.magnitudeMin = InitialSettings.magnitudeLogMin;
@@ -302,7 +307,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             next_magnitudeMin = std::max<double>(settings.magnitudeMin - UserLimits.magnitudeLinearStep, UserLimits.magnitudeLinearMin);
 
         {
-            std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
+            std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
             spectrogramResource.get().settings.magnitudeMin = next_magnitudeMin;
         }
     } else if (state[SDL_SCANCODE_EQUALS]) {
@@ -315,7 +320,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             next_magnitudeMin = std::min<double>(settings.magnitudeMin + UserLimits.magnitudeLinearStep, settings.magnitudeMax - UserLimits.magnitudeLinearStep);
 
         {
-            std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
+            std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
             spectrogramResource.get().settings.magnitudeMin = next_magnitudeMin;
         }
     } else if (state[SDL_SCANCODE_LEFTBRACKET]) {
@@ -328,7 +333,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             next_magnitudeMax = std::max<double>(settings.magnitudeMax - UserLimits.magnitudeLinearStep, settings.magnitudeMin + UserLimits.magnitudeLinearStep);
 
         {
-            std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
+            std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
             spectrogramResource.get().settings.magnitudeMax = next_magnitudeMax;
         }
     } else if (state[SDL_SCANCODE_RIGHTBRACKET]) {
@@ -341,7 +346,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             next_magnitudeMax = std::min<double>(settings.magnitudeMax + UserLimits.magnitudeLinearStep, UserLimits.magnitudeLinearMax);
 
         {
-            std::lock_guard<ThreadSafeResource<Spectrogram>> lg(spectrogramResource);
+            std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
             spectrogramResource.get().settings.magnitudeMax = next_magnitudeMax;
         }
     } else if (state[SDL_SCANCODE_H]) {
@@ -396,7 +401,7 @@ void InterfaceThread::run() {
                 size = width*height;
             }
 
-            if (orientation == Orientation::Vertical) {
+            if (orientation == Image::Orientation::Vertical) {
                 /* Move old pixels up */
                 memmove(pixels.get(), pixels.get()+size, (width*height-size)*sizeof(uint32_t));
 

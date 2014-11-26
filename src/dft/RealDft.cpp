@@ -4,6 +4,8 @@
 
 #include "RealDft.hpp"
 
+namespace DFT {
+
 std::string to_string(const RealDft::WindowFunction &wf) {
     if (wf == RealDft::WindowFunction::Hanning)
         return std::string("Hanning");
@@ -122,5 +124,7 @@ RealDft::WindowFunction RealDft::getWindowFunction() {
 void RealDft::setWindowFunction(WindowFunction wf) {
     windowFunction = wf;
     calculateWindow(window, windowFunction);
+}
+
 }
 

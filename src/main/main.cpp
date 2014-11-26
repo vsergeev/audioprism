@@ -2,33 +2,42 @@
 #include <iostream>
 #include <getopt.h>
 
+#include "image/Orientation.hpp"
+#include "audio/PulseAudioSource.hpp"
+#include "dft/RealDft.hpp"
+#include "spectrogram/SpectrumRenderer.hpp"
+
+#include "audio/WaveAudioSource.hpp"
+#include "image/MagickImageSink.hpp"
+
 #include "ThreadSafeResource.hpp"
 #include "ThreadSafeQueue.hpp"
 
-#include "Orientation.hpp"
-#include "PulseAudioSource.hpp"
-#include "RealDft.hpp"
-#include "Spectrogram.hpp"
 #include "AudioThread.hpp"
 #include "SpectrogramThread.hpp"
 #include "InterfaceThread.hpp"
-
-#include "WaveAudioSource.hpp"
-#include "MagickImageSink.hpp"
-
 #include "Configuration.hpp"
 
+using namespace Audio;
+using namespace DFT;
+using namespace Spectrogram;
+using namespace Image;
+
+namespace Configuration {
 Settings InitialSettings;
 Limits UserLimits;
+}
+
+using namespace Configuration;
 
 void spectrogram_realtime() {
     PulseAudioSource audio(InitialSettings.audioSampleRate);
     RealDft dft(InitialSettings.dftSize, InitialSettings.dftWf);
-    Spectrogram spectrogram(InitialSettings.magnitudeMin, InitialSettings.magnitudeMax, InitialSettings.magnitudeLog, InitialSettings.colors);
+    SpectrumRenderer spectrogram(InitialSettings.magnitudeMin, InitialSettings.magnitudeMax, InitialSettings.magnitudeLog, InitialSettings.colors);
 
     ThreadSafeResource<AudioSource> audioResource(audio);
     ThreadSafeResource<RealDft> dftResource(dft);
-    ThreadSafeResource<Spectrogram> spectrogramResource(spectrogram);
+    ThreadSafeResource<SpectrumRenderer> spectrogramResource(spectrogram);
     ThreadSafeQueue<std::vector<double>> samplesQueue;
     ThreadSafeQueue<std::vector<uint32_t>> pixelsQueue;
     std::atomic<size_t> audioReadSize;
@@ -50,7 +59,7 @@ void spectrogram_realtime() {
 void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
     WaveAudioSource audio(audioPath);
     RealDft dft(InitialSettings.dftSize, InitialSettings.dftWf);
-    Spectrogram spectrogram(InitialSettings.magnitudeMin, InitialSettings.magnitudeMax, InitialSettings.magnitudeLog, InitialSettings.colors);
+    SpectrumRenderer spectrogram(InitialSettings.magnitudeMin, InitialSettings.magnitudeMax, InitialSettings.magnitudeLog, InitialSettings.colors);
     MagickImageSink image(imagePath, InitialSettings.width, InitialSettings.orientation);
 
     std::vector<double> newSamples(InitialSettings.audioReadSize);

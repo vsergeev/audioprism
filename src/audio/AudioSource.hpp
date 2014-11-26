@@ -1,8 +1,10 @@
-#ifndef _AUDIO_SOURCE_HPP
-#define _AUDIO_SOURCE_HPP
+#ifndef _AUDIOSOURCE_HPP
+#define _AUDIOSOURCE_HPP
 
 #include <stdexcept>
 #include <vector>
+
+namespace Audio {
 
 class AudioSource {
   public:
@@ -20,6 +22,8 @@ class AudioReadException : public std::runtime_error {
   public:
     using std::runtime_error::runtime_error;
 };
+
+}
 
 #endif
 

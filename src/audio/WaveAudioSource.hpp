@@ -7,6 +7,8 @@
 
 #include "AudioSource.hpp"
 
+namespace Audio {
+
 class WaveAudioSource : public AudioSource {
   public:
     WaveAudioSource(std::string path);
@@ -18,6 +20,8 @@ class WaveAudioSource : public AudioSource {
     SNDFILE *sndfile;
     SF_INFO sfinfo;
 };
+
+}
 
 #endif
 

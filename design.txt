@@ -1,71 +1,71 @@
+Classes
+
 AudioSource
     owns audio device
 
-    source (input) -> samples (output)
+    input source -> output samples
 
     get         sample rate
 
 RealDft
     owns fftw plan and buffers
 
-    samples (input) -> windowed samples -> dft (output)
+    input samples -> windowed samples -> output dft
 
     get/set     size, window function
 
-Spectrogram
+SpectrumRenderer
 
-    dft (input) -> pixel row (output)
+    input dft -> output pixel row
 
     get/set     magnitude min, magnitude max, magnitude log., color scheme
     get         pixel to hz lambda
 
 ################################################################################
 
+Threads
+
 AudioThread
-    ref to AudioSource (input)
-    ref to samples queue (output)
+    input AudioSource -> output samplesQueue
     ref to read size
 
     while True:
-        read audio samples from source
-        push samples into samples queue
+        read audio samples from AudioSource
+        push samples into samplesQueue
 
 SpectrogramThread
-    ref to samples queue (input)
-    ref to pixels queue (output)
+    input SamplesQueue -> output pixelsQueue
     ref to RealDft
-    ref to Spectrogram
+    ref to SpectrumRenderer
 
     while True:
-        pop new samples from samples queue
+        pop new samples from samplesQueue
         shift new samples into sample buffer
         run RealDft on sample buffer to produce dft
-        run Spectrogram on dft to produce pixels
-        push pixels into pixels queue
+        run SpectrumRenderer on dft to produce pixels
+        push pixels into pixelsQueue
 
 InterfaceThread
-    ref to pixels queue (input)
-    owns SDL (output)
+    input pixelsQueue -> output SDL
     ref to AudioSource (for configuration)
     ref to RealDft (for configuration)
-    ref to Spectrogram (for configuration)
+    ref to SpectrumRenderer (for configuration)
     ref to read size (for control)
 
     while True:
         check and handle SDL events
-        pop new pixels from pixels queue
+        pop new pixels from pixelsQueue
         shift new pixels into pixel buffer
-        draw pixels
+        draw pixel buffer to SDL
         draw settings info
 
 ################################################################################
 
-- add namespaces
-- revisit architecture
 - add font file
-- add readme
+- revisit architecture
 - add license
 - add release changelog
+- add readme
 - release
 
 todo:

@@ -5,6 +5,8 @@
 
 #include "WaveAudioSource.hpp"
 
+namespace Audio {
+
 WaveAudioSource::WaveAudioSource(std::string path) : sfinfo() {
     if ((sndfile = sf_open(path.c_str(), SFM_READ, &sfinfo)) == nullptr)
         throw AudioOpenException("Error opening WAV file: " + std::string(sf_strerror(nullptr)));
@@ -29,5 +31,7 @@ void WaveAudioSource::read(std::vector<double> &samples) {
 
 unsigned int WaveAudioSource::getSampleRate() {
     return sfinfo.samplerate;
+}
+
 }
 

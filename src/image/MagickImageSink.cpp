@@ -5,6 +5,8 @@
 
 #include "MagickImageSink.hpp"
 
+namespace Image {
+
 MagickImageSink::MagickImageSink(std::string path, unsigned int width, Orientation orientation) : path(path), width(width), orientation(orientation) {
     Magick::InitializeMagick(nullptr);
 }
@@ -22,5 +24,7 @@ void MagickImageSink::write() {
         image.rotate(-90);
 
     image.write(path);
+}
+
 }
 

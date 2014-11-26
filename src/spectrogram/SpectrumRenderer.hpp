@@ -1,16 +1,18 @@
-#ifndef _SPECTROGRAM_HPP
-#define _SPECTROGRAM_HPP
+#ifndef _SPECTRUMRENDERER_HPP
+#define _SPECTRUMRENDERER_HPP
 
 #include <vector>
 #include <complex>
 #include <cstdint>
 #include <functional>
 
-class Spectrogram {
+namespace Spectrogram {
+
+class SpectrumRenderer {
   public:
     enum class ColorScheme { Heat, Blue, Grayscale };
 
-    Spectrogram(double magnitudeMin, double magnitudeMax, bool magnitudeLog, ColorScheme colors);
+    SpectrumRenderer(double magnitudeMin, double magnitudeMax, bool magnitudeLog, ColorScheme colors);
 
     void render(std::vector<uint32_t> &pixels, const std::vector<std::complex<double>> &dft);
 
@@ -23,6 +25,8 @@ class Spectrogram {
         ColorScheme colors;
     } settings;
 };
+
+}
 
 #endif
 

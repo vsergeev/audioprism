@@ -1,10 +1,12 @@
-#ifndef _REAL_DFT_HPP
-#define _REAL_DFT_HPP
+#ifndef _REALDFT_HPP
+#define _REALDFT_HPP
 
 #include <vector>
 #include <complex>
 
 #include <fftw3.h>
+
+namespace DFT {
 
 class RealDft {
   public:
@@ -53,6 +55,8 @@ class SizeMismatchException : public std::length_error {
 
 std::ostream &operator<<(std::ostream &os, const RealDft::WindowFunction &wf);
 std::string to_string(const RealDft::WindowFunction &wf);
+
+}
 
 #endif
 

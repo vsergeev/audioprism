@@ -1,8 +1,15 @@
 #ifndef _CONFIGURATION_HPP
 #define _CONFIGURATION_HPP
 
-#include "RealDft.hpp"
-#include "Orientation.hpp"
+#include "dft/RealDft.hpp"
+#include "spectrogram/SpectrumRenderer.hpp"
+#include "image/Orientation.hpp"
+
+using namespace DFT;
+using namespace Image;
+using namespace Spectrogram;
+
+namespace Configuration {
 
 struct Settings {
     /* Interface Settings */
@@ -19,7 +26,7 @@ struct Settings {
     double magnitudeMin = 0.0;
     double magnitudeMax = 45.0;
     bool magnitudeLog = true;
-    Spectrogram::ColorScheme colors = Spectrogram::ColorScheme::Heat;
+    SpectrumRenderer::ColorScheme colors = SpectrumRenderer::ColorScheme::Heat;
     /* Initial settings when switching between logarithmic/linear in UI */
     double magnitudeLogMin = 0.0;
     double magnitudeLogMax = 50.0;
@@ -45,6 +52,8 @@ struct Limits {
 
 extern Settings InitialSettings;
 extern Limits UserLimits;
+
+}
 
 #endif
 

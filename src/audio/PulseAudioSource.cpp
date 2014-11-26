@@ -6,6 +6,8 @@
 
 #include "PulseAudioSource.hpp"
 
+namespace Audio {
+
 PulseAudioSource::PulseAudioSource(unsigned int sampleRate) : sampleRate(sampleRate) {
     int error;
     pa_sample_spec ss;
@@ -45,5 +47,7 @@ void PulseAudioSource::read(std::vector<double> &samples) {
 
 unsigned int PulseAudioSource::getSampleRate() {
     return sampleRate;
+}
+
 }
 
