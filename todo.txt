@@ -1,0 +1,15 @@
+- add license
+- add release changelog
+- revisit architecture
+- add font file
+- add readme with screenshots
+- release
+
+todo:
+- add bandwidth selection?
+- add magnitude cursor info
+- add dft averaging
+- add frequency cursor delta
+- add logarithimic/linear frequency?
+- add realtime sample rate change?
+- add realtime window size change?
