@@ -6,11 +6,11 @@
     * `audio`
         * `AudioSource.hpp`: AudioSource abstract base class
         * `PulseAudioSource.cpp/hpp`: PulseAudio Source
-        * `WaveAudioSource.cpp/hpp`: WAV File Soruce
+        * `WaveAudioSource.cpp/hpp`: WAV File Source
     * `dft`
         * `RealDft.cpp/hpp`: Real DFT (FFTW wrapper)
     * `spectrogram`
-        * `SpectrumRendeer.cpp/hpp`: DFT to pixels renderer
+        * `SpectrumRenderer.cpp/hpp`: DFT to pixels renderer
     * `image`
         * `ImageSink.hpp`: ImageSink abstract base class
         * `MagickImageSink.cpp/hpp`: GraphicsMagick Sink
@@ -51,7 +51,7 @@ SpectrumRenderer
 ```
     input dft -> output pixel row
 
-    get/set     magnitude min, magnitude max, magnitude log., color scheme
+    get/set     magnitude min, magnitude max, magnitude scale, color scheme
     get         pixel to hz lambda
 ```
 
@@ -72,7 +72,7 @@ AudioThread
 SpectrogramThread
 
 ```
-    input SamplesQueue -> output pixelsQueue
+    input samplesQueue -> output pixelsQueue
     ref to RealDft
     ref to SpectrumRenderer
 
