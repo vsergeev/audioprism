@@ -1,9 +1,6 @@
-- revisit architecture
-- add font file
 - add readme with screenshots
 - release
 
-todo:
 - add bandwidth selection?
 - add magnitude cursor info
 - add dft averaging

@@ -1,5 +1,10 @@
+#include <ftw.h>
+#include <fnmatch.h>
 #include <sstream>
 #include <algorithm>
+#include <map>
+
+#include <iostream>
 
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -13,35 +18,95 @@ using namespace Spectrogram;
 using namespace Image;
 using namespace Configuration;
 
+static const std::string FontDirectory = "/usr/share/fonts";
+
+static const std::vector<std::string> FontFilesSearch = {
+    "DejaVuSansMono-Bold.ttf",
+    "VeraMoBd.ttf",
+    "UbuntuMono-R.ttf",
+    "LiberationMono-Regular.ttf",
+    "FreeMono.ttf",
+};
+
+static std::map<std::string, std::string> FontFilesAvailable;
+
+static int fontCrawlCallback(const char *fpath, const struct stat *sb, int typeflag) {
+    (void)sb;
+
+    if (typeflag == FTW_F) {
+        std::string path = std::string(fpath);
+
+        /* Find the last slash */
+        auto slashpos = path.rfind("/");
+
+        if (slashpos != std::string::npos) {
+            /* Extract filename */
+            std::string filename = path.substr(slashpos+1);
+
+            /* If it's a TTF file, add it to our available font files map */
+            if (fnmatch("*.ttf", filename.c_str(), FNM_CASEFOLD) == 0)
+                FontFilesAvailable[filename] = path;
+        }
+    }
+
+    return 0;
+}
+
+static std::string findFontPath() {
+    /* Crawl font directory to build a map of all TTF fonts */
+    if (ftw(FontDirectory.c_str(), fontCrawlCallback, 5) < 0)
+        throw std::runtime_error("Unable to crawl font directory " + FontDirectory);
+
+    /* Look for any matches with our desired font files */
+    for (const auto &fontFile : FontFilesSearch) {
+        if (FontFilesAvailable.find(fontFile) != FontFilesAvailable.end())
+            return FontFilesAvailable[fontFile];
+    }
+
+    return "";
+}
+
 InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<SpectrumRenderer> &spectrogramResource, std::atomic<size_t> &audioReadSize, std::atomic<bool> &running, unsigned int width, unsigned int height, Orientation orientation) : pixelsQueue(pixelsQueue), audioResource(audioResource), dftResource(dftResource), spectrogramResource(spectrogramResource), audioReadSize(audioReadSize), running(running), width(width), height(height), orientation(orientation), hideInfo(false) {
     int ret;
 
+    /* Initialize SDL */
     ret = SDL_Init(SDL_INIT_VIDEO);
     if (ret < 0)
         throw SDLException("Unable to initialize SDL: SDL_Init(): " + std::string(SDL_GetError()));
 
+    /* Initialize TTF */
     ret = TTF_Init();
     if (ret < 0)
         throw TTFException("Unable to initialize TTF: TTF_Init(): " + std::string(TTF_GetError()));
 
+    /* Create Window */
     win = SDL_CreateWindow("Spectrogram", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
     if (win == nullptr)
-        throw SDLException("Erroring creating SDL window: SDL_CreateWindow(): " + std::string(SDL_GetError()));
+        throw SDLException("Creating SDL window: SDL_CreateWindow(): " + std::string(SDL_GetError()));
 
+    /* Create Renderer */
     renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == nullptr)
-        throw SDLException("Erroring creating SDL renderer: SDL_CreateRenderer(): " + std::string(SDL_GetError()));
+        throw SDLException("Creating SDL renderer: SDL_CreateRenderer(): " + std::string(SDL_GetError()));
 
+    /* Create main texture */
     pixelsTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STATIC, width, height);
     if (pixelsTexture == nullptr)
-        throw SDLException("Erroring creating SDL texture: SDL_CreateTexture(): " + std::string(SDL_GetError()));
+        throw SDLException("Creating SDL texture: SDL_CreateTexture(): " + std::string(SDL_GetError()));
 
     settingsTexture = nullptr;
     cursorTexture = nullptr;
+    font = nullptr;
 
-    font = TTF_OpenFont("/usr/share/fonts/TTF/DejaVuSansMono-Bold.ttf", 11);
+    /* Find a compatible font */
+    std::string fontPath = findFontPath();
+    if (fontPath == "")
+        throw TTFException("Could not find a compatible TTF font.");
+
+    /* Open font */
+    font = TTF_OpenFont(fontPath.c_str(), 11);
     if (font == nullptr)
-        throw TTFException("Erroring opening TTF font: TTF_OpenFont(): " + std::string(TTF_GetError()));
+        throw TTFException("Opening TTF font: TTF_OpenFont(): " + std::string(TTF_GetError()));
 }
 
 InterfaceThread::~InterfaceThread() {
