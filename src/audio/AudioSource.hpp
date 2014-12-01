@@ -13,12 +13,12 @@ class AudioSource {
     virtual unsigned int getSampleRate() = 0;
 };
 
-class AudioOpenException : public std::runtime_error {
+class OpenException : public std::runtime_error {
   public:
     using std::runtime_error::runtime_error;
 };
 
-class AudioReadException : public std::runtime_error {
+class ReadException : public std::runtime_error {
   public:
     using std::runtime_error::runtime_error;
 };

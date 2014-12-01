@@ -9,10 +9,10 @@ namespace Audio {
 
 WaveAudioSource::WaveAudioSource(std::string path) : sfinfo() {
     if ((sndfile = sf_open(path.c_str(), SFM_READ, &sfinfo)) == nullptr)
-        throw AudioOpenException("Error opening WAV file: " + std::string(sf_strerror(nullptr)));
+        throw OpenException("Error opening WAV file: " + std::string(sf_strerror(nullptr)));
 
     if (sfinfo.channels != 1)
-        throw AudioOpenException("Error: only one channel supported.");
+        throw OpenException("Error: only one channel supported.");
 }
 
 WaveAudioSource::~WaveAudioSource() {
@@ -25,6 +25,7 @@ void WaveAudioSource::read(std::vector<double> &samples) {
 
     ret = sf_read_double(sndfile, samples.data(), samples.size());
 
+    /* Resize samples buffer if we read less than requested */
     if (ret < static_cast<sf_count_t>(samples.size()))
         samples.resize(ret);
 }
