@@ -1,3 +1,5 @@
+- move pixeltohz out of renderer?
+- decouple readsize from dividing lgoic?
 - add readme with screenshots
 - release
 
