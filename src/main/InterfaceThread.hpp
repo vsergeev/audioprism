@@ -42,6 +42,7 @@ class InterfaceThread {
     SDL_Rect settingsRect;
     SDL_Rect cursorRect;
     TTF_Font *font;
+
     /* Interface settings */
     const unsigned int width, height;
     const Image::Orientation orientation;

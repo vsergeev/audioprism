@@ -298,10 +298,8 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         else if (settings.colors == SpectrumRenderer::ColorScheme::Grayscale)
             next_colors = SpectrumRenderer::ColorScheme::Heat;
 
-        {
-            std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
-            spectrogramResource.get().settings.colors = next_colors;
-        }
+        std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
+        spectrogramResource.get().settings.colors = next_colors;
     } else if (state[SDL_SCANCODE_W]) {
         /* Change window function */
         RealDft::WindowFunction next_wf = RealDft::WindowFunction::Hanning;
@@ -313,24 +311,20 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         else if (settings.dftWf == RealDft::WindowFunction::Rectangular)
             next_wf = RealDft::WindowFunction::Hanning;
 
-        {
-            std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
-            dftResource.get().setWindowFunction(next_wf);
-        }
+        std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
+        dftResource.get().setWindowFunction(next_wf);
     } else if (state[SDL_SCANCODE_L]) {
         /* Toggle between Logarithimic/Linear */
         bool next_magnitudeLog = !settings.magnitudeLog;
 
-        {
-            std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
-            spectrogramResource.get().settings.magnitudeLog = next_magnitudeLog;
-            if (next_magnitudeLog) {
-                spectrogramResource.get().settings.magnitudeMin = InitialSettings.magnitudeLogMin;
-                spectrogramResource.get().settings.magnitudeMax = InitialSettings.magnitudeLogMax;
-            } else {
-                spectrogramResource.get().settings.magnitudeMin = InitialSettings.magnitudeLinearMin;
-                spectrogramResource.get().settings.magnitudeMax = InitialSettings.magnitudeLinearMax;
-            }
+        std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
+        spectrogramResource.get().settings.magnitudeLog = next_magnitudeLog;
+        if (next_magnitudeLog) {
+            spectrogramResource.get().settings.magnitudeMin = InitialSettings.magnitudeLogMin;
+            spectrogramResource.get().settings.magnitudeMax = InitialSettings.magnitudeLogMax;
+        } else {
+            spectrogramResource.get().settings.magnitudeMin = InitialSettings.magnitudeLinearMin;
+            spectrogramResource.get().settings.magnitudeMax = InitialSettings.magnitudeLinearMax;
         }
     } else if (state[SDL_SCANCODE_RIGHT]) {
         /* DFT N up */
@@ -371,10 +365,8 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         else
             next_magnitudeMin = std::max<double>(settings.magnitudeMin - UserLimits.magnitudeLinearStep, UserLimits.magnitudeLinearMin);
 
-        {
-            std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
-            spectrogramResource.get().settings.magnitudeMin = next_magnitudeMin;
-        }
+        std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
+        spectrogramResource.get().settings.magnitudeMin = next_magnitudeMin;
     } else if (state[SDL_SCANCODE_EQUALS]) {
         /* Magnitude min up */
         double next_magnitudeMin;
@@ -384,10 +376,8 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         else
             next_magnitudeMin = std::min<double>(settings.magnitudeMin + UserLimits.magnitudeLinearStep, settings.magnitudeMax - UserLimits.magnitudeLinearStep);
 
-        {
-            std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
-            spectrogramResource.get().settings.magnitudeMin = next_magnitudeMin;
-        }
+        std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
+        spectrogramResource.get().settings.magnitudeMin = next_magnitudeMin;
     } else if (state[SDL_SCANCODE_LEFTBRACKET]) {
         /* Magnitude max down */
         double next_magnitudeMax;
@@ -397,10 +387,8 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         else
             next_magnitudeMax = std::max<double>(settings.magnitudeMax - UserLimits.magnitudeLinearStep, settings.magnitudeMin + UserLimits.magnitudeLinearStep);
 
-        {
-            std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
-            spectrogramResource.get().settings.magnitudeMax = next_magnitudeMax;
-        }
+        std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
+        spectrogramResource.get().settings.magnitudeMax = next_magnitudeMax;
     } else if (state[SDL_SCANCODE_RIGHTBRACKET]) {
         /* Magnitude max up */
         double next_magnitudeMax;
@@ -410,10 +398,8 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         else
             next_magnitudeMax = std::min<double>(settings.magnitudeMax + UserLimits.magnitudeLinearStep, UserLimits.magnitudeLinearMax);
 
-        {
-            std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
-            spectrogramResource.get().settings.magnitudeMax = next_magnitudeMax;
-        }
+        std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
+        spectrogramResource.get().settings.magnitudeMax = next_magnitudeMax;
     } else if (state[SDL_SCANCODE_H]) {
         /* Hide info */
         hideInfo = !hideInfo;
