@@ -66,7 +66,7 @@ static std::string findFontPath() {
     return "";
 }
 
-InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<SpectrumRenderer> &spectrogramResource, std::atomic<size_t> &audioReadSize, std::atomic<bool> &running, unsigned int width, unsigned int height, Orientation orientation) : pixelsQueue(pixelsQueue), audioResource(audioResource), dftResource(dftResource), spectrogramResource(spectrogramResource), audioReadSize(audioReadSize), running(running), width(width), height(height), orientation(orientation), hideInfo(false) {
+InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<SpectrumRenderer> &spectrogramResource, std::atomic<unsigned int> &dftOverlap, std::atomic<bool> &running, unsigned int width, unsigned int height, Orientation orientation) : pixelsQueue(pixelsQueue), audioResource(audioResource), dftResource(dftResource), spectrogramResource(spectrogramResource), dftOverlap(dftOverlap), running(running), width(width), height(height), orientation(orientation), hideInfo(false) {
     int ret;
 
     /* Initialize SDL */
@@ -194,7 +194,7 @@ void InterfaceThread::updateSettings() {
         settings.audioSampleRate = audioResource.get().getSampleRate();
     }
 
-    settings.audioReadSize = audioReadSize;
+    settings.dftOverlap = dftOverlap;
 
     {
         std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
@@ -221,7 +221,7 @@ void InterfaceThread::renderSettings() {
     SDL_Surface *targetSurface;
     SDL_Color settingsColor = {0xff, 0x00, 0x00, 0x00};
 
-    unsigned int overlap = static_cast<unsigned int>(std::round((1.0-(static_cast<float>(settings.audioReadSize)/static_cast<float>(settings.dftSize)))*100.0));
+    unsigned int overlap = static_cast<unsigned int>(std::round((1.0-(static_cast<float>(settings.dftOverlap)/static_cast<float>(settings.dftSize)))*100.0));
 
     textSurfaces.push_back(renderString(format("Sample Rate: %d Hz", settings.audioSampleRate), font, settingsColor));
     textSurfaces.push_back(renderString(format("Overlap: %d%%", overlap), font, settingsColor));
@@ -331,8 +331,8 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         unsigned int next_dftSize = std::min<unsigned int>(settings.dftSize*2, UserLimits.dftSizeMax);
 
         if (next_dftSize != settings.dftSize) {
-            /* Set readSize for 50% overlap */
-            audioReadSize = std::max<unsigned int>(next_dftSize/2, UserLimits.dftSizeMin);
+            /* Set DFT Overlap for 50% overlap */
+            dftOverlap = std::max<unsigned int>(next_dftSize/2, UserLimits.dftSizeMin);
             std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
             dftResource.get().setSize(next_dftSize);
         }
@@ -341,21 +341,21 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         unsigned int next_dftSize = std::max<unsigned int>(settings.dftSize/2, UserLimits.dftSizeMin);
 
         if (next_dftSize != settings.dftSize) {
-            /* Set readSize for 50% overlap */
-            audioReadSize = std::max<unsigned int>(next_dftSize/2, UserLimits.dftSizeMin);
+            /* Set DFT Overlap for 50% overlap */
+            dftOverlap = std::max<unsigned int>(next_dftSize/2, UserLimits.dftSizeMin);
             std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
             dftResource.get().setSize(next_dftSize);
         }
     } else if (state[SDL_SCANCODE_DOWN]) {
         /* Read size up */
-        unsigned int next_readSize = std::min<int>(settings.audioReadSize + UserLimits.audioReadSizeStep, settings.dftSize);
+        unsigned int next_dftOverlap = std::min<int>(settings.dftOverlap + UserLimits.dftOverlapStep, settings.dftSize);
 
-        audioReadSize = next_readSize;
+        dftOverlap = next_dftOverlap;
     } else if (state[SDL_SCANCODE_UP]) {
         /* Read size down */
-        unsigned int next_readSize = std::max<int>(settings.audioReadSize - UserLimits.audioReadSizeStep, UserLimits.dftSizeMin);
+        unsigned int next_dftOverlap = std::max<int>(settings.dftOverlap - UserLimits.dftOverlapStep, UserLimits.dftSizeMin);
 
-        audioReadSize = next_readSize;
+        dftOverlap = next_dftOverlap;
     } else if (state[SDL_SCANCODE_MINUS]) {
         /* Magnitude min down */
         double next_magnitudeMin;

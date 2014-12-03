@@ -19,7 +19,7 @@
 
 class InterfaceThread {
   public:
-    InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<Audio::AudioSource> &audioResource, ThreadSafeResource<DFT::RealDft> &dftResource, ThreadSafeResource<Spectrogram::SpectrumRenderer> &spectrogramResource, std::atomic<size_t> &audioReadSize, std::atomic<bool> &running, unsigned int width, unsigned int height, Image::Orientation orientation);
+    InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<Audio::AudioSource> &audioResource, ThreadSafeResource<DFT::RealDft> &dftResource, ThreadSafeResource<Spectrogram::SpectrumRenderer> &spectrogramResource, std::atomic<unsigned int> &dftOverlap, std::atomic<bool> &running, unsigned int width, unsigned int height, Image::Orientation orientation);
     ~InterfaceThread();
 
     void run();
@@ -30,7 +30,7 @@ class InterfaceThread {
     ThreadSafeResource<Audio::AudioSource> &audioResource;
     ThreadSafeResource<DFT::RealDft> &dftResource;
     ThreadSafeResource<Spectrogram::SpectrumRenderer> &spectrogramResource;
-    std::atomic<size_t> &audioReadSize;
+    std::atomic<unsigned int> &dftOverlap;
     std::atomic<bool> &running;
 
     /* Owned resources (SDL) */
@@ -57,7 +57,7 @@ class InterfaceThread {
     /* Cached settings from audio source, dft, and spectrogram classes */
     struct {
         unsigned int audioSampleRate;
-        unsigned int audioReadSize;
+        unsigned int dftOverlap;
         DFT::RealDft::WindowFunction dftWf;
         unsigned int dftSize;
         std::function<float (int)> fPixelToHz;

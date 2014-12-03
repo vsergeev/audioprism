@@ -40,15 +40,15 @@ void spectrogram_realtime() {
     ThreadSafeResource<SpectrumRenderer> spectrogramResource(spectrogram);
     ThreadSafeQueue<std::vector<double>> samplesQueue;
     ThreadSafeQueue<std::vector<uint32_t>> pixelsQueue;
-    std::atomic<size_t> audioReadSize;
+    std::atomic<unsigned int> dftOverlap;
     std::atomic<bool> running;
 
-    audioReadSize = InitialSettings.audioReadSize;
+    dftOverlap = InitialSettings.dftOverlap;
     running = true;
 
-    InterfaceThread interfaceThread(pixelsQueue, audioResource, dftResource, spectrogramResource, audioReadSize, running, InitialSettings.width, InitialSettings.height, InitialSettings.orientation);
-    std::thread audioThread(AudioThread, std::ref(audioResource), std::ref(samplesQueue), std::ref(audioReadSize), std::ref(running));
-    std::thread spectrogramThread(SpectrogramThread, std::ref(samplesQueue), std::ref(pixelsQueue), std::ref(dftResource), std::ref(spectrogramResource), (InitialSettings.orientation == Orientation::Vertical) ? InitialSettings.width : InitialSettings.height, std::ref(running));
+    InterfaceThread interfaceThread(pixelsQueue, audioResource, dftResource, spectrogramResource, dftOverlap, running, InitialSettings.width, InitialSettings.height, InitialSettings.orientation);
+    std::thread audioThread(AudioThread, std::ref(audioResource), std::ref(samplesQueue), std::ref(running));
+    std::thread spectrogramThread(SpectrogramThread, std::ref(samplesQueue), std::ref(pixelsQueue), std::ref(dftResource), std::ref(spectrogramResource), std::ref(dftOverlap), (InitialSettings.orientation == Orientation::Vertical) ? InitialSettings.width : InitialSettings.height, std::ref(running));
 
     interfaceThread.run();
 
@@ -62,10 +62,12 @@ void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
     SpectrumRenderer spectrogram(InitialSettings.magnitudeMin, InitialSettings.magnitudeMax, InitialSettings.magnitudeLog, InitialSettings.colors);
     MagickImageSink image(imagePath, InitialSettings.width, InitialSettings.orientation);
 
-    std::vector<double> newSamples(InitialSettings.audioReadSize);
+    std::vector<double> newSamples(InitialSettings.dftOverlap);
     std::vector<double> samples(InitialSettings.dftSize);
     std::vector<std::complex<double>> dftSamples(InitialSettings.dftSize);
     std::vector<uint32_t> pixels(InitialSettings.width);
+
+    /* FIXME overlap */
 
     while (true) {
         audio.read(newSamples);
@@ -301,8 +303,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    /* Compute overlap with DFT Size */
-    InitialSettings.audioReadSize = static_cast<unsigned int>((static_cast<float>(overlap)/100.0)*static_cast<float>(InitialSettings.dftSize));
+    /* Compute DFT overlap */
+    InitialSettings.dftOverlap = static_cast<unsigned int>((static_cast<float>(overlap)/100.0)*static_cast<float>(InitialSettings.dftSize));
 
     if ((argc - optind) > 0 && (argc - optind) != 2) {
         print_usage(argv[0]);

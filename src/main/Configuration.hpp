@@ -18,8 +18,8 @@ struct Settings {
     Orientation orientation = Orientation::Vertical;
     /* Audio Settings */
     unsigned int audioSampleRate = 24000;
-    unsigned int audioReadSize = 1024;
     /* DFT Settings */
+    unsigned int dftOverlap = 1024;
     unsigned int dftSize = 2048;
     RealDft::WindowFunction dftWf = RealDft::WindowFunction::Hanning;
     /* Spectrogram Settings */
@@ -43,11 +43,10 @@ struct Limits {
     double magnitudeLogMin = -80.0;
     double magnitudeLogMax = 80.0;
     double magnitudeLogStep = 5.0;
-    /* DFT Size min, max */
+    /* DFT size min, size max, overlap step */
     unsigned int dftSizeMin = 32;
     unsigned int dftSizeMax = 8192;
-    /* Audio Read Size step */
-    unsigned int audioReadSizeStep = 32;
+    unsigned int dftOverlapStep = 32;
 };
 
 extern Settings InitialSettings;

@@ -1,5 +1,6 @@
+- make interfacethread communciate with audiothread & spectrogramthread instead of sharing resources
 - move pixeltohz out of renderer?
-- decouple readsize from dividing lgoic?
+- add statistics to audio and spectrogram threads
 - add readme with screenshots
 - release
 
