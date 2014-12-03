@@ -14,14 +14,12 @@
     * `image`
         * `ImageSink.hpp`: ImageSink abstract base class
         * `MagickImageSink.cpp/hpp`: GraphicsMagick Sink
-        * `Orientation.hpp`: Orientation enumeration
     * `main`:
+        * `ThreadSafeQueue.hpp`: Thread-safe queue helper class
         * `AudioThread.cpp/hpp`: Audio input thread
         * `SpectrogramThread.cpp/hpp`: DFT and spectrum rendering thread
         * `InterfaceThread.cpp/hpp`: SDL interface thread
-        * `Configuration.hpp`: Default options and limits
-        * `ThreadSafeQueue.hpp`: Thread-safe queue helper class
-        * `ThreadSafeResource.hpp`: Thread-safe resource locker class
+        * `Configuration.hpp`: Default settings and limits
         * `main.cpp`: Entry point and options parsing
 
 ## Classes
@@ -62,7 +60,8 @@ AudioThread
 
 ```
     input AudioSource -> output samplesQueue
-    ref to read size
+
+    owns AudioSource
 
     while True:
         read audio samples from AudioSource
@@ -73,8 +72,9 @@ SpectrogramThread
 
 ```
     input samplesQueue -> output pixelsQueue
-    ref to RealDft
-    ref to SpectrumRenderer
+
+    owns RealDft
+    owns SpectrumRenderer
 
     while True:
         pop new samples from samplesQueue
@@ -88,10 +88,9 @@ InterfaceThread
 
 ```
     input pixelsQueue -> output SDL
-    ref to AudioSource (for configuration)
-    ref to RealDft (for configuration)
-    ref to SpectrumRenderer (for configuration)
-    ref to read size (for control)
+
+    ref to AudioThread
+    ref to SpectrogramThread
 
     while True:
         check and handle SDL events

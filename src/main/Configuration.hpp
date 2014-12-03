@@ -1,15 +1,16 @@
 #ifndef _CONFIGURATION_HPP
 #define _CONFIGURATION_HPP
 
+#include "audio/AudioSource.hpp"
 #include "dft/RealDft.hpp"
 #include "spectrogram/SpectrumRenderer.hpp"
-#include "image/Orientation.hpp"
 
 using namespace DFT;
-using namespace Image;
 using namespace Spectrogram;
 
 namespace Configuration {
+
+enum class Orientation { Horizontal, Vertical };
 
 struct Settings {
     /* Interface Settings */
@@ -19,7 +20,7 @@ struct Settings {
     /* Audio Settings */
     unsigned int audioSampleRate = 24000;
     /* DFT Settings */
-    unsigned int dftOverlap = 1024;
+    float dftOverlap = 0.50;
     unsigned int dftSize = 2048;
     RealDft::WindowFunction dftWf = RealDft::WindowFunction::Hanning;
     /* Spectrogram Settings */
@@ -43,10 +44,13 @@ struct Limits {
     double magnitudeLogMin = -80.0;
     double magnitudeLogMax = 80.0;
     double magnitudeLogStep = 5.0;
-    /* DFT size min, size max, overlap step */
+    /* DFT size min, max */
     unsigned int dftSizeMin = 32;
     unsigned int dftSizeMax = 8192;
-    unsigned int dftOverlapStep = 32;
+    /* DFT overlap min, max, step */
+    float dftOverlapMin = 0.05;
+    float dftOverlapMax = 0.95;
+    float dftOverlapStep = 0.025;
 };
 
 extern Settings InitialSettings;

@@ -2,7 +2,6 @@
 #include <iostream>
 #include <getopt.h>
 
-#include "image/Orientation.hpp"
 #include "audio/PulseAudioSource.hpp"
 #include "dft/RealDft.hpp"
 #include "spectrogram/SpectrumRenderer.hpp"
@@ -10,7 +9,6 @@
 #include "audio/WaveAudioSource.hpp"
 #include "image/MagickImageSink.hpp"
 
-#include "ThreadSafeResource.hpp"
 #include "ThreadSafeQueue.hpp"
 
 #include "AudioThread.hpp"
@@ -31,36 +29,28 @@ Limits UserLimits;
 using namespace Configuration;
 
 void spectrogram_realtime() {
-    PulseAudioSource audio(InitialSettings.audioSampleRate);
-    RealDft dft(InitialSettings.dftSize, InitialSettings.dftWf);
-    SpectrumRenderer spectrogram(InitialSettings.magnitudeMin, InitialSettings.magnitudeMax, InitialSettings.magnitudeLog, InitialSettings.colors);
-
-    ThreadSafeResource<AudioSource> audioResource(audio);
-    ThreadSafeResource<RealDft> dftResource(dft);
-    ThreadSafeResource<SpectrumRenderer> spectrogramResource(spectrogram);
     ThreadSafeQueue<std::vector<double>> samplesQueue;
     ThreadSafeQueue<std::vector<uint32_t>> pixelsQueue;
-    std::atomic<unsigned int> dftOverlap;
-    std::atomic<bool> running;
 
-    dftOverlap = InitialSettings.dftOverlap;
-    running = true;
+    AudioThread audioThread(samplesQueue, InitialSettings);
+    SpectrogramThread spectrogramThread(samplesQueue, pixelsQueue, InitialSettings);
+    InterfaceThread interfaceThread(pixelsQueue, audioThread, spectrogramThread, InitialSettings);
 
-    InterfaceThread interfaceThread(pixelsQueue, audioResource, dftResource, spectrogramResource, dftOverlap, running, InitialSettings.width, InitialSettings.height, InitialSettings.orientation);
-    std::thread audioThread(AudioThread, std::ref(audioResource), std::ref(samplesQueue), std::ref(running));
-    std::thread spectrogramThread(SpectrogramThread, std::ref(samplesQueue), std::ref(pixelsQueue), std::ref(dftResource), std::ref(spectrogramResource), std::ref(dftOverlap), (InitialSettings.orientation == Orientation::Vertical) ? InitialSettings.width : InitialSettings.height, std::ref(running));
+    //std::thread spectrogramThread(SpectrogramThread, std::ref(samplesQueue), std::ref(pixelsQueue), std::ref(dftResource), std::ref(spectrogramResource), std::ref(dftOverlap), (InitialSettings.orientation == Orientation::Vertical) ? InitialSettings.width : InitialSettings.height, std::ref(running));
 
+    audioThread.start();
+    spectrogramThread.start();
     interfaceThread.run();
 
-    audioThread.join();
-    spectrogramThread.join();
+    spectrogramThread.stop();
+    audioThread.stop();
 }
 
 void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
     WaveAudioSource audio(audioPath);
     RealDft dft(InitialSettings.dftSize, InitialSettings.dftWf);
     SpectrumRenderer spectrogram(InitialSettings.magnitudeMin, InitialSettings.magnitudeMax, InitialSettings.magnitudeLog, InitialSettings.colors);
-    MagickImageSink image(imagePath, InitialSettings.width, InitialSettings.orientation);
+    MagickImageSink image(imagePath, InitialSettings.width, (InitialSettings.orientation == Orientation::Horizontal) ? MagickImageSink::Orientation::Horizontal : MagickImageSink::Orientation::Vertical);
 
     std::vector<double> newSamples(InitialSettings.dftOverlap);
     std::vector<double> samples(InitialSettings.dftSize);
@@ -106,7 +96,7 @@ Audio Settings\n\
     -r,--sample-rate <rate>     Audio input sample rate (default 24000)\n\
 \n\
 DFT Settings\n\
-    --overlap <percentage>      Overlap percentage (default 50%)\n\
+    --overlap <percentage>      Overlap percentage (default 50)\n\
     --dft-size <size>           DFT Size, must be power of two (default 2048)\n\
     --window <window function>  Window Function [hanning, hamming, rectangular]\n\
                                     (default hanning)\n\
@@ -206,11 +196,14 @@ int main(int argc, char *argv[]) {
                     print_usage(argv[0]);
                     return EXIT_FAILURE;
                 }
-                if (overlap > 100) {
-                    std::cerr << "Invalid value for overlap (must be >= 0 and <= 100).\n\n";
+
+                if (overlap > 100 || overlap < static_cast<unsigned int>(UserLimits.dftOverlapMin*100.0) || overlap > static_cast<unsigned int>(UserLimits.dftOverlapMax*100.0)) {
+                    std::cerr << "Invalid value for overlap (must be >= " << static_cast<unsigned int>(UserLimits.dftOverlapMin*100.0) << " and <= " << static_cast<unsigned int>(UserLimits.dftOverlapMax*100.0) << ").\n\n";
                     print_usage(argv[0]);
                     return EXIT_FAILURE;
                 }
+
+                InitialSettings.dftOverlap = static_cast<float>(overlap)/100.0;
             } else if (option_name == "dft-size") {
                 unsigned int dftSize;
                 try {
@@ -302,9 +295,6 @@ int main(int argc, char *argv[]) {
             return EXIT_FAILURE;
         }
     }
-
-    /* Compute DFT overlap */
-    InitialSettings.dftOverlap = static_cast<unsigned int>((static_cast<float>(overlap)/100.0)*static_cast<float>(InitialSettings.dftSize));
 
     if ((argc - optind) > 0 && (argc - optind) != 2) {
         print_usage(argv[0]);

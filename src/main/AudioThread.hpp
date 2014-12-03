@@ -3,13 +3,34 @@
 
 #include <vector>
 #include <atomic>
+#include <thread>
 
-#include "ThreadSafeResource.hpp"
 #include "ThreadSafeQueue.hpp"
+#include "audio/PulseAudioSource.hpp"
+#include "Configuration.hpp"
 
-#include "audio/AudioSource.hpp"
+class AudioThread {
+  public:
+    AudioThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, const Configuration::Settings &initialSettings);
 
-void AudioThread(ThreadSafeResource<Audio::AudioSource> &audioResource, ThreadSafeQueue<std::vector<double>> &samplesQueue, std::atomic<bool> &running);
+    void start();
+    void stop();
+
+    /* Get AudioSource sample rate in Hz */
+    unsigned int getSampleRate();
+
+  private:
+    void run();
+
+    /* Output samples queue */
+    ThreadSafeQueue<std::vector<double>> &samplesQueue;
+
+    std::atomic<bool> running;
+    Audio::PulseAudioSource audioSource;
+    std::mutex audioSourceLock;
+
+    std::thread thread;
+};
 
 #endif
 

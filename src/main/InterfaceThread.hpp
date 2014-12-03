@@ -6,32 +6,26 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
-#include "image/Orientation.hpp"
-#include "audio/AudioSource.hpp"
-#include "dft/RealDft.hpp"
-#include "spectrogram/SpectrumRenderer.hpp"
-
 #include "ThreadSafeQueue.hpp"
-#include "ThreadSafeResource.hpp"
-
 #include "AudioThread.hpp"
 #include "SpectrogramThread.hpp"
+#include "Configuration.hpp"
 
 class InterfaceThread {
   public:
-    InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<Audio::AudioSource> &audioResource, ThreadSafeResource<DFT::RealDft> &dftResource, ThreadSafeResource<Spectrogram::SpectrumRenderer> &spectrogramResource, std::atomic<unsigned int> &dftOverlap, std::atomic<bool> &running, unsigned int width, unsigned int height, Image::Orientation orientation);
+    InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, AudioThread &audioThread, SpectrogramThread &spectrogramThread, const Configuration::Settings &initialSettings);
     ~InterfaceThread();
 
     void run();
 
   private:
-    /* Shared resources */
+    /* Pixels input queue */
     ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue;
-    ThreadSafeResource<Audio::AudioSource> &audioResource;
-    ThreadSafeResource<DFT::RealDft> &dftResource;
-    ThreadSafeResource<Spectrogram::SpectrumRenderer> &spectrogramResource;
-    std::atomic<unsigned int> &dftOverlap;
-    std::atomic<bool> &running;
+    /* References to other threads for control */
+    AudioThread &audioThread;
+    SpectrogramThread &spectrogramThread;
+    /* Running boolean */
+    std::atomic<bool> running;
 
     /* Owned resources (SDL) */
     SDL_Window *win;
@@ -45,7 +39,7 @@ class InterfaceThread {
 
     /* Interface settings */
     const unsigned int width, height;
-    const Image::Orientation orientation;
+    const Configuration::Orientation orientation;
     bool hideInfo;
 
     /* Helper functions for SDL */
@@ -57,7 +51,7 @@ class InterfaceThread {
     /* Cached settings from audio source, dft, and spectrogram classes */
     struct {
         unsigned int audioSampleRate;
-        unsigned int dftOverlap;
+        float dftOverlap;
         DFT::RealDft::WindowFunction dftWf;
         unsigned int dftSize;
         std::function<float (int)> fPixelToHz;

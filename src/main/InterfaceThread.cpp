@@ -15,7 +15,6 @@
 using namespace Audio;
 using namespace DFT;
 using namespace Spectrogram;
-using namespace Image;
 using namespace Configuration;
 
 static const std::string FontDirectory = "/usr/share/fonts";
@@ -66,7 +65,7 @@ static std::string findFontPath() {
     return "";
 }
 
-InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, ThreadSafeResource<AudioSource> &audioResource, ThreadSafeResource<RealDft> &dftResource, ThreadSafeResource<SpectrumRenderer> &spectrogramResource, std::atomic<unsigned int> &dftOverlap, std::atomic<bool> &running, unsigned int width, unsigned int height, Orientation orientation) : pixelsQueue(pixelsQueue), audioResource(audioResource), dftResource(dftResource), spectrogramResource(spectrogramResource), dftOverlap(dftOverlap), running(running), width(width), height(height), orientation(orientation), hideInfo(false) {
+InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, AudioThread &audioThread, SpectrogramThread &spectrogramThread, const Settings &initialSettings) : pixelsQueue(pixelsQueue), audioThread(audioThread), spectrogramThread(spectrogramThread), width(initialSettings.width), height(initialSettings.height), orientation(initialSettings.orientation), hideInfo(false) {
     int ret;
 
     /* Initialize SDL */
@@ -189,31 +188,20 @@ static SDL_Surface *vcatSurfaces(std::vector<SDL_Surface *> surfaces, Alignment 
 }
 
 void InterfaceThread::updateSettings() {
-    {
-        std::lock_guard<ThreadSafeResource<AudioSource>> lg(audioResource);
-        settings.audioSampleRate = audioResource.get().getSampleRate();
-    }
+    settings.audioSampleRate = audioThread.getSampleRate();
+    settings.dftOverlap = spectrogramThread.getDftOverlap();
+    settings.dftSize = spectrogramThread.getDftSize();
+    settings.dftWf = spectrogramThread.getDftWindowFunction();
 
-    settings.dftOverlap = dftOverlap;
+    if (orientation == Orientation::Vertical)
+        settings.fPixelToHz = spectrogramThread.getPixelToHz(width, settings.dftSize, settings.audioSampleRate);
+    else
+        settings.fPixelToHz = spectrogramThread.getPixelToHz(height, settings.dftSize, settings.audioSampleRate);
 
-    {
-        std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
-        settings.dftSize = dftResource.get().getSize();
-        settings.dftWf = dftResource.get().getWindowFunction();
-    }
-
-    {
-        std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
-
-        if (orientation == Image::Orientation::Vertical)
-            settings.fPixelToHz = spectrogramResource.get().getPixelToHz(width, settings.dftSize, settings.audioSampleRate);
-        else
-            settings.fPixelToHz = spectrogramResource.get().getPixelToHz(height, settings.dftSize, settings.audioSampleRate);
-        settings.magnitudeMin = spectrogramResource.get().settings.magnitudeMin;
-        settings.magnitudeMax = spectrogramResource.get().settings.magnitudeMax;
-        settings.magnitudeLog = spectrogramResource.get().settings.magnitudeLog;
-        settings.colors = spectrogramResource.get().settings.colors;
-    }
+    settings.magnitudeMin = spectrogramThread.getMagnitudeMin();
+    settings.magnitudeMax = spectrogramThread.getMagnitudeMax();
+    settings.magnitudeLog = spectrogramThread.getMagnitudeLog();
+    settings.colors = spectrogramThread.getColors();
 }
 
 void InterfaceThread::renderSettings() {
@@ -221,7 +209,7 @@ void InterfaceThread::renderSettings() {
     SDL_Surface *targetSurface;
     SDL_Color settingsColor = {0xff, 0x00, 0x00, 0x00};
 
-    unsigned int overlap = static_cast<unsigned int>(std::round((1.0-(static_cast<float>(settings.dftOverlap)/static_cast<float>(settings.dftSize)))*100.0));
+    unsigned int overlap = static_cast<unsigned int>(settings.dftOverlap*100.0);
 
     textSurfaces.push_back(renderString(format("Sample Rate: %d Hz", settings.audioSampleRate), font, settingsColor));
     textSurfaces.push_back(renderString(format("Overlap: %d%%", overlap), font, settingsColor));
@@ -262,7 +250,7 @@ void InterfaceThread::renderCursor(int x, int y) {
     SDL_Color settingsColor = {0xff, 0x00, 0x00, 0x00};
     float frequency;
 
-    if (orientation == Image::Orientation::Vertical)
+    if (orientation == Orientation::Vertical)
         frequency = settings.fPixelToHz(x);
     else
         frequency = settings.fPixelToHz(height-y);
@@ -298,8 +286,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         else if (settings.colors == SpectrumRenderer::ColorScheme::Grayscale)
             next_colors = SpectrumRenderer::ColorScheme::Heat;
 
-        std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
-        spectrogramResource.get().settings.colors = next_colors;
+        spectrogramThread.setColors(next_colors);
     } else if (state[SDL_SCANCODE_W]) {
         /* Change window function */
         RealDft::WindowFunction next_wf = RealDft::WindowFunction::Hanning;
@@ -311,51 +298,48 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         else if (settings.dftWf == RealDft::WindowFunction::Rectangular)
             next_wf = RealDft::WindowFunction::Hanning;
 
-        std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
-        dftResource.get().setWindowFunction(next_wf);
+        spectrogramThread.setDftWindowFunction(next_wf);
     } else if (state[SDL_SCANCODE_L]) {
         /* Toggle between Logarithimic/Linear */
         bool next_magnitudeLog = !settings.magnitudeLog;
 
-        std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
-        spectrogramResource.get().settings.magnitudeLog = next_magnitudeLog;
+        spectrogramThread.setMagnitudeLog(next_magnitudeLog);
         if (next_magnitudeLog) {
-            spectrogramResource.get().settings.magnitudeMin = InitialSettings.magnitudeLogMin;
-            spectrogramResource.get().settings.magnitudeMax = InitialSettings.magnitudeLogMax;
+            spectrogramThread.setMagnitudeMin(InitialSettings.magnitudeLogMin);
+            spectrogramThread.setMagnitudeMax(InitialSettings.magnitudeLogMax);
         } else {
-            spectrogramResource.get().settings.magnitudeMin = InitialSettings.magnitudeLinearMin;
-            spectrogramResource.get().settings.magnitudeMax = InitialSettings.magnitudeLinearMax;
+            spectrogramThread.setMagnitudeMin(InitialSettings.magnitudeLinearMin);
+            spectrogramThread.setMagnitudeMax(InitialSettings.magnitudeLinearMax);
         }
     } else if (state[SDL_SCANCODE_RIGHT]) {
         /* DFT N up */
         unsigned int next_dftSize = std::min<unsigned int>(settings.dftSize*2, UserLimits.dftSizeMax);
 
         if (next_dftSize != settings.dftSize) {
-            /* Set DFT Overlap for 50% overlap */
-            dftOverlap = std::max<unsigned int>(next_dftSize/2, UserLimits.dftSizeMin);
-            std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
-            dftResource.get().setSize(next_dftSize);
+            spectrogramThread.setDftSize(next_dftSize);
+            /* Reset DFT overlap to 50% */
+            spectrogramThread.setDftOverlap(0.50);
         }
     } else if (state[SDL_SCANCODE_LEFT]) {
         /* DFT N down */
         unsigned int next_dftSize = std::max<unsigned int>(settings.dftSize/2, UserLimits.dftSizeMin);
 
+        /* Set DFT Overlap for 50% overlap */
         if (next_dftSize != settings.dftSize) {
-            /* Set DFT Overlap for 50% overlap */
-            dftOverlap = std::max<unsigned int>(next_dftSize/2, UserLimits.dftSizeMin);
-            std::lock_guard<ThreadSafeResource<RealDft>> lg(dftResource);
-            dftResource.get().setSize(next_dftSize);
+            spectrogramThread.setDftSize(next_dftSize);
+            /* Reset DFT overlap to 50% */
+            spectrogramThread.setDftOverlap(0.50);
         }
     } else if (state[SDL_SCANCODE_DOWN]) {
-        /* Read size up */
-        unsigned int next_dftOverlap = std::min<int>(settings.dftOverlap + UserLimits.dftOverlapStep, settings.dftSize);
+        /* DFT Overlap Up */
+        float next_dftOverlap = std::max<float>(settings.dftOverlap - UserLimits.dftOverlapStep, UserLimits.dftOverlapMin);
 
-        dftOverlap = next_dftOverlap;
+        spectrogramThread.setDftOverlap(next_dftOverlap);
     } else if (state[SDL_SCANCODE_UP]) {
-        /* Read size down */
-        unsigned int next_dftOverlap = std::max<int>(settings.dftOverlap - UserLimits.dftOverlapStep, UserLimits.dftSizeMin);
+        /* DFT Overlap Down */
+        float next_dftOverlap = std::min<float>(settings.dftOverlap + UserLimits.dftOverlapStep, UserLimits.dftOverlapMax);
 
-        dftOverlap = next_dftOverlap;
+        spectrogramThread.setDftOverlap(next_dftOverlap);
     } else if (state[SDL_SCANCODE_MINUS]) {
         /* Magnitude min down */
         double next_magnitudeMin;
@@ -365,8 +349,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         else
             next_magnitudeMin = std::max<double>(settings.magnitudeMin - UserLimits.magnitudeLinearStep, UserLimits.magnitudeLinearMin);
 
-        std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
-        spectrogramResource.get().settings.magnitudeMin = next_magnitudeMin;
+        spectrogramThread.setMagnitudeMin(next_magnitudeMin);
     } else if (state[SDL_SCANCODE_EQUALS]) {
         /* Magnitude min up */
         double next_magnitudeMin;
@@ -376,8 +359,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         else
             next_magnitudeMin = std::min<double>(settings.magnitudeMin + UserLimits.magnitudeLinearStep, settings.magnitudeMax - UserLimits.magnitudeLinearStep);
 
-        std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
-        spectrogramResource.get().settings.magnitudeMin = next_magnitudeMin;
+        spectrogramThread.setMagnitudeMin(next_magnitudeMin);
     } else if (state[SDL_SCANCODE_LEFTBRACKET]) {
         /* Magnitude max down */
         double next_magnitudeMax;
@@ -387,8 +369,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         else
             next_magnitudeMax = std::max<double>(settings.magnitudeMax - UserLimits.magnitudeLinearStep, settings.magnitudeMin + UserLimits.magnitudeLinearStep);
 
-        std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
-        spectrogramResource.get().settings.magnitudeMax = next_magnitudeMax;
+        spectrogramThread.setMagnitudeMax(next_magnitudeMax);
     } else if (state[SDL_SCANCODE_RIGHTBRACKET]) {
         /* Magnitude max up */
         double next_magnitudeMax;
@@ -398,8 +379,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         else
             next_magnitudeMax = std::min<double>(settings.magnitudeMax + UserLimits.magnitudeLinearStep, UserLimits.magnitudeLinearMax);
 
-        std::lock_guard<ThreadSafeResource<SpectrumRenderer>> lg(spectrogramResource);
-        spectrogramResource.get().settings.magnitudeMax = next_magnitudeMax;
+        spectrogramThread.setMagnitudeMax(next_magnitudeMax);
     } else if (state[SDL_SCANCODE_H]) {
         /* Hide info */
         hideInfo = !hideInfo;
@@ -415,6 +395,8 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
 void InterfaceThread::run() {
     std::unique_ptr<uint32_t []> pixels = std::unique_ptr<uint32_t []>(new uint32_t[width*height]);
     std::vector<uint32_t> newPixels;
+
+    running = true;
 
     updateSettings();
     renderSettings();
@@ -452,7 +434,7 @@ void InterfaceThread::run() {
                 size = width*height;
             }
 
-            if (orientation == Image::Orientation::Vertical) {
+            if (orientation == Orientation::Vertical) {
                 /* Move old pixels up */
                 memmove(pixels.get(), pixels.get()+size, (width*height-size)*sizeof(uint32_t));
 

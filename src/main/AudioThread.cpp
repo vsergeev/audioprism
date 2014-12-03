@@ -1,20 +1,35 @@
-#include "audio/AudioSource.hpp"
+#include "AudioThread.hpp"
 
-#include "main/AudioThread.hpp"
-#include "main/ThreadSafeQueue.hpp"
+AudioThread::AudioThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, const Configuration::Settings &initialSettings) : samplesQueue(samplesQueue), audioSource(initialSettings.audioSampleRate) { }
 
-#define READ_SIZE   128
+void AudioThread::start() {
+    thread = std::thread(&AudioThread::run, this);
+}
 
-void AudioThread(ThreadSafeResource<Audio::AudioSource> &audioResource, ThreadSafeQueue<std::vector<double>> &samplesQueue, std::atomic<bool> &running) {
-    std::vector<double> samples(READ_SIZE);
+void AudioThread::stop() {
+    running = false;
+    thread.join();
+}
+
+#define AUDIO_READ_SIZE   128
+
+void AudioThread::run() {
+    std::vector<double> samples(AUDIO_READ_SIZE);
+
+    running = true;
 
     while (running) {
         {
-            std::lock_guard<ThreadSafeResource<Audio::AudioSource>> lg(audioResource);
-            audioResource.get().read(samples);
+            std::lock_guard<std::mutex> lg(audioSourceLock);
+            audioSource.read(samples);
         }
 
         samplesQueue.push(samples);
     }
+}
+
+unsigned int AudioThread::getSampleRate() {
+    std::lock_guard<std::mutex> lg(audioSourceLock);
+    return audioSource.getSampleRate();
 }
 
