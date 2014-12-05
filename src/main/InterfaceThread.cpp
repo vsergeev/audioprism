@@ -416,7 +416,13 @@ void InterfaceThread::run() {
 
     running = true;
 
+    /* Initialize pixels */
+    for (unsigned int i = 0; i < width*height; i++)
+        pixels.get()[i] = 0x00;
+
+    /* Poll current settings */
     updateSettings();
+    /* Render settings text */
     renderSettings();
 
     while (running) {
