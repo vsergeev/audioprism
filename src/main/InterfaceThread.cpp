@@ -287,7 +287,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             next_colors = SpectrumRenderer::ColorScheme::Heat;
 
         spectrogramThread.setColors(next_colors);
-        settings.colors = next_colors;
+        settings.colors = spectrogramThread.getColors();
     } else if (state[SDL_SCANCODE_W]) {
         /* Change window function */
         RealDft::WindowFunction next_wf = RealDft::WindowFunction::Hanning;
@@ -300,7 +300,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             next_wf = RealDft::WindowFunction::Hanning;
 
         spectrogramThread.setDftWindowFunction(next_wf);
-        settings.dftWf = next_wf;
+        settings.dftWf = spectrogramThread.getDftWindowFunction();
     } else if (state[SDL_SCANCODE_L]) {
         /* Toggle between Logarithimic/Linear */
         bool next_magnitudeLog = !settings.magnitudeLog;
@@ -310,14 +310,12 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         if (next_magnitudeLog) {
             spectrogramThread.setMagnitudeMin(InitialSettings.magnitudeLogMin);
             spectrogramThread.setMagnitudeMax(InitialSettings.magnitudeLogMax);
-            settings.magnitudeMin = InitialSettings.magnitudeLogMin;
-            settings.magnitudeMax = InitialSettings.magnitudeLogMax;
         } else {
             spectrogramThread.setMagnitudeMin(InitialSettings.magnitudeLinearMin);
             spectrogramThread.setMagnitudeMax(InitialSettings.magnitudeLinearMax);
-            settings.magnitudeMin = InitialSettings.magnitudeLinearMin;
-            settings.magnitudeMax = InitialSettings.magnitudeLinearMax;
         }
+        settings.magnitudeMin = spectrogramThread.getMagnitudeMin();
+        settings.magnitudeMax = spectrogramThread.getMagnitudeMax();
     } else if (state[SDL_SCANCODE_RIGHT]) {
         /* DFT N up */
         unsigned int next_dftSize = std::min<unsigned int>(settings.dftSize*2, UserLimits.dftSizeMax);
@@ -327,8 +325,8 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             /* Reset DFT overlap to 50% */
             spectrogramThread.setDftOverlap(0.50);
 
-            settings.dftSize = next_dftSize;
-            settings.dftOverlap = 0.5;
+            settings.dftSize = spectrogramThread.getDftSize();
+            settings.dftOverlap = spectrogramThread.getDftOverlap();
         }
     } else if (state[SDL_SCANCODE_LEFT]) {
         /* DFT N down */
@@ -340,21 +338,21 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             /* Reset DFT overlap to 50% */
             spectrogramThread.setDftOverlap(0.50);
 
-            settings.dftSize = next_dftSize;
-            settings.dftOverlap = 0.5;
+            settings.dftSize = spectrogramThread.getDftSize();
+            settings.dftOverlap = spectrogramThread.getDftOverlap();
         }
     } else if (state[SDL_SCANCODE_DOWN]) {
         /* DFT Overlap Up */
         float next_dftOverlap = std::max<float>(settings.dftOverlap - UserLimits.dftOverlapStep, UserLimits.dftOverlapMin);
 
         spectrogramThread.setDftOverlap(next_dftOverlap);
-        settings.dftOverlap = next_dftOverlap;
+        settings.dftOverlap = spectrogramThread.getDftOverlap();
     } else if (state[SDL_SCANCODE_UP]) {
         /* DFT Overlap Down */
         float next_dftOverlap = std::min<float>(settings.dftOverlap + UserLimits.dftOverlapStep, UserLimits.dftOverlapMax);
 
         spectrogramThread.setDftOverlap(next_dftOverlap);
-        settings.dftOverlap = next_dftOverlap;
+        settings.dftOverlap = spectrogramThread.getDftOverlap();
     } else if (state[SDL_SCANCODE_MINUS]) {
         /* Magnitude min down */
         double next_magnitudeMin;
@@ -365,7 +363,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             next_magnitudeMin = std::max<double>(settings.magnitudeMin - UserLimits.magnitudeLinearStep, UserLimits.magnitudeLinearMin);
 
         spectrogramThread.setMagnitudeMin(next_magnitudeMin);
-        settings.magnitudeMin = next_magnitudeMin;
+        settings.magnitudeMin = spectrogramThread.getMagnitudeMin();
     } else if (state[SDL_SCANCODE_EQUALS]) {
         /* Magnitude min up */
         double next_magnitudeMin;
@@ -376,7 +374,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             next_magnitudeMin = std::min<double>(settings.magnitudeMin + UserLimits.magnitudeLinearStep, settings.magnitudeMax - UserLimits.magnitudeLinearStep);
 
         spectrogramThread.setMagnitudeMin(next_magnitudeMin);
-        settings.magnitudeMin = next_magnitudeMin;
+        settings.magnitudeMin = spectrogramThread.getMagnitudeMin();
     } else if (state[SDL_SCANCODE_LEFTBRACKET]) {
         /* Magnitude max down */
         double next_magnitudeMax;
@@ -387,7 +385,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             next_magnitudeMax = std::max<double>(settings.magnitudeMax - UserLimits.magnitudeLinearStep, settings.magnitudeMin + UserLimits.magnitudeLinearStep);
 
         spectrogramThread.setMagnitudeMax(next_magnitudeMax);
-        settings.magnitudeMax = next_magnitudeMax;
+        settings.magnitudeMax = spectrogramThread.getMagnitudeMax();
     } else if (state[SDL_SCANCODE_RIGHTBRACKET]) {
         /* Magnitude max up */
         double next_magnitudeMax;
@@ -398,7 +396,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
             next_magnitudeMax = std::min<double>(settings.magnitudeMax + UserLimits.magnitudeLinearStep, UserLimits.magnitudeLinearMax);
 
         spectrogramThread.setMagnitudeMax(next_magnitudeMax);
-        settings.magnitudeMax = next_magnitudeMax;
+        settings.magnitudeMax = spectrogramThread.getMagnitudeMax();
     } else if (state[SDL_SCANCODE_H]) {
         /* Hide info */
         hideInfo = !hideInfo;
