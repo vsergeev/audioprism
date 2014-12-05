@@ -36,27 +36,28 @@ void SpectrogramThread::run() {
         /* Add new audio samples to our audio samples buffer */
         audioSamples.insert(audioSamples.end(), newAudioSamples.begin(), newAudioSamples.end());
 
+        /* Lock DFT */
         std::lock_guard<std::mutex> dftLg(realDftLock);
 
-        /* If we don't have enough samples to update overlap window, continue to pop more */
-        if (audioSamples.size() < dftOverlap)
-            continue;
-
-        /* Resize overlap samples buffer and dft samples buffer if N changed */
+        /* Resize overlap samples buffer and DFT samples buffer if N changed */
         if (overlapSamples.size() != realDft.getSize()) {
             overlapSamples.resize(realDft.getSize());
             dftSamples.resize(realDft.getSize()/2+1);
         }
+
+        /* If we don't have enough samples to update overlap window, continue to pop more */
+        if (audioSamples.size() < dftOverlap)
+            continue;
 
         #if 0
         unsigned int x = dftOverlap;
         printf("before overlap %u audioSamples %zu overlapSamples %zu dftSamples %zu\n", x, audioSamples.size(), overlapSamples.size(), dftSamples.size());
         #endif
 
-        /* Move down old samples */
-        memmove(overlapSamples.data(), overlapSamples.data()+dftOverlap, sizeof(double)*(overlapSamples.size()-dftOverlap));
+        /* Move down dftOverlap length old samples */
+        memmove(overlapSamples.data(), overlapSamples.data()+(overlapSamples.size()-dftOverlap), sizeof(double)*dftOverlap);
         /* Copy new samples */
-        memcpy(overlapSamples.data()+dftOverlap, audioSamples.data(), sizeof(double)*dftOverlap);
+        memcpy(overlapSamples.data()+dftOverlap, audioSamples.data(), sizeof(double)*(overlapSamples.size()-dftOverlap));
         /* Erase used audio samples */
         audioSamples.erase(audioSamples.begin(), audioSamples.begin()+dftOverlap);
 
@@ -67,11 +68,10 @@ void SpectrogramThread::run() {
         /* Compute DFT */
         realDft.compute(dftSamples, overlapSamples);
 
+        /* Lock spectrum renderer */
         std::lock_guard<std::mutex> spectrumLg(spectrumRendererLock);
-
         /* Render spectrogram line */
         spectrumRenderer.render(pixels, dftSamples);
-
         /* Put into pixels queue */
         pixelsQueue.push(pixels);
     }
