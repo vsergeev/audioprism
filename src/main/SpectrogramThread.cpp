@@ -154,8 +154,3 @@ void SpectrogramThread::setColors(Spectrogram::SpectrumRenderer::ColorScheme col
     spectrumRenderer.settings.colors = colors;
 }
 
-std::function<float (int)> SpectrogramThread::getPixelToHz(unsigned int width, unsigned int dftSize, unsigned int sampleRate) {
-    std::lock_guard<std::mutex> spectrumLg(spectrumRendererLock);
-    return spectrumRenderer.getPixelToHz(width, dftSize, sampleRate);
-}
-

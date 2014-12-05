@@ -17,9 +17,6 @@ class SpectrumRenderer {
     /* Render a new pixel row from a DFT vector */
     void render(std::vector<uint32_t> &pixels, const std::vector<std::complex<double>> &dft);
 
-    /* Get the mapping function from pixel to frequency */
-    std::function<float (int)> getPixelToHz(unsigned int width, unsigned int dftSize, unsigned int sampleRate);
-
     struct {
         double magnitudeMin;
         double magnitudeMax;

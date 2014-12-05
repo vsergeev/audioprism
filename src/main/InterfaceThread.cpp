@@ -192,12 +192,6 @@ void InterfaceThread::updateSettings() {
     settings.dftOverlap = spectrogramThread.getDftOverlap();
     settings.dftSize = spectrogramThread.getDftSize();
     settings.dftWf = spectrogramThread.getDftWindowFunction();
-
-    if (orientation == Orientation::Vertical)
-        settings.fPixelToHz = spectrogramThread.getPixelToHz(width, settings.dftSize, settings.audioSampleRate);
-    else
-        settings.fPixelToHz = spectrogramThread.getPixelToHz(height, settings.dftSize, settings.audioSampleRate);
-
     settings.magnitudeMin = spectrogramThread.getMagnitudeMin();
     settings.magnitudeMax = spectrogramThread.getMagnitudeMax();
     settings.magnitudeLog = spectrogramThread.getMagnitudeLog();
@@ -248,12 +242,18 @@ void InterfaceThread::renderSettings() {
 void InterfaceThread::renderCursor(int x, int y) {
     SDL_Surface *cursorSurface;
     SDL_Color settingsColor = {0xff, 0x00, 0x00, 0x00};
+
     float frequency;
 
-    if (orientation == Orientation::Vertical)
-        frequency = settings.fPixelToHz(x);
-    else
-        frequency = settings.fPixelToHz(height-y);
+    float hzPerBin = ((static_cast<float>(settings.audioSampleRate))/2.0)/static_cast<float>((settings.dftSize/2 + 1));
+
+    if (orientation == Orientation::Vertical) {
+        float binPerPixel = static_cast<float>((settings.dftSize/2 + 1))/static_cast<float>(width);
+        frequency = std::floor(static_cast<float>(x)*binPerPixel)*hzPerBin;
+    } else {
+        float binPerPixel = static_cast<float>((settings.dftSize/2 + 1))/static_cast<float>(height);
+        frequency = std::floor(static_cast<float>(height-y)*binPerPixel)*hzPerBin;
+    }
 
     cursorSurface = renderString(format("%.0f Hz", frequency), font, settingsColor);
 

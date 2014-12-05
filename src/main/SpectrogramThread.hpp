@@ -45,9 +45,6 @@ class SpectrogramThread {
     Spectrogram::SpectrumRenderer::ColorScheme getColors();
     void setColors(Spectrogram::SpectrumRenderer::ColorScheme colors);
 
-    /* Get Spectrogram pixelPerHz lambda */
-    std::function<float (int)> getPixelToHz(unsigned int width, unsigned int dftSize, unsigned int sampleRate);
-
   private:
     void run();
 

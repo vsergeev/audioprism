@@ -101,14 +101,5 @@ void SpectrumRenderer::render(std::vector<uint32_t> &pixels, const std::vector<s
     }
 }
 
-std::function<float (int)> SpectrumRenderer::getPixelToHz(unsigned int width, unsigned int dftSize, unsigned int sampleRate) {
-    float binPerPixel, hzPerBin;
-
-    binPerPixel = static_cast<float>((dftSize/2 + 1))/static_cast<float>(width);
-    hzPerBin = ((static_cast<float>(sampleRate))/2.0)/static_cast<float>((dftSize/2 + 1));
-
-    return [=] (int x) -> float { return std::floor(static_cast<float>(x)*binPerPixel)*hzPerBin; };
-}
-
 }
 
