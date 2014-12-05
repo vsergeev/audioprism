@@ -97,7 +97,7 @@ Audio Settings\n\
 \n\
 DFT Settings\n\
     --overlap <percentage>      Overlap percentage (default 50)\n\
-    --dft-size <size>           DFT Size, must be power of two (default 2048)\n\
+    --dft-size <size>           DFT Size, must be power of two (default 1024)\n\
     --window <window function>  Window Function [hanning, hamming, rectangular]\n\
                                     (default hanning)\n\
 \n\

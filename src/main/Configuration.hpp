@@ -21,7 +21,7 @@ struct Settings {
     unsigned int audioSampleRate = 24000;
     /* DFT Settings */
     float dftOverlap = 0.50;
-    unsigned int dftSize = 2048;
+    unsigned int dftSize = 1024;
     RealDft::WindowFunction dftWf = RealDft::WindowFunction::Hanning;
     /* Spectrogram Settings */
     double magnitudeMin = 0.0;
