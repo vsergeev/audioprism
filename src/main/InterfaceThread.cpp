@@ -65,7 +65,7 @@ static std::string findFontPath() {
     return "";
 }
 
-InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, AudioThread &audioThread, SpectrogramThread &spectrogramThread, const Settings &initialSettings) : pixelsQueue(pixelsQueue), audioThread(audioThread), spectrogramThread(spectrogramThread), width(initialSettings.width), height(initialSettings.height), orientation(initialSettings.orientation), hideInfo(false) {
+InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, AudioThread &audioThread, SpectrogramThread &spectrogramThread, const Settings &initialSettings) : pixelsQueue(pixelsQueue), audioThread(audioThread), spectrogramThread(spectrogramThread), width(initialSettings.width), height(initialSettings.height), orientation(initialSettings.orientation), hideInfo(false), hideStatistics(true) {
     int ret;
 
     /* Initialize SDL */
@@ -140,7 +140,6 @@ static SDL_Surface *renderString(std::string s, TTF_Font *font, const SDL_Color 
 }
 
 enum class Alignment { Left, Center, Right };
-
 static SDL_Surface *vcatSurfaces(std::vector<SDL_Surface *> surfaces, Alignment aligned) {
     SDL_Surface *targetSurface = nullptr;
     int targetSurfaceWidth = 0, targetSurfaceHeight = 0;
@@ -200,7 +199,7 @@ void InterfaceThread::updateSettings() {
 
 void InterfaceThread::renderSettings() {
     std::vector<SDL_Surface *> textSurfaces;
-    SDL_Surface *targetSurface;
+    SDL_Surface *settingsSurface;
     SDL_Color settingsColor = {0xff, 0x00, 0x00, 0x00};
 
     unsigned int overlap = static_cast<unsigned int>(settings.samplesOverlap*100.0);
@@ -219,24 +218,24 @@ void InterfaceThread::renderSettings() {
         textSurfaces.push_back(renderString(format("Linear"), font, settingsColor));
     }
 
-    targetSurface = vcatSurfaces(textSurfaces, Alignment::Right);
+    settingsSurface = vcatSurfaces(textSurfaces, Alignment::Right);
 
     /* Update settings rectangle destination for screen rendering */
-    settingsRect.x = width - targetSurface->w - 5;
+    settingsRect.x = width - settingsSurface->w - 5;
     settingsRect.y = 2;
-    settingsRect.w = targetSurface->w;
-    settingsRect.h = targetSurface->h;
+    settingsRect.w = settingsSurface->w;
+    settingsRect.h = settingsSurface->h;
 
     /* Destroy old settings texture */
     if (settingsTexture)
         SDL_DestroyTexture(settingsTexture);
 
     /* Create new texture from the target surface */
-    settingsTexture = SDL_CreateTextureFromSurface(renderer, targetSurface);
+    settingsTexture = SDL_CreateTextureFromSurface(renderer, settingsSurface);
     if (settingsTexture == nullptr)
         throw SDLException("Error creating texture for text: SDL_CreateTextureFromSurface(): " + std::string(SDL_GetError()));
 
-    SDL_FreeSurface(targetSurface);
+    SDL_FreeSurface(settingsSurface);
 }
 
 void InterfaceThread::renderCursor(int x, int y) {
@@ -257,8 +256,9 @@ void InterfaceThread::renderCursor(int x, int y) {
 
     cursorSurface = renderString(format("%.0f Hz", frequency), font, settingsColor);
 
+    /* Update cursor rectangle destination for screen rendering */
     cursorRect.x = width - cursorSurface->w - 5;
-    cursorRect.y = settingsRect.h + cursorSurface->h;
+    cursorRect.y = settingsRect.y + settingsRect.h + cursorSurface->h;
     cursorRect.w = cursorSurface->w;
     cursorRect.h = cursorSurface->h;
 
@@ -270,6 +270,34 @@ void InterfaceThread::renderCursor(int x, int y) {
         throw SDLException("Error creating texture for cursor text: SDL_CreateTextureFromSurface(): " + std::string(SDL_GetError()));
 
     SDL_FreeSurface(cursorSurface);
+}
+
+void InterfaceThread::renderStatistics() {
+    std::vector<SDL_Surface *> textSurfaces;
+    SDL_Surface *statisticsSurface;
+    SDL_Color statisticsColor = {0xff, 0x00, 0x00, 0x00};
+
+    unsigned int samplesQueueCount = spectrogramThread.getDebugSamplesQueueCount();
+    unsigned int pixelsQueueCount = pixelsQueue.count();
+
+    textSurfaces.push_back(renderString(format("Audio Queue: %d", samplesQueueCount), font, statisticsColor));
+    textSurfaces.push_back(renderString(format("Pixels Queue: %d", pixelsQueueCount), font, statisticsColor));
+    statisticsSurface = vcatSurfaces(textSurfaces, Alignment::Right);
+
+    /* Update statistics rectangle destination for screen rendering */
+    statisticsRect.x = width - statisticsSurface->w - 5;
+    statisticsRect.y = cursorRect.y + cursorRect.h + statisticsSurface->h;
+    statisticsRect.w = statisticsSurface->w;
+    statisticsRect.h = statisticsSurface->h;
+
+    if (statisticsTexture)
+        SDL_DestroyTexture(statisticsTexture);
+
+    statisticsTexture = SDL_CreateTextureFromSurface(renderer, statisticsSurface);
+    if (statisticsTexture == nullptr)
+        throw SDLException("Error creating texture for statistics text: SDL_CreateTextureFromSurface(): " + std::string(SDL_GetError()));
+
+    SDL_FreeSurface(statisticsSurface);
 }
 
 void InterfaceThread::handleKeyDown(const uint8_t *state) {
@@ -400,6 +428,14 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
     } else if (state[SDL_SCANCODE_H]) {
         /* Hide info */
         hideInfo = !hideInfo;
+        if (!hideInfo)
+            renderSettings();
+        return;
+    } else if (state[SDL_SCANCODE_D]) {
+        /* Hide statistics */
+        hideStatistics = !hideStatistics;
+        if (!hideStatistics)
+            renderStatistics();
         return;
     } else {
         return;
@@ -412,6 +448,8 @@ void InterfaceThread::run() {
     std::unique_ptr<uint32_t []> pixels = std::unique_ptr<uint32_t []>(new uint32_t[width*height]);
     std::vector<uint32_t> newPixels;
 
+    auto statisticsTic = std::chrono::system_clock::now();
+
     running = true;
 
     /* Initialize pixels */
@@ -422,8 +460,11 @@ void InterfaceThread::run() {
     updateSettings();
     /* Render settings text */
     renderSettings();
+    /* Render statistics */
+    renderStatistics();
 
     while (running) {
+        /* Handle SDL events */
         SDL_Event e;
         if (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
@@ -436,6 +477,12 @@ void InterfaceThread::run() {
                 SDL_GetMouseState(&mx, &my);
                 renderCursor(mx, my);
             }
+        }
+
+        /* Update statistics every 500ms */
+        if (!hideStatistics && (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()-statisticsTic).count() > 500)) {
+            renderStatistics();
+            statisticsTic = std::chrono::system_clock::now();
         }
 
         /* Collect all new pixel rows */
@@ -486,10 +533,14 @@ void InterfaceThread::run() {
         SDL_RenderClear(renderer);
         /* Render pixels */
         SDL_RenderCopy(renderer, pixelsTexture, nullptr, nullptr);
-        /* Render settings info */
+        /* Render settings and cursor */
         if (!hideInfo) {
             SDL_RenderCopy(renderer, settingsTexture, nullptr, &settingsRect);
             SDL_RenderCopy(renderer, cursorTexture, nullptr, &cursorRect);
+        }
+        /* Render statistics */
+        if (!hideStatistics) {
+            SDL_RenderCopy(renderer, statisticsTexture, nullptr, &statisticsRect);
         }
         SDL_RenderPresent(renderer);
         SDL_Delay(5);
