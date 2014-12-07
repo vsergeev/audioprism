@@ -36,8 +36,6 @@ void spectrogram_realtime() {
     SpectrogramThread spectrogramThread(samplesQueue, pixelsQueue, InitialSettings);
     InterfaceThread interfaceThread(pixelsQueue, audioThread, spectrogramThread, InitialSettings);
 
-    //std::thread spectrogramThread(SpectrogramThread, std::ref(samplesQueue), std::ref(pixelsQueue), std::ref(dftResource), std::ref(spectrogramResource), std::ref(dftOverlap), (InitialSettings.orientation == Orientation::Vertical) ? InitialSettings.width : InitialSettings.height, std::ref(running));
-
     audioThread.start();
     spectrogramThread.start();
     interfaceThread.run();
@@ -47,33 +45,44 @@ void spectrogram_realtime() {
 }
 
 void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
-    WaveAudioSource audio(audioPath);
-    RealDft dft(InitialSettings.dftSize, InitialSettings.dftWf);
-    SpectrumRenderer spectrogram(InitialSettings.magnitudeMin, InitialSettings.magnitudeMax, InitialSettings.magnitudeLog, InitialSettings.colors);
+    WaveAudioSource audioSource(audioPath);
+    RealDft realDft(InitialSettings.dftSize, InitialSettings.dftWf);
+    SpectrumRenderer spectrumRenderer(InitialSettings.magnitudeMin, InitialSettings.magnitudeMax, InitialSettings.magnitudeLog, InitialSettings.colors);
     MagickImageSink image(imagePath, InitialSettings.width, (InitialSettings.orientation == Orientation::Horizontal) ? MagickImageSink::Orientation::Horizontal : MagickImageSink::Orientation::Vertical);
 
-    std::vector<double> newSamples(InitialSettings.dftOverlap);
-    std::vector<double> samples(InitialSettings.dftSize);
-    std::vector<std::complex<double>> dftSamples(InitialSettings.dftSize);
+    unsigned int samplesOverlap = static_cast<unsigned int>(InitialSettings.samplesOverlap*InitialSettings.dftSize);
+
+    /* Overlapped Samples */
+    std::vector<double> overlapSamples(InitialSettings.dftSize);
+    /* DFT of Overlapped Samples */
+    std::vector<std::complex<double>> dftSamples(InitialSettings.dftSize/2+1);
+    /* Pixel line */
     std::vector<uint32_t> pixels(InitialSettings.width);
 
-    /* FIXME overlap */
-
     while (true) {
-        audio.read(newSamples);
+        std::vector<double> audioSamples(overlapSamples.size()-samplesOverlap);
 
-        if (newSamples.size() == 0)
+        /* Read audio samples */
+        audioSource.read(audioSamples);
+        if (audioSamples.size() == 0)
             break;
 
-        /* Move down old samples */
-        memmove(samples.data(), samples.data()+newSamples.size(), sizeof(double)*(samples.size()-newSamples.size()));
-        /* Copy new samples */
-        memcpy(samples.data()+(samples.size()-newSamples.size()), newSamples.data(), sizeof(double)*newSamples.size());
+        /* If we're on the final read and short on samples, pad with zeros */
+        if (audioSamples.size() < (overlapSamples.size()-samplesOverlap))
+            audioSamples.resize(overlapSamples.size()-samplesOverlap);
 
-        dft.compute(dftSamples, samples);
+        /* Move down overlapSamples.size()-samplesOverlap length old samples */
+        memmove(overlapSamples.data(), overlapSamples.data()+samplesOverlap, sizeof(double)*(overlapSamples.size()-samplesOverlap));
+        /* Copy overlapSamples.size()-samplesOverlap length new samples */
+        memcpy(overlapSamples.data()+samplesOverlap, audioSamples.data(), sizeof(double)*(overlapSamples.size()-samplesOverlap));
 
-        spectrogram.render(pixels, dftSamples);
+        /* Compute DFT */
+        realDft.compute(dftSamples, overlapSamples);
 
+        /* Render spectrogram line */
+        spectrumRenderer.render(pixels, dftSamples);
+
+        /* Add pixel row to image */
         image.append(pixels);
     }
 
@@ -197,13 +206,16 @@ int main(int argc, char *argv[]) {
                     return EXIT_FAILURE;
                 }
 
-                if (overlap > 100 || overlap < static_cast<unsigned int>(UserLimits.dftOverlapMin*100.0) || overlap > static_cast<unsigned int>(UserLimits.dftOverlapMax*100.0)) {
-                    std::cerr << "Invalid value for overlap (must be >= " << static_cast<unsigned int>(UserLimits.dftOverlapMin*100.0) << " and <= " << static_cast<unsigned int>(UserLimits.dftOverlapMax*100.0) << ").\n\n";
+                unsigned int overlapMin = static_cast<unsigned int>(std::round(UserLimits.samplesOverlapMin*100.0));
+                unsigned int overlapMax = static_cast<unsigned int>(std::round(UserLimits.samplesOverlapMax*100.0));
+
+                if (overlap > 100 || overlap < overlapMin || overlap > overlapMax) {
+                    std::cerr << "Invalid value for overlap (must be >= " << overlapMin << " and <= " << overlapMax << ").\n\n";
                     print_usage(argv[0]);
                     return EXIT_FAILURE;
                 }
 
-                InitialSettings.dftOverlap = static_cast<float>(overlap)/100.0;
+                InitialSettings.samplesOverlap = static_cast<float>(overlap)/100.0;
             } else if (option_name == "dft-size") {
                 unsigned int dftSize;
                 try {
