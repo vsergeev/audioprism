@@ -120,7 +120,8 @@ Spectrogram Settings\n\
 \n\
 Interactive Keyboard Control:\n\
     q           - Quit\n\
-    h           - Hide settings information\n\
+    h           - Hide/show settings information\n\
+    d           - Hide/show debug information\n\
     c           - Cycle color scheme\n\
     w           - Cycle window function\n\
     l           - Toggle logarithmic/linear magnitude\n\
