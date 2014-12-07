@@ -45,7 +45,7 @@ struct Limits {
     double magnitudeLogMax = 80.0;
     double magnitudeLogStep = 5.0;
     /* DFT size min, max */
-    unsigned int dftSizeMin = 32;
+    unsigned int dftSizeMin = 64;
     unsigned int dftSizeMax = 8192;
     /* DFT overlap min, max, step */
     float samplesOverlapMin = 0.05;
