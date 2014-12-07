@@ -7,6 +7,7 @@
 SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, const Configuration::Settings &initialSettings) : samplesQueue(samplesQueue), pixelsQueue(pixelsQueue), realDft(initialSettings.dftSize, initialSettings.dftWf), spectrumRenderer(initialSettings.magnitudeMin, initialSettings.magnitudeMax, initialSettings.magnitudeLog, initialSettings.colors) {
     samplesOverlap = static_cast<unsigned int>(initialSettings.samplesOverlap*static_cast<float>(initialSettings.dftSize));
     pixelsWidth = (initialSettings.orientation == Configuration::Orientation::Vertical) ? initialSettings.width : initialSettings.height;
+    samplesQueueCount = 0;
 }
 
 void SpectrogramThread::start() {
@@ -32,6 +33,9 @@ void SpectrogramThread::run() {
 
     while (running) {
         std::vector<double> newAudioSamples(samplesQueue.pop());
+
+        /* Track samples queue count for debug statistics */
+        samplesQueueCount = samplesQueue.count();
 
         /* Add new audio samples to our audio samples buffer */
         audioSamples.insert(audioSamples.end(), newAudioSamples.begin(), newAudioSamples.end());
@@ -152,5 +156,9 @@ Spectrogram::SpectrumRenderer::ColorScheme SpectrogramThread::getColors() {
 void SpectrogramThread::setColors(Spectrogram::SpectrumRenderer::ColorScheme colors) {
     std::lock_guard<std::mutex> spectrumLg(spectrumRendererLock);
     spectrumRenderer.settings.colors = colors;
+}
+
+unsigned int SpectrogramThread::getDebugSamplesQueueCount() {
+    return samplesQueueCount;
 }
 

@@ -45,6 +45,9 @@ class SpectrogramThread {
     Spectrogram::SpectrumRenderer::ColorScheme getColors();
     void setColors(Spectrogram::SpectrumRenderer::ColorScheme colors);
 
+    /* Debug Statistics */
+    unsigned int getDebugSamplesQueueCount();
+
   private:
     void run();
 
@@ -65,6 +68,8 @@ class SpectrogramThread {
     unsigned int pixelsWidth;
 
     std::thread thread;
+
+    std::atomic<unsigned int> samplesQueueCount;
 };
 
 #endif
