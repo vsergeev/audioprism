@@ -158,7 +158,7 @@ void SpectrogramThread::setColors(Spectrogram::SpectrumRenderer::ColorScheme col
     spectrumRenderer.settings.colors = colors;
 }
 
-unsigned int SpectrogramThread::getDebugSamplesQueueCount() {
+size_t SpectrogramThread::getDebugSamplesQueueCount() {
     return samplesQueueCount;
 }
 

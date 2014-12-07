@@ -168,7 +168,7 @@ int main(int argc, char *argv[]) {
             return EXIT_FAILURE;
         } else if (c == 'r') {
             try {
-                InitialSettings.audioSampleRate = std::stoul(optarg);
+                InitialSettings.audioSampleRate = static_cast<unsigned int>(std::stoul(optarg));
             } catch (const std::invalid_argument &e) {
                 std::cerr << "Invalid value for sample rate.\n\n";
                 print_usage(argv[0]);
@@ -190,7 +190,7 @@ int main(int argc, char *argv[]) {
                 }
             } else if (option_name == "width") {
                 try {
-                    InitialSettings.width = std::stoul(option_arg);
+                    InitialSettings.width = static_cast<unsigned int>(std::stoul(option_arg));
                 } catch (const std::invalid_argument &e) {
                     std::cerr << "Invalid value for width.\n\n";
                     print_usage(argv[0]);
@@ -198,7 +198,7 @@ int main(int argc, char *argv[]) {
                 }
             } else if (option_name == "height") {
                 try {
-                    InitialSettings.height = std::stoul(option_arg);
+                    InitialSettings.height = static_cast<unsigned int>(std::stoul(option_arg));
                 } catch (const std::invalid_argument &e) {
                     std::cerr << "Invalid value for height.\n\n";
                     print_usage(argv[0]);
@@ -206,7 +206,7 @@ int main(int argc, char *argv[]) {
                 }
             } else if (option_name == "overlap") {
                 try {
-                    overlap = std::stoul(option_arg);
+                    overlap = static_cast<unsigned int>(std::stoul(option_arg));
                 } catch (const std::invalid_argument &e) {
                     std::cerr << "Invalid value for overlap.\n\n";
                     print_usage(argv[0]);
@@ -222,11 +222,11 @@ int main(int argc, char *argv[]) {
                     return EXIT_FAILURE;
                 }
 
-                InitialSettings.samplesOverlap = static_cast<float>(overlap)/100.0;
+                InitialSettings.samplesOverlap = static_cast<float>(overlap)/100.0f;
             } else if (option_name == "dft-size") {
                 unsigned int dftSize;
                 try {
-                    dftSize = std::stoul(option_arg);
+                    dftSize = static_cast<unsigned int>(std::stoul(option_arg));
                 } catch (const std::invalid_argument &e) {
                     std::cerr << "Invalid value for DFT size.\n\n";
                     print_usage(argv[0]);

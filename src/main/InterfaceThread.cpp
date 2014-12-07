@@ -79,7 +79,7 @@ InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQ
         throw TTFException("Unable to initialize TTF: TTF_Init(): " + std::string(TTF_GetError()));
 
     /* Create Window */
-    win = SDL_CreateWindow("spectrogram", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
+    win = SDL_CreateWindow("spectrogram", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, static_cast<int>(width), static_cast<int>(height), SDL_WINDOW_OPENGL);
     if (win == nullptr)
         throw SDLException("Creating SDL window: SDL_CreateWindow(): " + std::string(SDL_GetError()));
 
@@ -89,7 +89,7 @@ InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQ
         throw SDLException("Creating SDL renderer: SDL_CreateRenderer(): " + std::string(SDL_GetError()));
 
     /* Create main texture */
-    pixelsTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STATIC, width, height);
+    pixelsTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STATIC, static_cast<int>(width), static_cast<int>(height));
     if (pixelsTexture == nullptr)
         throw SDLException("Creating SDL texture: SDL_CreateTexture(): " + std::string(SDL_GetError()));
 
@@ -153,9 +153,9 @@ static SDL_Surface *vcatSurfaces(std::vector<SDL_Surface *> surfaces, Alignment 
 
     /* Create target surface */
     #if SDL_BYTEORDER == SDL_BIG_ENDIAN /* ghetto */
-    targetSurface = SDL_CreateRGBSurface(0, targetSurfaceWidth, targetSurfaceHeight, 32, 0xff << 24, 0xff << 16, 0xff << 8, 0xff);
+    targetSurface = SDL_CreateRGBSurface(0, targetSurfaceWidth, targetSurfaceHeight, 32, 0xffu << 24, 0xffu << 16, 0xffu << 8, 0xffu);
     #else
-    targetSurface = SDL_CreateRGBSurface(0, targetSurfaceWidth, targetSurfaceHeight, 32, 0xff, 0xff << 8, 0xff << 16, 0xff << 24);
+    targetSurface = SDL_CreateRGBSurface(0, targetSurfaceWidth, targetSurfaceHeight, 32, 0xffu, 0xffu << 8, 0xffu << 16, 0xffu << 24);
     #endif
     if (targetSurface == nullptr)
         throw SDLException("Error creating target surface: SDL_CreateRGBSurface(): " + std::string(SDL_GetError()));
@@ -221,7 +221,7 @@ void InterfaceThread::renderSettings() {
     settingsSurface = vcatSurfaces(textSurfaces, Alignment::Right);
 
     /* Update settings rectangle destination for screen rendering */
-    settingsRect.x = width - settingsSurface->w - 5;
+    settingsRect.x = static_cast<int>(width) - settingsSurface->w - 5;
     settingsRect.y = 2;
     settingsRect.w = settingsSurface->w;
     settingsRect.h = settingsSurface->h;
@@ -244,20 +244,20 @@ void InterfaceThread::renderCursor(int x, int y) {
 
     float frequency;
 
-    float hzPerBin = ((static_cast<float>(settings.audioSampleRate))/2.0)/static_cast<float>((settings.dftSize/2 + 1));
+    float hzPerBin = ((static_cast<float>(settings.audioSampleRate))/2.0f)/static_cast<float>((settings.dftSize/2 + 1));
 
     if (orientation == Orientation::Vertical) {
         float binPerPixel = static_cast<float>((settings.dftSize/2 + 1))/static_cast<float>(width);
         frequency = std::floor(static_cast<float>(x)*binPerPixel)*hzPerBin;
     } else {
         float binPerPixel = static_cast<float>((settings.dftSize/2 + 1))/static_cast<float>(height);
-        frequency = std::floor(static_cast<float>(height-y)*binPerPixel)*hzPerBin;
+        frequency = std::floor(static_cast<float>(static_cast<int>(height)-y)*binPerPixel)*hzPerBin;
     }
 
     cursorSurface = renderString(format("%.0f Hz", frequency), font, settingsColor);
 
     /* Update cursor rectangle destination for screen rendering */
-    cursorRect.x = width - cursorSurface->w - 5;
+    cursorRect.x = static_cast<int>(width) - cursorSurface->w - 5;
     cursorRect.y = settingsRect.y + settingsRect.h + cursorSurface->h;
     cursorRect.w = cursorSurface->w;
     cursorRect.h = cursorSurface->h;
@@ -277,15 +277,15 @@ void InterfaceThread::renderStatistics() {
     SDL_Surface *statisticsSurface;
     SDL_Color statisticsColor = {0xff, 0x00, 0x00, 0x00};
 
-    unsigned int samplesQueueCount = spectrogramThread.getDebugSamplesQueueCount();
-    unsigned int pixelsQueueCount = pixelsQueue.count();
+    size_t samplesQueueCount = spectrogramThread.getDebugSamplesQueueCount();
+    size_t pixelsQueueCount = pixelsQueue.count();
 
-    textSurfaces.push_back(renderString(format("Audio Queue: %d", samplesQueueCount), font, statisticsColor));
-    textSurfaces.push_back(renderString(format("Pixels Queue: %d", pixelsQueueCount), font, statisticsColor));
+    textSurfaces.push_back(renderString(format("Audio Queue: %u", samplesQueueCount), font, statisticsColor));
+    textSurfaces.push_back(renderString(format("Pixels Queue: %u", pixelsQueueCount), font, statisticsColor));
     statisticsSurface = vcatSurfaces(textSurfaces, Alignment::Right);
 
     /* Update statistics rectangle destination for screen rendering */
-    statisticsRect.x = width - statisticsSurface->w - 5;
+    statisticsRect.x = static_cast<int>(width) - statisticsSurface->w - 5;
     statisticsRect.y = cursorRect.y + cursorRect.h + statisticsSurface->h;
     statisticsRect.w = statisticsSurface->w;
     statisticsRect.h = statisticsSurface->h;
@@ -350,7 +350,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
 
         if (next_dftSize != settings.dftSize) {
             spectrogramThread.setDftSize(next_dftSize);
-            /* Reset DFT overlap to 50% */
+            /* Reset samples overlap to 50% */
             spectrogramThread.setSamplesOverlap(0.50);
 
             settings.dftSize = spectrogramThread.getDftSize();
@@ -360,23 +360,23 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         /* DFT N down */
         unsigned int next_dftSize = std::max<unsigned int>(settings.dftSize/2, UserLimits.dftSizeMin);
 
-        /* Set DFT Overlap for 50% overlap */
+        /* Set Samples Overlap for 50% overlap */
         if (next_dftSize != settings.dftSize) {
             spectrogramThread.setDftSize(next_dftSize);
-            /* Reset DFT overlap to 50% */
+            /* Reset samples overlap to 50% */
             spectrogramThread.setSamplesOverlap(0.50);
 
             settings.dftSize = spectrogramThread.getDftSize();
             settings.samplesOverlap = spectrogramThread.getSamplesOverlap();
         }
     } else if (state[SDL_SCANCODE_DOWN]) {
-        /* DFT Overlap Up */
+        /* Samples Overlap Up */
         float next_samplesOverlap = std::max<float>(settings.samplesOverlap - UserLimits.samplesOverlapStep, UserLimits.samplesOverlapMin);
 
         spectrogramThread.setSamplesOverlap(next_samplesOverlap);
         settings.samplesOverlap = spectrogramThread.getSamplesOverlap();
     } else if (state[SDL_SCANCODE_UP]) {
-        /* DFT Overlap Down */
+        /* Samples Overlap Down */
         float next_samplesOverlap = std::min<float>(settings.samplesOverlap + UserLimits.samplesOverlapStep, UserLimits.samplesOverlapMax);
 
         spectrogramThread.setSamplesOverlap(next_samplesOverlap);
@@ -494,7 +494,7 @@ void InterfaceThread::run() {
         /* Update pixel buffer with new pixels */
         if (newPixels.size() > 0) {
             uint32_t *data = newPixels.data();
-            unsigned int size = newPixels.size();
+            size_t size = newPixels.size();
 
             if (size > width*height) {
                 /* Pixel buffer overrun (this should seldom happen). */
@@ -527,7 +527,7 @@ void InterfaceThread::run() {
             /* Clear new pixels */
             newPixels.clear();
 
-            SDL_UpdateTexture(pixelsTexture, nullptr, pixels.get(), width * sizeof(uint32_t));
+            SDL_UpdateTexture(pixelsTexture, nullptr, pixels.get(), static_cast<int>(width * sizeof(uint32_t)));
         }
 
         SDL_RenderClear(renderer);

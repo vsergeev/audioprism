@@ -12,7 +12,7 @@ class ThreadSafeQueue {
     void push(T value);
     T pop();
 
-    unsigned int count();
+    size_t count();
     bool empty();
 
     template <typename Rep, typename Period>
@@ -25,7 +25,7 @@ class ThreadSafeQueue {
 };
 
 template <typename T>
-unsigned int ThreadSafeQueue<T>::count() {
+size_t ThreadSafeQueue<T>::count() {
     std::lock_guard<std::mutex> lg(lock);
     return queue.size();
 }

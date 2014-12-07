@@ -17,7 +17,7 @@ class SpectrogramThread {
     void start();
     void stop();
 
-    /* Get/Set DFT Overlap (0.00 - 1.00) */
+    /* Get/Set Samples Overlap (0.00 - 1.00) */
     float getSamplesOverlap();
     void setSamplesOverlap(float overlap);
 
@@ -46,7 +46,7 @@ class SpectrogramThread {
     void setColors(Spectrogram::SpectrumRenderer::ColorScheme colors);
 
     /* Debug Statistics */
-    unsigned int getDebugSamplesQueueCount();
+    size_t getDebugSamplesQueueCount();
 
   private:
     void run();
@@ -69,7 +69,7 @@ class SpectrogramThread {
 
     std::thread thread;
 
-    std::atomic<unsigned int> samplesQueueCount;
+    std::atomic<size_t> samplesQueueCount;
 };
 
 #endif

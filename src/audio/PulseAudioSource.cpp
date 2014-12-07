@@ -17,10 +17,10 @@ PulseAudioSource::PulseAudioSource(unsigned int sampleRate) : sampleRate(sampleR
     ss.rate = sampleRate;
     ss.channels = 1;
 
-    attr.maxlength = -1;
-    attr.tlength = -1;
-    attr.prebuf = -1;
-    attr.minreq = -1;
+    attr.maxlength = -1u;
+    attr.tlength = -1u;
+    attr.prebuf = -1u;
+    attr.minreq = -1u;
     attr.fragsize = 1024;
 
     s = pa_simple_new(nullptr, "spectrogram", PA_STREAM_RECORD, nullptr, "audio in", &ss, nullptr, &attr, &error);
@@ -34,7 +34,7 @@ PulseAudioSource::~PulseAudioSource() {
 }
 
 void PulseAudioSource::read(std::vector<double> &samples) {
-    unsigned int count = samples.size();
+    size_t count = samples.size();
     std::vector<float> fsamples(count);
     int error;
 

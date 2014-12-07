@@ -23,7 +23,7 @@ std::ostream &operator<<(std::ostream &os, const RealDft::WindowFunction &wf) {
 }
 
 static void calculateWindow(std::vector<double> &window, RealDft::WindowFunction windowFunction) {
-    unsigned int N = window.size();
+    size_t N = window.size();
     if (windowFunction == RealDft::WindowFunction::Hanning) {
         for (unsigned int n = 0; n < N; n++)
             window[n] = 0.5*(1-std::cos((2*M_PI*n)/(N-1)));
@@ -111,7 +111,7 @@ void RealDft::setSize(unsigned int N) {
         throw AllocationException("Allocating DFT memory.");
 
     /* Rebuild our plan */
-    plan = fftw_plan_dft_r2c_1d(N, wsamples, dft, FFTW_MEASURE);
+    plan = fftw_plan_dft_r2c_1d(static_cast<int>(N), wsamples, dft, FFTW_MEASURE);
 
     /* Update N */
     this->N = N;

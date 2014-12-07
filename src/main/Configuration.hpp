@@ -47,10 +47,10 @@ struct Limits {
     /* DFT size min, max */
     unsigned int dftSizeMin = 64;
     unsigned int dftSizeMax = 8192;
-    /* DFT overlap min, max, step */
-    float samplesOverlapMin = 0.05;
-    float samplesOverlapMax = 0.95;
-    float samplesOverlapStep = 0.025;
+    /* Samples overlap min, max, step */
+    float samplesOverlapMin = 0.05f;
+    float samplesOverlapMax = 0.95f;
+    float samplesOverlapStep = 0.025f;
 };
 
 extern Settings InitialSettings;

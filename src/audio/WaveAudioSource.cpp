@@ -23,15 +23,15 @@ WaveAudioSource::~WaveAudioSource() {
 void WaveAudioSource::read(std::vector<double> &samples) {
     sf_count_t ret;
 
-    ret = sf_read_double(sndfile, samples.data(), samples.size());
+    ret = sf_read_double(sndfile, samples.data(), static_cast<sf_count_t>(samples.size()));
 
     /* Resize samples buffer if we read less than requested */
     if (ret < static_cast<sf_count_t>(samples.size()))
-        samples.resize(ret);
+        samples.resize(static_cast<size_t>(ret));
 }
 
 unsigned int WaveAudioSource::getSampleRate() {
-    return sfinfo.samplerate;
+    return static_cast<unsigned int>(sfinfo.samplerate);
 }
 
 }
