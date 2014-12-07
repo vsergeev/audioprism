@@ -166,7 +166,13 @@ int main(int argc, char *argv[]) {
             print_usage(argv[0]);
             return EXIT_FAILURE;
         } else if (c == 'r') {
-            std::cout << "option r with _" << optarg << "_" << std::endl;
+            try {
+                InitialSettings.audioSampleRate = std::stoul(optarg);
+            } catch (const std::invalid_argument &e) {
+                std::cerr << "Invalid value for sample rate.\n\n";
+                print_usage(argv[0]);
+                return EXIT_FAILURE;
+            }
         } else if (c == 0) {
             std::string option_name = long_options[options_index].name;
             std::string option_arg = (long_options[options_index].has_arg == required_argument) ? optarg : "";
