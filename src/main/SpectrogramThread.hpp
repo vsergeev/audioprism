@@ -18,8 +18,8 @@ class SpectrogramThread {
     void stop();
 
     /* Get/Set DFT Overlap (0.00 - 1.00) */
-    float getDftOverlap();
-    void setDftOverlap(float overlap);
+    float getSamplesOverlap();
+    void setSamplesOverlap(float overlap);
 
     /* Get/Set DFT Size (power of two) */
     unsigned int getDftSize();
@@ -61,7 +61,7 @@ class SpectrogramThread {
     Spectrogram::SpectrumRenderer spectrumRenderer;
     std::mutex spectrumRendererLock;
 
-    unsigned int dftOverlap;
+    unsigned int samplesOverlap;
     unsigned int pixelsWidth;
 
     std::thread thread;

@@ -20,7 +20,7 @@ struct Settings {
     /* Audio Settings */
     unsigned int audioSampleRate = 24000;
     /* DFT Settings */
-    float dftOverlap = 0.50;
+    float samplesOverlap = 0.50;
     unsigned int dftSize = 1024;
     RealDft::WindowFunction dftWf = RealDft::WindowFunction::Hanning;
     /* Spectrogram Settings */
@@ -48,9 +48,9 @@ struct Limits {
     unsigned int dftSizeMin = 32;
     unsigned int dftSizeMax = 8192;
     /* DFT overlap min, max, step */
-    float dftOverlapMin = 0.05;
-    float dftOverlapMax = 0.95;
-    float dftOverlapStep = 0.025;
+    float samplesOverlapMin = 0.05;
+    float samplesOverlapMax = 0.95;
+    float samplesOverlapStep = 0.025;
 };
 
 extern Settings InitialSettings;

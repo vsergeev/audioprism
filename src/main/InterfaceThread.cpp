@@ -189,7 +189,7 @@ static SDL_Surface *vcatSurfaces(std::vector<SDL_Surface *> surfaces, Alignment 
 
 void InterfaceThread::updateSettings() {
     settings.audioSampleRate = audioThread.getSampleRate();
-    settings.dftOverlap = spectrogramThread.getDftOverlap();
+    settings.samplesOverlap = spectrogramThread.getSamplesOverlap();
     settings.dftSize = spectrogramThread.getDftSize();
     settings.dftWf = spectrogramThread.getDftWindowFunction();
     settings.magnitudeMin = spectrogramThread.getMagnitudeMin();
@@ -203,7 +203,7 @@ void InterfaceThread::renderSettings() {
     SDL_Surface *targetSurface;
     SDL_Color settingsColor = {0xff, 0x00, 0x00, 0x00};
 
-    unsigned int overlap = static_cast<unsigned int>(settings.dftOverlap*100.0);
+    unsigned int overlap = static_cast<unsigned int>(settings.samplesOverlap*100.0);
 
     textSurfaces.push_back(renderString(format("Sample Rate: %d Hz", settings.audioSampleRate), font, settingsColor));
     textSurfaces.push_back(renderString(format("Overlap: %d%%", overlap), font, settingsColor));
@@ -323,10 +323,10 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         if (next_dftSize != settings.dftSize) {
             spectrogramThread.setDftSize(next_dftSize);
             /* Reset DFT overlap to 50% */
-            spectrogramThread.setDftOverlap(0.50);
+            spectrogramThread.setSamplesOverlap(0.50);
 
             settings.dftSize = spectrogramThread.getDftSize();
-            settings.dftOverlap = spectrogramThread.getDftOverlap();
+            settings.samplesOverlap = spectrogramThread.getSamplesOverlap();
         }
     } else if (state[SDL_SCANCODE_LEFT]) {
         /* DFT N down */
@@ -336,23 +336,23 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         if (next_dftSize != settings.dftSize) {
             spectrogramThread.setDftSize(next_dftSize);
             /* Reset DFT overlap to 50% */
-            spectrogramThread.setDftOverlap(0.50);
+            spectrogramThread.setSamplesOverlap(0.50);
 
             settings.dftSize = spectrogramThread.getDftSize();
-            settings.dftOverlap = spectrogramThread.getDftOverlap();
+            settings.samplesOverlap = spectrogramThread.getSamplesOverlap();
         }
     } else if (state[SDL_SCANCODE_DOWN]) {
         /* DFT Overlap Up */
-        float next_dftOverlap = std::max<float>(settings.dftOverlap - UserLimits.dftOverlapStep, UserLimits.dftOverlapMin);
+        float next_samplesOverlap = std::max<float>(settings.samplesOverlap - UserLimits.samplesOverlapStep, UserLimits.samplesOverlapMin);
 
-        spectrogramThread.setDftOverlap(next_dftOverlap);
-        settings.dftOverlap = spectrogramThread.getDftOverlap();
+        spectrogramThread.setSamplesOverlap(next_samplesOverlap);
+        settings.samplesOverlap = spectrogramThread.getSamplesOverlap();
     } else if (state[SDL_SCANCODE_UP]) {
         /* DFT Overlap Down */
-        float next_dftOverlap = std::min<float>(settings.dftOverlap + UserLimits.dftOverlapStep, UserLimits.dftOverlapMax);
+        float next_samplesOverlap = std::min<float>(settings.samplesOverlap + UserLimits.samplesOverlapStep, UserLimits.samplesOverlapMax);
 
-        spectrogramThread.setDftOverlap(next_dftOverlap);
-        settings.dftOverlap = spectrogramThread.getDftOverlap();
+        spectrogramThread.setSamplesOverlap(next_samplesOverlap);
+        settings.samplesOverlap = spectrogramThread.getSamplesOverlap();
     } else if (state[SDL_SCANCODE_MINUS]) {
         /* Magnitude min down */
         double next_magnitudeMin;

@@ -5,7 +5,7 @@
 #include "SpectrogramThread.hpp"
 
 SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, const Configuration::Settings &initialSettings) : samplesQueue(samplesQueue), pixelsQueue(pixelsQueue), realDft(initialSettings.dftSize, initialSettings.dftWf), spectrumRenderer(initialSettings.magnitudeMin, initialSettings.magnitudeMax, initialSettings.magnitudeLog, initialSettings.colors) {
-    dftOverlap = static_cast<unsigned int>(initialSettings.dftOverlap*static_cast<float>(initialSettings.dftSize));
+    samplesOverlap = static_cast<unsigned int>(initialSettings.samplesOverlap*static_cast<float>(initialSettings.dftSize));
     pixelsWidth = (initialSettings.orientation == Configuration::Orientation::Vertical) ? initialSettings.width : initialSettings.height;
 }
 
@@ -46,20 +46,20 @@ void SpectrogramThread::run() {
         }
 
         /* If we don't have enough samples to update overlap window, continue to pop more */
-        if (audioSamples.size() < dftOverlap)
+        if (audioSamples.size() < samplesOverlap)
             continue;
 
         #if 0
-        unsigned int x = dftOverlap;
+        unsigned int x = samplesOverlap;
         printf("before overlap %u audioSamples %zu overlapSamples %zu dftSamples %zu\n", x, audioSamples.size(), overlapSamples.size(), dftSamples.size());
         #endif
 
-        /* Move down overlapSamples.size()-dftOverlap length old samples */
-        memmove(overlapSamples.data(), overlapSamples.data()+dftOverlap, sizeof(double)*(overlapSamples.size()-dftOverlap));
-        /* Copy overlapSamples.size()-dftOverlap length new samples */
-        memcpy(overlapSamples.data()+dftOverlap, audioSamples.data(), sizeof(double)*(overlapSamples.size()-dftOverlap));
+        /* Move down overlapSamples.size()-samplesOverlap length old samples */
+        memmove(overlapSamples.data(), overlapSamples.data()+samplesOverlap, sizeof(double)*(overlapSamples.size()-samplesOverlap));
+        /* Copy overlapSamples.size()-samplesOverlap length new samples */
+        memcpy(overlapSamples.data()+samplesOverlap, audioSamples.data(), sizeof(double)*(overlapSamples.size()-samplesOverlap));
         /* Erase used audio samples */
-        audioSamples.erase(audioSamples.begin(), audioSamples.begin()+dftOverlap);
+        audioSamples.erase(audioSamples.begin(), audioSamples.begin()+samplesOverlap);
 
         #if 0
         printf("after  overlap %u audioSamples %zu overlapSamples %zu dftSamples %zu\n", x, audioSamples.size(), overlapSamples.size(), dftSamples.size());
@@ -77,14 +77,14 @@ void SpectrogramThread::run() {
     }
 }
 
-float SpectrogramThread::getDftOverlap() {
+float SpectrogramThread::getSamplesOverlap() {
     std::lock_guard<std::mutex> dftLg(realDftLock);
-    return static_cast<float>(dftOverlap)/static_cast<float>(realDft.getSize());
+    return static_cast<float>(samplesOverlap)/static_cast<float>(realDft.getSize());
 }
 
-void SpectrogramThread::setDftOverlap(float overlap) {
+void SpectrogramThread::setSamplesOverlap(float overlap) {
     std::lock_guard<std::mutex> dftLg(realDftLock);
-    dftOverlap = static_cast<unsigned int>(overlap*static_cast<float>(realDft.getSize()));
+    samplesOverlap = static_cast<unsigned int>(overlap*static_cast<float>(realDft.getSize()));
 }
 
 unsigned int SpectrogramThread::getDftSize() {
@@ -93,7 +93,7 @@ unsigned int SpectrogramThread::getDftSize() {
 }
 
 void SpectrogramThread::setDftSize(unsigned int N) {
-    float overlap = getDftOverlap();
+    float overlap = getSamplesOverlap();
 
     {
         std::lock_guard<std::mutex> dftLg(realDftLock);
@@ -101,7 +101,7 @@ void SpectrogramThread::setDftSize(unsigned int N) {
     }
 
     /* Preserve overlap percentage */
-    setDftOverlap(overlap);
+    setSamplesOverlap(overlap);
 }
 
 DFT::RealDft::WindowFunction SpectrogramThread::getDftWindowFunction() {

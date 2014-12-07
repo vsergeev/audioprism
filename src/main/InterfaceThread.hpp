@@ -51,7 +51,7 @@ class InterfaceThread {
     /* Cached settings from audio source, dft, and spectrogram classes */
     struct {
         unsigned int audioSampleRate;
-        float dftOverlap;
+        float samplesOverlap;
         DFT::RealDft::WindowFunction dftWf;
         unsigned int dftSize;
         std::function<float (int)> fPixelToHz;
