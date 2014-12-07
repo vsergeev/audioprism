@@ -1,10 +1,7 @@
-- fix increase overlap then change size bug
 - add debug statistics to audio and spectrogram threads
-- fix overlap in spectrogram_audiofile code
 - add queue pop timeout
 
 - use C-style interfaces for audio/spectrogram/dft?
-
 - add readme with screenshots
 - release
 
