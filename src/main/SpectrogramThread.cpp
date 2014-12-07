@@ -54,9 +54,9 @@ void SpectrogramThread::run() {
         printf("before overlap %u audioSamples %zu overlapSamples %zu dftSamples %zu\n", x, audioSamples.size(), overlapSamples.size(), dftSamples.size());
         #endif
 
-        /* Move down dftOverlap length old samples */
-        memmove(overlapSamples.data(), overlapSamples.data()+(overlapSamples.size()-dftOverlap), sizeof(double)*dftOverlap);
-        /* Copy new samples */
+        /* Move down overlapSamples.size()-dftOverlap length old samples */
+        memmove(overlapSamples.data(), overlapSamples.data()+dftOverlap, sizeof(double)*(overlapSamples.size()-dftOverlap));
+        /* Copy overlapSamples.size()-dftOverlap length new samples */
         memcpy(overlapSamples.data()+dftOverlap, audioSamples.data(), sizeof(double)*(overlapSamples.size()-dftOverlap));
         /* Erase used audio samples */
         audioSamples.erase(audioSamples.begin(), audioSamples.begin()+dftOverlap);
