@@ -21,9 +21,10 @@ OBJS = $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(SRCS))
 ################################################################################
 
 CXX = g++
+CXX = clang++
 REMOVE = rm -rf
 
-CPPFLAGS = -std=c++11 -W -Wall -Wextra -pedantic -O3 -g -Isrc/
+CPPFLAGS = -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/
 CPPFLAGS += $(shell sdl2-config --cflags)
 CPPFLAGS += $(shell GraphicsMagick++-config --cppflags)
 
