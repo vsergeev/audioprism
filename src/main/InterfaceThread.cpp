@@ -287,7 +287,7 @@ void InterfaceThread::renderStatistics() {
 
     /* Update statistics rectangle destination for screen rendering */
     statisticsRect.x = static_cast<int>(width) - statisticsSurface->w - 5;
-    statisticsRect.y = cursorRect.y + cursorRect.h + statisticsSurface->h;
+    statisticsRect.y = cursorRect.y + cursorRect.h*2;
     statisticsRect.w = statisticsSurface->w;
     statisticsRect.h = statisticsSurface->h;
 
