@@ -25,6 +25,8 @@ class SpectrumRenderer {
     } settings;
 };
 
+std::string to_string(const SpectrumRenderer::ColorScheme &colors);
+
 }
 
 #endif

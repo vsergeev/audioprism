@@ -101,5 +101,16 @@ void SpectrumRenderer::render(std::vector<uint32_t> &pixels, const std::vector<s
     }
 }
 
+std::string to_string(const SpectrumRenderer::ColorScheme &colors) {
+    if (colors == SpectrumRenderer::ColorScheme::Heat)
+        return "Heat";
+    else if (colors == SpectrumRenderer::ColorScheme::Blue)
+        return "Blue";
+    else if (colors == SpectrumRenderer::ColorScheme::Grayscale)
+        return "Grayscale";
+
+    return "Unknown";
+}
+
 }
 
