@@ -105,7 +105,7 @@ Audio Settings\n\
     -r,--sample-rate <rate>     Audio input sample rate (default 24000)\n\
 \n\
 DFT Settings\n\
-    --overlap <percentage>      Overlap percentage (default 50)\n\
+    --overlap <percentage>      Samples overlap percentage (default 50)\n\
     --dft-size <size>           DFT Size, must be power of two (default 1024)\n\
     --window <window function>  Window Function [hanning, hamming, rectangular]\n\
                                     (default hanning)\n\
@@ -121,7 +121,7 @@ Spectrogram Settings\n\
 Interactive Keyboard Control:\n\
     q           - Quit\n\
     h           - Hide/show settings information\n\
-    d           - Hide/show debug information\n\
+    d           - Hide/show debug statistics\n\
     c           - Cycle color scheme\n\
     w           - Cycle window function\n\
     l           - Toggle logarithmic/linear magnitude\n\
