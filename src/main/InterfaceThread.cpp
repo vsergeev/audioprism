@@ -208,6 +208,7 @@ void InterfaceThread::renderSettings() {
     textSurfaces.push_back(renderString(format("Overlap: %d%%", overlap), font, settingsColor));
     textSurfaces.push_back(renderString("Window: " + to_string(settings.dftWf), font, settingsColor));
     textSurfaces.push_back(renderString(format("DFT Size: %d", settings.dftSize), font, settingsColor));
+    textSurfaces.push_back(renderString(format("Colors: %s", to_string(settings.colors).c_str()), font, settingsColor));
     if (settings.magnitudeLog) {
         textSurfaces.push_back(renderString(format("Mag. min: %.2f dB", settings.magnitudeMin), font, settingsColor));
         textSurfaces.push_back(renderString(format("Mag. max: %.2f dB", settings.magnitudeMax), font, settingsColor));
