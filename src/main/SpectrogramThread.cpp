@@ -32,7 +32,14 @@ void SpectrogramThread::run() {
     running = true;
 
     while (running) {
-        std::vector<double> newAudioSamples(samplesQueue.pop());
+        std::vector<double> newAudioSamples;
+
+        /* Poll with timeout, in case this thread is asked to stop */
+        if (!samplesQueue.wait(std::chrono::milliseconds(100)))
+            continue;
+
+        /* Pop new audio samples */
+        newAudioSamples = samplesQueue.pop();
 
         /* Track samples queue count for debug statistics */
         samplesQueueCount = samplesQueue.count();

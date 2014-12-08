@@ -1,8 +1,7 @@
-- add queue pop timeout
-- use C-style interfaces for audio/spectrogram/dft?
 - add readme with screenshots
 - release
 
+- use C-style interfaces for audio/spectrogram/dft?
 - add bandwidth selection
 - add dft averaging
 - add frequency cursor delta
