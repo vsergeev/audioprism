@@ -50,7 +50,7 @@ struct Limits {
     /* Samples overlap min, max, step */
     float samplesOverlapMin = 0.05f;
     float samplesOverlapMax = 0.95f;
-    float samplesOverlapStep = 0.025f;
+    float samplesOverlapStep = 0.01f;
 };
 
 extern Settings InitialSettings;
