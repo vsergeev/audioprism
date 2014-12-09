@@ -9,7 +9,8 @@ namespace Image {
 
 class MagickImageSink : public ImageSink {
   public:
-    enum class Orientation { Horizontal, Vertical };
+    enum class Orientation { Horizontal,
+                             Vertical };
 
     MagickImageSink(std::string path, unsigned int width, Orientation orientation);
 
@@ -22,8 +23,6 @@ class MagickImageSink : public ImageSink {
     const Orientation orientation;
     std::vector<uint32_t> imagePixels;
 };
-
 }
 
 #endif
-

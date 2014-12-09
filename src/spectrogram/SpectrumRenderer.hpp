@@ -10,7 +10,9 @@ namespace Spectrogram {
 
 class SpectrumRenderer {
   public:
-    enum class ColorScheme { Heat, Blue, Grayscale };
+    enum class ColorScheme { Heat,
+                             Blue,
+                             Grayscale };
 
     SpectrumRenderer(double magnitudeMin, double magnitudeMax, bool magnitudeLog, ColorScheme colors);
 
@@ -26,8 +28,6 @@ class SpectrumRenderer {
 };
 
 std::string to_string(const SpectrumRenderer::ColorScheme &colors);
-
 }
 
 #endif
-

@@ -50,17 +50,17 @@ void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
     SpectrumRenderer spectrumRenderer(InitialSettings.magnitudeMin, InitialSettings.magnitudeMax, InitialSettings.magnitudeLog, InitialSettings.colors);
     MagickImageSink image(imagePath, InitialSettings.width, (InitialSettings.orientation == Orientation::Horizontal) ? MagickImageSink::Orientation::Horizontal : MagickImageSink::Orientation::Vertical);
 
-    unsigned int samplesOverlap = static_cast<unsigned int>(InitialSettings.samplesOverlap*InitialSettings.dftSize);
+    unsigned int samplesOverlap = static_cast<unsigned int>(InitialSettings.samplesOverlap * InitialSettings.dftSize);
 
     /* Overlapped Samples */
     std::vector<double> overlapSamples(InitialSettings.dftSize);
     /* DFT of Overlapped Samples */
-    std::vector<std::complex<double>> dftSamples(InitialSettings.dftSize/2+1);
+    std::vector<std::complex<double>> dftSamples(InitialSettings.dftSize / 2 + 1);
     /* Pixel line */
     std::vector<uint32_t> pixels(InitialSettings.width);
 
     while (true) {
-        std::vector<double> audioSamples(overlapSamples.size()-samplesOverlap);
+        std::vector<double> audioSamples(overlapSamples.size() - samplesOverlap);
 
         /* Read audio samples */
         audioSource.read(audioSamples);
@@ -68,13 +68,13 @@ void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
             break;
 
         /* If we're on the final read and short on samples, pad with zeros */
-        if (audioSamples.size() < (overlapSamples.size()-samplesOverlap))
-            audioSamples.resize(overlapSamples.size()-samplesOverlap);
+        if (audioSamples.size() < (overlapSamples.size() - samplesOverlap))
+            audioSamples.resize(overlapSamples.size() - samplesOverlap);
 
         /* Move down overlapSamples.size()-samplesOverlap length old samples */
-        memmove(overlapSamples.data(), overlapSamples.data()+samplesOverlap, sizeof(double)*(overlapSamples.size()-samplesOverlap));
+        memmove(overlapSamples.data(), overlapSamples.data() + samplesOverlap, sizeof(double) * (overlapSamples.size() - samplesOverlap));
         /* Copy overlapSamples.size()-samplesOverlap length new samples */
-        memcpy(overlapSamples.data()+samplesOverlap, audioSamples.data(), sizeof(double)*(overlapSamples.size()-samplesOverlap));
+        memcpy(overlapSamples.data() + samplesOverlap, audioSamples.data(), sizeof(double) * (overlapSamples.size() - samplesOverlap));
 
         /* Compute DFT */
         realDft.compute(dftSamples, overlapSamples);
@@ -143,18 +143,18 @@ int main(int argc, char *argv[]) {
     unsigned int overlap = 50;
 
     static struct option long_options[] = {
-        {"help",            no_argument,        0,  'h'},
-        {"width",           required_argument,  0,  0},
-        {"height",          required_argument,  0,  0},
-        {"orientation",     required_argument,  0,  0},
-        {"sample-rate",     required_argument,  0,  'r'},
-        {"overlap",         required_argument,  0,  0},
-        {"dft-size",        required_argument,  0,  0},
-        {"window",          required_argument,  0,  0},
-        {"magnitude-scale", required_argument,  0,  0},
-        {"magnitude-min",   required_argument,  0,  0},
-        {"magnitude-max",   required_argument,  0,  0},
-        {"colors",          required_argument,  0,  0},
+        {"help", no_argument, 0, 'h'},
+        {"width", required_argument, 0, 0},
+        {"height", required_argument, 0, 0},
+        {"orientation", required_argument, 0, 0},
+        {"sample-rate", required_argument, 0, 'r'},
+        {"overlap", required_argument, 0, 0},
+        {"dft-size", required_argument, 0, 0},
+        {"window", required_argument, 0, 0},
+        {"magnitude-scale", required_argument, 0, 0},
+        {"magnitude-min", required_argument, 0, 0},
+        {"magnitude-max", required_argument, 0, 0},
+        {"colors", required_argument, 0, 0},
     };
 
     while (1) {
@@ -213,8 +213,8 @@ int main(int argc, char *argv[]) {
                     return EXIT_FAILURE;
                 }
 
-                unsigned int overlapMin = static_cast<unsigned int>(std::round(UserLimits.samplesOverlapMin*100.0));
-                unsigned int overlapMax = static_cast<unsigned int>(std::round(UserLimits.samplesOverlapMax*100.0));
+                unsigned int overlapMin = static_cast<unsigned int>(std::round(UserLimits.samplesOverlapMin * 100.0));
+                unsigned int overlapMax = static_cast<unsigned int>(std::round(UserLimits.samplesOverlapMax * 100.0));
 
                 if (overlap > 100 || overlap < overlapMin || overlap > overlapMax) {
                     std::cerr << "Invalid value for overlap (must be >= " << overlapMin << " and <= " << overlapMax << ").\n\n";
@@ -222,7 +222,7 @@ int main(int argc, char *argv[]) {
                     return EXIT_FAILURE;
                 }
 
-                InitialSettings.samplesOverlap = static_cast<float>(overlap)/100.0f;
+                InitialSettings.samplesOverlap = static_cast<float>(overlap) / 100.0f;
             } else if (option_name == "dft-size") {
                 unsigned int dftSize;
                 try {
@@ -233,13 +233,13 @@ int main(int argc, char *argv[]) {
                     return EXIT_FAILURE;
                 }
 
-                if ((dftSize & (dftSize - 1)) != 0 || dftSize < UserLimits.dftSizeMin || dftSize  > UserLimits.dftSizeMax) {
+                if ((dftSize & (dftSize - 1)) != 0 || dftSize < UserLimits.dftSizeMin || dftSize > UserLimits.dftSizeMax) {
                     std::cerr << "Invalid value for DFT size (must be power of 2 and >= " << UserLimits.dftSizeMin << " and <= " << UserLimits.dftSizeMax << ").\n\n";
                     print_usage(argv[0]);
                     return EXIT_FAILURE;
                 }
 
-                InitialSettings.dftSize  = dftSize;
+                InitialSettings.dftSize = dftSize;
             } else if (option_name == "window") {
                 if (option_arg == "hann")
                     InitialSettings.dftWf = RealDft::WindowFunction::Hann;
@@ -300,7 +300,7 @@ int main(int argc, char *argv[]) {
             std::cout << "Invalid magnitude min (must be >= " << UserLimits.magnitudeLogMin << ").\n\n";
             print_usage(argv[0]);
             return EXIT_FAILURE;
-        } else if (InitialSettings.magnitudeMax > UserLimits.magnitudeLogMax ){
+        } else if (InitialSettings.magnitudeMax > UserLimits.magnitudeLogMax) {
             std::cout << "Invalid magnitude max (must be <= " << UserLimits.magnitudeLogMax << ").\n\n";
             print_usage(argv[0]);
             return EXIT_FAILURE;
@@ -310,7 +310,7 @@ int main(int argc, char *argv[]) {
             std::cout << "Invalid magnitude min (must be >= " << UserLimits.magnitudeLinearMin << ").\n\n";
             print_usage(argv[0]);
             return EXIT_FAILURE;
-        } else if (InitialSettings.magnitudeMax > UserLimits.magnitudeLogMax ){
+        } else if (InitialSettings.magnitudeMax > UserLimits.magnitudeLogMax) {
             std::cout << "Invalid magnitude max (must be <= " << UserLimits.magnitudeLinearMax << ").\n\n";
             print_usage(argv[0]);
             return EXIT_FAILURE;
@@ -324,13 +324,12 @@ int main(int argc, char *argv[]) {
 
     /* Audio file mode */
     if ((argc - optind) == 2) {
-        spectrogram_audiofile(std::string(argv[optind]), std::string(argv[optind+1]));
+        spectrogram_audiofile(std::string(argv[optind]), std::string(argv[optind + 1]));
 
-    /* Realtime mode */
+        /* Realtime mode */
     } else {
         spectrogram_realtime();
     }
 
     return 0;
 }
-

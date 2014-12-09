@@ -20,8 +20,6 @@ class WaveAudioSource : public AudioSource {
     SNDFILE *sndfile;
     SF_INFO sfinfo;
 };
-
 }
 
 #endif
-

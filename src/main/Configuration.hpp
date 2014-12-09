@@ -10,7 +10,8 @@ using namespace Spectrogram;
 
 namespace Configuration {
 
-enum class Orientation { Horizontal, Vertical };
+enum class Orientation { Horizontal,
+                         Vertical };
 
 struct Settings {
     /* Interface Settings */
@@ -55,8 +56,6 @@ struct Limits {
 
 extern Settings InitialSettings;
 extern Limits UserLimits;
-
 }
 
 #endif
-

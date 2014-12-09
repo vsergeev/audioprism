@@ -18,8 +18,6 @@ class PulseAudioSource : public AudioSource {
     pa_simple *s;
     unsigned int sampleRate;
 };
-
 }
 
 #endif
-

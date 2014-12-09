@@ -16,7 +16,7 @@ void MagickImageSink::append(const std::vector<uint32_t> &pixels) {
 }
 
 void MagickImageSink::write() {
-    Magick::Image image(width, static_cast<unsigned int>(imagePixels.size()/width), "BGRA", Magick::CharPixel, imagePixels.data());
+    Magick::Image image(width, static_cast<unsigned int>(imagePixels.size() / width), "BGRA", Magick::CharPixel, imagePixels.data());
     image.quality(100);
     image.opacity(0);
 
@@ -25,6 +25,4 @@ void MagickImageSink::write() {
 
     image.write(path);
 }
-
 }
-

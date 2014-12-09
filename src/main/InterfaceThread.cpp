@@ -40,7 +40,7 @@ static int fontCrawlCallback(const char *fpath, const struct stat *sb, int typef
 
         if (slashpos != std::string::npos) {
             /* Extract filename */
-            std::string filename = path.substr(slashpos+1);
+            std::string filename = path.substr(slashpos + 1);
 
             /* If it's a TTF file, add it to our available font files map */
             if (fnmatch("*.ttf", filename.c_str(), FNM_CASEFOLD) == 0)
@@ -139,7 +139,9 @@ static SDL_Surface *renderString(std::string s, TTF_Font *font, const SDL_Color 
     return surface;
 }
 
-enum class Alignment { Left, Center, Right };
+enum class Alignment { Left,
+                       Center,
+                       Right };
 static SDL_Surface *vcatSurfaces(std::vector<SDL_Surface *> surfaces, Alignment aligned) {
     SDL_Surface *targetSurface = nullptr;
     int targetSurfaceWidth = 0, targetSurfaceHeight = 0;
@@ -151,12 +153,12 @@ static SDL_Surface *vcatSurfaces(std::vector<SDL_Surface *> surfaces, Alignment 
         targetSurfaceHeight += surface->h;
     }
 
-    /* Create target surface */
-    #if SDL_BYTEORDER == SDL_BIG_ENDIAN /* ghetto */
+/* Create target surface */
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN /* ghetto */
     targetSurface = SDL_CreateRGBSurface(0, targetSurfaceWidth, targetSurfaceHeight, 32, 0xffu << 24, 0xffu << 16, 0xffu << 8, 0xffu);
-    #else
+#else
     targetSurface = SDL_CreateRGBSurface(0, targetSurfaceWidth, targetSurfaceHeight, 32, 0xffu, 0xffu << 8, 0xffu << 16, 0xffu << 24);
-    #endif
+#endif
     if (targetSurface == nullptr)
         throw SDLException("Error creating target surface: SDL_CreateRGBSurface(): " + std::string(SDL_GetError()));
 
@@ -168,7 +170,7 @@ static SDL_Surface *vcatSurfaces(std::vector<SDL_Surface *> surfaces, Alignment 
         if (aligned == Alignment::Left)
             targetRect.x = 0;
         else if (aligned == Alignment::Center)
-            targetRect.x = (targetSurfaceWidth - surface->w)/2;
+            targetRect.x = (targetSurfaceWidth - surface->w) / 2;
         else if (aligned == Alignment::Right)
             targetRect.x = targetSurfaceWidth - surface->w;
 
@@ -202,7 +204,7 @@ void InterfaceThread::renderSettings() {
     SDL_Surface *settingsSurface;
     SDL_Color settingsColor = {0xff, 0x00, 0x00, 0x00};
 
-    unsigned int overlap = static_cast<unsigned int>(settings.samplesOverlap*100.0);
+    unsigned int overlap = static_cast<unsigned int>(settings.samplesOverlap * 100.0);
 
     textSurfaces.push_back(renderString(format("Sample Rate: %d Hz", settings.audioSampleRate), font, settingsColor));
     textSurfaces.push_back(renderString(format("Overlap: %d%%", overlap), font, settingsColor));
@@ -245,14 +247,14 @@ void InterfaceThread::renderCursor(int x, int y) {
 
     float frequency;
 
-    float hzPerBin = ((static_cast<float>(settings.audioSampleRate))/2.0f)/static_cast<float>((settings.dftSize/2 + 1));
+    float hzPerBin = ((static_cast<float>(settings.audioSampleRate)) / 2.0f) / static_cast<float>((settings.dftSize / 2 + 1));
 
     if (orientation == Orientation::Vertical) {
-        float binPerPixel = static_cast<float>((settings.dftSize/2 + 1))/static_cast<float>(width);
-        frequency = std::floor(static_cast<float>(x)*binPerPixel)*hzPerBin;
+        float binPerPixel = static_cast<float>((settings.dftSize / 2 + 1)) / static_cast<float>(width);
+        frequency = std::floor(static_cast<float>(x) * binPerPixel) * hzPerBin;
     } else {
-        float binPerPixel = static_cast<float>((settings.dftSize/2 + 1))/static_cast<float>(height);
-        frequency = std::floor(static_cast<float>(static_cast<int>(height)-y)*binPerPixel)*hzPerBin;
+        float binPerPixel = static_cast<float>((settings.dftSize / 2 + 1)) / static_cast<float>(height);
+        frequency = std::floor(static_cast<float>(static_cast<int>(height) - y) * binPerPixel) * hzPerBin;
     }
 
     cursorSurface = renderString(format("%.0f Hz", frequency), font, settingsColor);
@@ -287,7 +289,7 @@ void InterfaceThread::renderStatistics() {
 
     /* Update statistics rectangle destination for screen rendering */
     statisticsRect.x = static_cast<int>(width) - statisticsSurface->w - 5;
-    statisticsRect.y = cursorRect.y + cursorRect.h*2;
+    statisticsRect.y = cursorRect.y + cursorRect.h * 2;
     statisticsRect.w = statisticsSurface->w;
     statisticsRect.h = statisticsSurface->h;
 
@@ -349,7 +351,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         settings.magnitudeMax = spectrogramThread.getMagnitudeMax();
     } else if (state[SDL_SCANCODE_RIGHT]) {
         /* DFT N up */
-        unsigned int next_dftSize = std::min<unsigned int>(settings.dftSize*2, UserLimits.dftSizeMax);
+        unsigned int next_dftSize = std::min<unsigned int>(settings.dftSize * 2, UserLimits.dftSizeMax);
 
         if (next_dftSize != settings.dftSize) {
             spectrogramThread.setDftSize(next_dftSize);
@@ -361,7 +363,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         }
     } else if (state[SDL_SCANCODE_LEFT]) {
         /* DFT N down */
-        unsigned int next_dftSize = std::max<unsigned int>(settings.dftSize/2, UserLimits.dftSizeMin);
+        unsigned int next_dftSize = std::max<unsigned int>(settings.dftSize / 2, UserLimits.dftSizeMin);
 
         /* Set Samples Overlap for 50% overlap */
         if (next_dftSize != settings.dftSize) {
@@ -448,7 +450,7 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
 }
 
 void InterfaceThread::run() {
-    std::unique_ptr<uint32_t []> pixels = std::unique_ptr<uint32_t []>(new uint32_t[width*height]);
+    std::unique_ptr<uint32_t[]> pixels = std::unique_ptr<uint32_t[]>(new uint32_t[width * height]);
     std::vector<uint32_t> newPixels;
 
     auto statisticsTic = std::chrono::system_clock::now();
@@ -456,7 +458,7 @@ void InterfaceThread::run() {
     running = true;
 
     /* Initialize pixels */
-    for (unsigned int i = 0; i < width*height; i++)
+    for (unsigned int i = 0; i < width * height; i++)
         pixels.get()[i] = 0x00;
 
     /* Poll current settings */
@@ -483,7 +485,7 @@ void InterfaceThread::run() {
         }
 
         /* Update statistics every 500ms */
-        if (!hideStatistics && (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()-statisticsTic).count() > 500)) {
+        if (!hideStatistics && (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - statisticsTic).count() > 500)) {
             renderStatistics();
             statisticsTic = std::chrono::system_clock::now();
         }
@@ -499,32 +501,32 @@ void InterfaceThread::run() {
             uint32_t *data = newPixels.data();
             size_t size = newPixels.size();
 
-            if (size > width*height) {
+            if (size > width * height) {
                 /* Pixel buffer overrun (this should seldom happen). */
                 /* Use the last width*height pixels */
-                data = newPixels.data() + (width*height - size);
-                size = width*height;
+                data = newPixels.data() + (width * height - size);
+                size = width * height;
             }
 
             if (orientation == Orientation::Vertical) {
                 /* Move old pixels up */
-                memmove(pixels.get(), pixels.get()+size, (width*height-size)*sizeof(uint32_t));
+                memmove(pixels.get(), pixels.get() + size, (width * height - size) * sizeof(uint32_t));
 
                 /* Copy new pixels over */
-                memcpy(pixels.get()+(width*height-size), data, size*sizeof(uint32_t));
+                memcpy(pixels.get() + (width * height - size), data, size * sizeof(uint32_t));
             } else {
-                unsigned int colsToShift = std::min(static_cast<unsigned int>(size/height), width);
+                unsigned int colsToShift = std::min(static_cast<unsigned int>(size / height), width);
 
                 /* Move old pixels to the left */
                 for (unsigned int x = 0; x < (width - colsToShift); x++)
                     for (unsigned int y = 0; y < height; y++)
-                        pixels[y*width + x] = pixels[y*width + x + colsToShift];
+                        pixels[y * width + x] = pixels[y * width + x + colsToShift];
 
                 /* Copy new pixels over */
                 unsigned int i = 0;
                 for (unsigned int x = width - colsToShift; x < width; x++)
                     for (unsigned int y = 0; y < height; y++)
-                        pixels[(height-y)*width + x] = data[i++];
+                        pixels[(height - y) * width + x] = data[i++];
             }
 
             /* Clear new pixels */
@@ -549,4 +551,3 @@ void InterfaceThread::run() {
         SDL_Delay(5);
     }
 }
-

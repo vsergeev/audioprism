@@ -28,13 +28,13 @@ static void calculateWindow(std::vector<double> &window, RealDft::WindowFunction
     size_t N = window.size();
     if (windowFunction == RealDft::WindowFunction::Hann) {
         for (unsigned int n = 0; n < N; n++)
-            window[n] = 0.5*(1-std::cos((2.0*M_PI*static_cast<double>(n))/static_cast<double>(N-1)));
+            window[n] = 0.5 * (1 - std::cos((2.0 * M_PI * static_cast<double>(n)) / static_cast<double>(N - 1)));
     } else if (windowFunction == RealDft::WindowFunction::Hamming) {
         for (unsigned int n = 0; n < N; n++)
-            window[n] = 0.54 - 0.46*std::cos((2.0*M_PI*static_cast<double>(n))/static_cast<double>(N-1));
+            window[n] = 0.54 - 0.46 * std::cos((2.0 * M_PI * static_cast<double>(n)) / static_cast<double>(N - 1));
     } else if (windowFunction == RealDft::WindowFunction::Bartlett) {
         for (unsigned int n = 0; n < N; n++)
-            window[n] = 1.0 - std::abs((static_cast<double>(n) - static_cast<double>(N-1)/2.0)/(static_cast<double>(N-1)/2.0));
+            window[n] = 1.0 - std::abs((static_cast<double>(n) - static_cast<double>(N - 1) / 2.0) / (static_cast<double>(N - 1) / 2.0));
     } else if (windowFunction == RealDft::WindowFunction::Rectangular) {
         for (unsigned int n = 0; n < N; n++)
             window[n] = 1.0;
@@ -67,17 +67,17 @@ void RealDft::compute(std::vector<std::complex<double>> &dft, const std::vector<
         throw SizeMismatchException("Samples size does not match DFT size!");
 
     /* Size dft buffer correctly */
-    dft.resize(N/2+1);
+    dft.resize(N / 2 + 1);
 
     /* Window samples first */
     for (unsigned int n = 0; n < N; n++)
-        wsamples[n] = samples[n]*window[n];
+        wsamples[n] = samples[n] * window[n];
 
     /* Execute DFT */
     fftw_execute(plan);
 
     /* Compute DFT magnitude */
-    for (unsigned int n = 0; n < N/2+1; n++)
+    for (unsigned int n = 0; n < N / 2 + 1; n++)
         dft[n] = std::complex<double>(this->dft[n][0], this->dft[n][1]);
 }
 
@@ -111,7 +111,7 @@ void RealDft::setSize(unsigned int N) {
         throw AllocationException("Allocating sample memory.");
 
     /* Allocate DFT buffer */
-    dft = fftw_alloc_complex(N/2+1);
+    dft = fftw_alloc_complex(N / 2 + 1);
     if (dft == nullptr)
         throw AllocationException("Allocating DFT memory.");
 
@@ -130,6 +130,4 @@ void RealDft::setWindowFunction(WindowFunction wf) {
     windowFunction = wf;
     calculateWindow(window, windowFunction);
 }
-
 }
-

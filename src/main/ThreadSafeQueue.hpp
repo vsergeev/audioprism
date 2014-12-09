@@ -63,4 +63,3 @@ bool ThreadSafeQueue<T>::wait(const std::chrono::duration<Rep, Period> &rel_time
 }
 
 #endif
-

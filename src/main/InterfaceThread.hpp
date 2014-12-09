@@ -75,4 +75,3 @@ class TTFException : public std::runtime_error {
 };
 
 #endif
-

@@ -38,7 +38,7 @@ void PulseAudioSource::read(std::vector<double> &samples) {
     std::vector<float> fsamples(count);
     int error;
 
-    if (pa_simple_read(s, fsamples.data(), count*sizeof(float), &error) < 0)
+    if (pa_simple_read(s, fsamples.data(), count * sizeof(float), &error) < 0)
         throw ReadException("Reading PulseAudio: pa_simple_read(): " + std::string(pa_strerror(error)));
 
     for (unsigned int i = 0; i < count; i++)
@@ -48,6 +48,4 @@ void PulseAudioSource::read(std::vector<double> &samples) {
 unsigned int PulseAudioSource::getSampleRate() {
     return sampleRate;
 }
-
 }
-

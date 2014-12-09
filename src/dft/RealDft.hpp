@@ -10,7 +10,10 @@ namespace DFT {
 
 class RealDft {
   public:
-    enum class WindowFunction { Hann, Hamming, Bartlett, Rectangular };
+    enum class WindowFunction { Hann,
+                                Hamming,
+                                Bartlett,
+                                Rectangular };
 
     RealDft(unsigned int N, WindowFunction wf);
     ~RealDft();
@@ -53,8 +56,6 @@ class SizeMismatchException : public std::length_error {
 
 std::ostream &operator<<(std::ostream &os, const RealDft::WindowFunction &wf);
 std::string to_string(const RealDft::WindowFunction &wf);
-
 }
 
 #endif
-
