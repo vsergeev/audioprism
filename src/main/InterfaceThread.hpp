@@ -57,7 +57,6 @@ class InterfaceThread {
         float samplesOverlap;
         DFT::RealDft::WindowFunction dftWf;
         unsigned int dftSize;
-        std::function<float (int)> fPixelToHz;
         double magnitudeMin;
         double magnitudeMax;
         bool magnitudeLog;
