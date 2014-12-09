@@ -11,6 +11,8 @@ std::string to_string(const RealDft::WindowFunction &wf) {
         return "Hann";
     else if (wf == RealDft::WindowFunction::Hamming)
         return "Hamming";
+    else if (wf == RealDft::WindowFunction::Bartlett)
+        return "Bartlett";
     else if (wf == RealDft::WindowFunction::Rectangular)
         return "Rectangular";
 
@@ -30,6 +32,9 @@ static void calculateWindow(std::vector<double> &window, RealDft::WindowFunction
     } else if (windowFunction == RealDft::WindowFunction::Hamming) {
         for (unsigned int n = 0; n < N; n++)
             window[n] = 0.54 - 0.46*std::cos((2.0*M_PI*static_cast<double>(n))/static_cast<double>(N-1));
+    } else if (windowFunction == RealDft::WindowFunction::Bartlett) {
+        for (unsigned int n = 0; n < N; n++)
+            window[n] = 1.0 - std::abs((static_cast<double>(n) - static_cast<double>(N-1)/2.0)/(static_cast<double>(N-1)/2.0));
     } else if (windowFunction == RealDft::WindowFunction::Rectangular) {
         for (unsigned int n = 0; n < N; n++)
             window[n] = 1.0;
