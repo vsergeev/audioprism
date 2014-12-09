@@ -319,14 +319,14 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         settings.colors = spectrogramThread.getColors();
     } else if (state[SDL_SCANCODE_W]) {
         /* Change window function */
-        RealDft::WindowFunction next_wf = RealDft::WindowFunction::Hanning;
+        RealDft::WindowFunction next_wf = RealDft::WindowFunction::Hann;
 
-        if (settings.dftWf == RealDft::WindowFunction::Hanning)
+        if (settings.dftWf == RealDft::WindowFunction::Hann)
             next_wf = RealDft::WindowFunction::Hamming;
         else if (settings.dftWf == RealDft::WindowFunction::Hamming)
             next_wf = RealDft::WindowFunction::Rectangular;
         else if (settings.dftWf == RealDft::WindowFunction::Rectangular)
-            next_wf = RealDft::WindowFunction::Hanning;
+            next_wf = RealDft::WindowFunction::Hann;
 
         spectrogramThread.setDftWindowFunction(next_wf);
         settings.dftWf = spectrogramThread.getDftWindowFunction();

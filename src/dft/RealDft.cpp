@@ -7,8 +7,8 @@
 namespace DFT {
 
 std::string to_string(const RealDft::WindowFunction &wf) {
-    if (wf == RealDft::WindowFunction::Hanning)
-        return std::string("Hanning");
+    if (wf == RealDft::WindowFunction::Hann)
+        return std::string("Hann");
     else if (wf == RealDft::WindowFunction::Hamming)
         return std::string("Hamming");
     else if (wf == RealDft::WindowFunction::Rectangular)
@@ -24,7 +24,7 @@ std::ostream &operator<<(std::ostream &os, const RealDft::WindowFunction &wf) {
 
 static void calculateWindow(std::vector<double> &window, RealDft::WindowFunction windowFunction) {
     size_t N = window.size();
-    if (windowFunction == RealDft::WindowFunction::Hanning) {
+    if (windowFunction == RealDft::WindowFunction::Hann) {
         for (unsigned int n = 0; n < N; n++)
             window[n] = 0.5*(1-std::cos((2*M_PI*n)/(N-1)));
     } else if (windowFunction == RealDft::WindowFunction::Hamming) {

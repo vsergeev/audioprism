@@ -10,7 +10,7 @@ namespace DFT {
 
 class RealDft {
   public:
-    enum class WindowFunction { Hanning, Hamming, Rectangular };
+    enum class WindowFunction { Hann, Hamming, Rectangular };
 
     RealDft(unsigned int N, WindowFunction wf);
     ~RealDft();

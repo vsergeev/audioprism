@@ -22,7 +22,7 @@ struct Settings {
     /* DFT Settings */
     float samplesOverlap = 0.50;
     unsigned int dftSize = 1024;
-    RealDft::WindowFunction dftWf = RealDft::WindowFunction::Hanning;
+    RealDft::WindowFunction dftWf = RealDft::WindowFunction::Hann;
     /* Spectrogram Settings */
     double magnitudeMin = 0.0;
     double magnitudeMax = 45.0;
