@@ -107,8 +107,8 @@ Audio Settings\n\
 DFT Settings\n\
     --overlap <percentage>      Samples overlap percentage (default 50)\n\
     --dft-size <size>           DFT Size, must be power of two (default 1024)\n\
-    --window <window function>  Window Function [hann, hamming, rectangular]\n\
-                                    (default hann)\n\
+    --window <window function>  Window Function [hann, hamming, bartlett, rectangular]\n\
+                                  (default hann)\n\
 \n\
 Spectrogram Settings\n\
     --magnitude-scale <scale>   Magnitude Scale [linear, logarithmic]\n\
@@ -245,6 +245,8 @@ int main(int argc, char *argv[]) {
                     InitialSettings.dftWf = RealDft::WindowFunction::Hann;
                 else if (option_arg == "hamming")
                     InitialSettings.dftWf = RealDft::WindowFunction::Hamming;
+                else if (option_arg == "bartlett")
+                    InitialSettings.dftWf = RealDft::WindowFunction::Bartlett;
                 else if (option_arg == "rectangular")
                     InitialSettings.dftWf = RealDft::WindowFunction::Rectangular;
                 else {

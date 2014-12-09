@@ -324,6 +324,8 @@ void InterfaceThread::handleKeyDown(const uint8_t *state) {
         if (settings.dftWf == RealDft::WindowFunction::Hann)
             next_wf = RealDft::WindowFunction::Hamming;
         else if (settings.dftWf == RealDft::WindowFunction::Hamming)
+            next_wf = RealDft::WindowFunction::Bartlett;
+        else if (settings.dftWf == RealDft::WindowFunction::Bartlett)
             next_wf = RealDft::WindowFunction::Rectangular;
         else if (settings.dftWf == RealDft::WindowFunction::Rectangular)
             next_wf = RealDft::WindowFunction::Hann;
