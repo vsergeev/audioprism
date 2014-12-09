@@ -8,13 +8,13 @@ namespace DFT {
 
 std::string to_string(const RealDft::WindowFunction &wf) {
     if (wf == RealDft::WindowFunction::Hann)
-        return std::string("Hann");
+        return "Hann";
     else if (wf == RealDft::WindowFunction::Hamming)
-        return std::string("Hamming");
+        return "Hamming";
     else if (wf == RealDft::WindowFunction::Rectangular)
-        return std::string("Rectangular");
+        return "Rectangular";
 
-    return std::string("");
+    return "";
 }
 
 std::ostream &operator<<(std::ostream &os, const RealDft::WindowFunction &wf) {
