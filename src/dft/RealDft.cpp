@@ -26,10 +26,10 @@ static void calculateWindow(std::vector<double> &window, RealDft::WindowFunction
     size_t N = window.size();
     if (windowFunction == RealDft::WindowFunction::Hann) {
         for (unsigned int n = 0; n < N; n++)
-            window[n] = 0.5*(1-std::cos((2*M_PI*n)/(N-1)));
+            window[n] = 0.5*(1-std::cos((2.0*M_PI*static_cast<double>(n))/static_cast<double>(N-1)));
     } else if (windowFunction == RealDft::WindowFunction::Hamming) {
         for (unsigned int n = 0; n < N; n++)
-            window[n] = 0.54 - 0.46*std::cos((2*M_PI*n)/(N-1));
+            window[n] = 0.54 - 0.46*std::cos((2.0*M_PI*static_cast<double>(n))/static_cast<double>(N-1));
     } else if (windowFunction == RealDft::WindowFunction::Rectangular) {
         for (unsigned int n = 0; n < N; n++)
             window[n] = 1.0;
