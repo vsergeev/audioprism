@@ -1,12 +1,20 @@
 - add readme with screenshots
+    - Introduction
+      - Examples
+        - screenshot: audio
+        - screenshot: cw
+        - screenshot: rtty
+        - audiofile: equation song
+    - Usage
+    - Building
+    - License
 - release
 
 - use C-style interfaces for audio/spectrogram/dft?
 - add bandwidth selection
-- add dft averaging
 - add frequency cursor delta
 - add realtime sample rate change
 - add realtime window size change
+- add logarithimic/linear frequency
 
 - add magnitude cursor info
-- add logarithimic/linear frequency

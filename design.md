@@ -50,7 +50,6 @@ SpectrumRenderer
     input dft -> output pixel row
 
     get/set     magnitude min, magnitude max, magnitude scale, color scheme
-    get         pixel to hz lambda
 ```
 
 
