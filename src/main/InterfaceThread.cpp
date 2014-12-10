@@ -214,11 +214,11 @@ void InterfaceThread::renderSettings() {
     if (settings.magnitudeLog) {
         textSurfaces.push_back(renderString(format("Mag. min: %.2f dB", settings.magnitudeMin), font, settingsColor));
         textSurfaces.push_back(renderString(format("Mag. max: %.2f dB", settings.magnitudeMax), font, settingsColor));
-        textSurfaces.push_back(renderString(format("Logarithmic"), font, settingsColor));
+        textSurfaces.push_back(renderString(format("Mag. Logarithmic"), font, settingsColor));
     } else {
         textSurfaces.push_back(renderString(format("Mag. min: %.2f", settings.magnitudeMin), font, settingsColor));
         textSurfaces.push_back(renderString(format("Mag. max: %.2f", settings.magnitudeMax), font, settingsColor));
-        textSurfaces.push_back(renderString(format("Linear"), font, settingsColor));
+        textSurfaces.push_back(renderString(format("Mag. Linear"), font, settingsColor));
     }
 
     settingsSurface = vcatSurfaces(textSurfaces, Alignment::Right);
