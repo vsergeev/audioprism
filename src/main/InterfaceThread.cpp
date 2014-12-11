@@ -93,6 +93,7 @@ InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQ
     if (pixelsTexture == nullptr)
         throw SDLException("Creating SDL texture: SDL_CreateTexture(): " + std::string(SDL_GetError()));
 
+    statisticsTexture = nullptr;
     settingsTexture = nullptr;
     cursorTexture = nullptr;
     font = nullptr;
