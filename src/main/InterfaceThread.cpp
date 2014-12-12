@@ -96,7 +96,6 @@ InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQ
     statisticsTexture = nullptr;
     settingsTexture = nullptr;
     cursorTexture = nullptr;
-    font = nullptr;
 
     /* Find a compatible font */
     std::string fontPath = findFontPath();
@@ -115,6 +114,10 @@ InterfaceThread::~InterfaceThread() {
         SDL_DestroyTexture(pixelsTexture);
     if (settingsTexture)
         SDL_DestroyTexture(settingsTexture);
+    if (cursorTexture)
+        SDL_DestroyTexture(cursorTexture);
+    if (statisticsTexture)
+        SDL_DestroyTexture(statisticsTexture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(win);
     TTF_Quit();
@@ -266,9 +269,11 @@ void InterfaceThread::renderCursor(int x, int y) {
     cursorRect.w = cursorSurface->w;
     cursorRect.h = cursorSurface->h;
 
+    /* Destroy old settings texture */
     if (cursorTexture)
         SDL_DestroyTexture(cursorTexture);
 
+    /* Create new texture from the target surface */
     cursorTexture = SDL_CreateTextureFromSurface(renderer, cursorSurface);
     if (cursorTexture == nullptr)
         throw SDLException("Error creating texture for cursor text: SDL_CreateTextureFromSurface(): " + std::string(SDL_GetError()));
@@ -294,9 +299,11 @@ void InterfaceThread::renderStatistics() {
     statisticsRect.w = statisticsSurface->w;
     statisticsRect.h = statisticsSurface->h;
 
+    /* Destroy old settings texture */
     if (statisticsTexture)
         SDL_DestroyTexture(statisticsTexture);
 
+    /* Create new texture from the target surface */
     statisticsTexture = SDL_CreateTextureFromSurface(renderer, statisticsSurface);
     if (statisticsTexture == nullptr)
         throw SDLException("Error creating texture for statistics text: SDL_CreateTextureFromSurface(): " + std::string(SDL_GetError()));
@@ -459,8 +466,7 @@ void InterfaceThread::run() {
     running = true;
 
     /* Initialize pixels */
-    for (unsigned int i = 0; i < width * height; i++)
-        pixels.get()[i] = 0x00;
+    memset(pixels.get(), 0x00, width*height*sizeof(uint32_t));
 
     /* Poll current settings */
     updateSettings();
