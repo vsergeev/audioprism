@@ -2,6 +2,6 @@ build/
 *.swp
 *.wav
 *.png
-spectrogram
+audioprism
 !src/*/
 misc/
