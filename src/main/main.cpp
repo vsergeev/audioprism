@@ -50,7 +50,7 @@ void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
     SpectrumRenderer spectrumRenderer(InitialSettings.magnitudeMin, InitialSettings.magnitudeMax, InitialSettings.magnitudeLog, InitialSettings.colors);
     MagickImageSink image(imagePath, InitialSettings.width, (InitialSettings.orientation == Orientation::Horizontal) ? MagickImageSink::Orientation::Horizontal : MagickImageSink::Orientation::Vertical);
 
-    unsigned int samplesOverlap = static_cast<unsigned int>(InitialSettings.samplesOverlap * InitialSettings.dftSize);
+    unsigned int samplesOverlap = static_cast<unsigned int>(InitialSettings.samplesOverlap * static_cast<float>(InitialSettings.dftSize));
 
     /* Overlapped Samples */
     std::vector<double> overlapSamples(InitialSettings.dftSize);

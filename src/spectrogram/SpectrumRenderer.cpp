@@ -30,7 +30,7 @@ static uint32_t valueToPixel_Heat(double value) {
         uint8_t c = static_cast<uint8_t>(255.0 * normalize(value, 1.0 / 5.0, 2.0 / 5.0));
         r = 0;
         g = c;
-        b = 255 - c;
+        b = static_cast<uint8_t>(255 - c);
     } else if (value < (3.0 / 5.0)) {
         /* Green (0,1,0) - Yellow (1,1,0) */
         r = static_cast<uint8_t>(255.0 * normalize(value, 2.0 / 5.0, 3.0 / 5.0));
@@ -39,7 +39,7 @@ static uint32_t valueToPixel_Heat(double value) {
     } else if (value < (4.0 / 5.0)) {
         /* Yellow (1,1,0) - Red (1,0,0) */
         r = 255;
-        g = 255 - static_cast<uint8_t>(255.0 * normalize(value, 3.0 / 5.0, 4.0 / 5.0));
+        g = static_cast<uint8_t>(255 - static_cast<uint8_t>(255.0 * normalize(value, 3.0 / 5.0, 4.0 / 5.0)));
         b = 0;
     } else {
         /* Red (1,0,0) - White (1,1,1) */
@@ -96,7 +96,7 @@ void SpectrumRenderer::render(std::vector<uint32_t> &pixels, const std::vector<s
     /* Generate pixel row for this DFT */
     float index_scale = static_cast<float>(dft.size()) / static_cast<float>(pixels.size());
     for (i = 0; i < pixels.size(); i++) {
-        double magnitude = processMagnitude(std::abs(dft[static_cast<unsigned int>(index_scale * i)]));
+        double magnitude = processMagnitude(std::abs(dft[static_cast<unsigned int>(index_scale * static_cast<float>(i))]));
         pixels[i] = valueToPixel(normalize(magnitude, settings.magnitudeMin, settings.magnitudeMax));
     }
 }
