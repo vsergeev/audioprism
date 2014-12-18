@@ -143,6 +143,7 @@ Interactive Keyboard Control:\n\
 
 int main(int argc, char *argv[]) {
     unsigned int overlap = 50;
+    bool sampleRateConfigured = false, widthConfigured = false, heightConfigured = false;
 
     static struct option long_options[] = {
         {"help", no_argument, 0, 'h'},
@@ -171,6 +172,7 @@ int main(int argc, char *argv[]) {
         } else if (c == 'r') {
             try {
                 InitialSettings.audioSampleRate = static_cast<unsigned int>(std::stoul(optarg));
+                sampleRateConfigured = true;
             } catch (const std::invalid_argument &e) {
                 std::cerr << "Invalid value for sample rate.\n\n";
                 print_usage(argv[0]);
@@ -193,6 +195,7 @@ int main(int argc, char *argv[]) {
             } else if (option_name == "width") {
                 try {
                     InitialSettings.width = static_cast<unsigned int>(std::stoul(option_arg));
+                    widthConfigured = true;
                 } catch (const std::invalid_argument &e) {
                     std::cerr << "Invalid value for width.\n\n";
                     print_usage(argv[0]);
@@ -201,6 +204,7 @@ int main(int argc, char *argv[]) {
             } else if (option_name == "height") {
                 try {
                     InitialSettings.height = static_cast<unsigned int>(std::stoul(option_arg));
+                    heightConfigured = true;
                 } catch (const std::invalid_argument &e) {
                     std::cerr << "Invalid value for height.\n\n";
                     print_usage(argv[0]);
@@ -326,6 +330,13 @@ int main(int argc, char *argv[]) {
 
     /* Audio file mode */
     if ((argc - optind) == 2) {
+        if (sampleRateConfigured)
+            std::cerr << "warning: sample rate option ignored. sample rate is determined by audio file." << std::endl;
+        if (InitialSettings.orientation == Orientation::Vertical && heightConfigured)
+            std::cerr << "warning: height option ignored. height in vertical orientation is determined by audio length and samples overlap percentage." << std::endl;
+        if (InitialSettings.orientation == Orientation::Horizontal && widthConfigured)
+            std::cerr << "warning: width option ignored. width in horizontal orientation is determined by audio length and samples overlap percentage." << std::endl;
+
         spectrogram_audiofile(std::string(argv[optind]), std::string(argv[optind + 1]));
 
         /* Realtime mode */
