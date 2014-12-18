@@ -1,4 +1,4 @@
-# Spectrogram Design
+# Audioprism Design
 
 ## File Structure
 
