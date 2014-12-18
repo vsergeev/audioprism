@@ -138,7 +138,9 @@ Interactive Keyboard Control:\n\
     Right arrow - Increase DFT Size\n\
 \n\
     Down arrow  - Decrease overlap\n\
-    Up arrow    - Increase overlap\n" << std::endl;
+    Up arrow    - Increase overlap\n\
+\n\
+audioprism v1.0 - https://github.com/vsergeev/audioprism" << std::endl;
 }
 
 int main(int argc, char *argv[]) {
