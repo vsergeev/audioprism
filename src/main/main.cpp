@@ -45,10 +45,12 @@ void spectrogram_realtime() {
 }
 
 void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
+    unsigned int pixelsWidth = (InitialSettings.orientation == Orientation::Vertical) ? InitialSettings.width : InitialSettings.height;
+
     WaveAudioSource audioSource(audioPath);
     RealDft realDft(InitialSettings.dftSize, InitialSettings.dftWf);
     SpectrumRenderer spectrumRenderer(InitialSettings.magnitudeMin, InitialSettings.magnitudeMax, InitialSettings.magnitudeLog, InitialSettings.colors);
-    MagickImageSink image(imagePath, InitialSettings.width, (InitialSettings.orientation == Orientation::Horizontal) ? MagickImageSink::Orientation::Horizontal : MagickImageSink::Orientation::Vertical);
+    MagickImageSink image(imagePath, pixelsWidth, (InitialSettings.orientation == Orientation::Vertical) ? MagickImageSink::Orientation::Vertical : MagickImageSink::Orientation::Horizontal);
 
     unsigned int samplesOverlap = static_cast<unsigned int>(InitialSettings.samplesOverlap * static_cast<float>(InitialSettings.dftSize));
 
@@ -57,7 +59,7 @@ void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
     /* DFT of Overlapped Samples */
     std::vector<std::complex<double>> dftSamples(InitialSettings.dftSize / 2 + 1);
     /* Pixel line */
-    std::vector<uint32_t> pixels(InitialSettings.width);
+    std::vector<uint32_t> pixels(pixelsWidth);
 
     while (true) {
         std::vector<double> audioSamples(overlapSamples.size() - samplesOverlap);
@@ -333,3 +335,4 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+
