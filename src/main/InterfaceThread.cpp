@@ -466,7 +466,7 @@ void InterfaceThread::run() {
     running = true;
 
     /* Initialize pixels */
-    memset(pixels.get(), 0x00, width*height*sizeof(uint32_t));
+    memset(pixels.get(), 0x00, width * height * sizeof(uint32_t));
 
     /* Poll current settings */
     updateSettings();
