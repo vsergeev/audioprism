@@ -1,5 +1,8 @@
 PROJECT = audioprism
 
+PREFIX ?= /usr
+BINDIR = $(PREFIX)/bin
+
 ################################################################################
 
 SRCS = audio/PulseAudioSource.cpp
@@ -41,6 +44,14 @@ all: $(PROJECT)
 .PHONY: beautiful
 beautiful:
 	find src \( -name "*.cpp" -o -name "*.hpp" \) | xargs clang-format -i
+
+.PHONY: install
+install: $(PROJECT)
+	install -D -s -m 0755 $(PROJECT) $(DESTDIR)$(BINDIR)/$(PROJECT)
+
+.PHONY: uninstall
+uninstall:
+	rm -f $(DESTDIR)$(BINDIR)/$(PROJECT)
 
 .PHONY: clean
 clean:
