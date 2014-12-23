@@ -35,12 +35,14 @@ LDFLAGS += $(shell GraphicsMagick++-config --libs)
 
 ################################################################################
 
+.PHONY: all
 all: $(PROJECT)
 
 .PHONY: beautiful
 beautiful:
 	find src \( -name "*.cpp" -o -name "*.hpp" \) | xargs clang-format -i
 
+.PHONY: clean
 clean:
 	$(REMOVE) $(BUILD_DIR)
 	$(REMOVE) $(PROJECT)
