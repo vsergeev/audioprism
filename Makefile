@@ -27,14 +27,9 @@ CXX = g++
 REMOVE = rm -rf
 
 CPPFLAGS = -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/
-CPPFLAGS += $(shell sdl2-config --cflags)
-CPPFLAGS += $(shell GraphicsMagick++-config --cppflags)
+CPPFLAGS += $(shell pkg-config --cflags libpulse libpulse-simple fftw3 sndfile sdl2 SDL2_ttf GraphicsMagick++)
 
-LDFLAGS = $(shell sdl2-config --libs) -lSDL2_ttf
-LDFLAGS += -lpulse -lpulse-simple
-LDFLAGS += -lfftw3
-LDFLAGS += -lsndfile
-LDFLAGS += $(shell GraphicsMagick++-config --libs)
+LDFLAGS = $(shell pkg-config --libs libpulse libpulse-simple fftw3 sndfile sdl2 SDL2_ttf GraphicsMagick++)
 
 ################################################################################
 
