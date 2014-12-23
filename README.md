@@ -100,7 +100,7 @@ Interactive Keyboard Control:
     Down arrow  - Decrease overlap
     Up arrow    - Increase overlap
 
-audioprism v1.0 - https://github.com/vsergeev/audioprism
+audioprism v1.0.0 - https://github.com/vsergeev/audioprism
 $
 ```
 

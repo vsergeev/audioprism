@@ -140,7 +140,7 @@ Interactive Keyboard Control:\n\
     Down arrow  - Decrease overlap\n\
     Up arrow    - Increase overlap\n\
 \n\
-audioprism v1.0 - https://github.com/vsergeev/audioprism" << std::endl;
+audioprism v1.0.0 - https://github.com/vsergeev/audioprism" << std::endl;
 }
 
 int main(int argc, char *argv[]) {
