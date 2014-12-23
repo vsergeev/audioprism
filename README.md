@@ -116,7 +116,7 @@ $ sudo apt-get install libpulse-dev libfftw3-dev libsdl2-dev libsdl2-ttf-dev lib
 $ sudo yum install pulseaudio-libs-devel fftw-devel SDL2-devel SDL2_ttf-devel libsndfile-devel GraphicsMagick-c++-devel
 
 # ArchLinux
-$ sudo pacman -S pulseaudio fftw sdl2 sdl2_ttf libsndfile graphicsmagick
+$ sudo pacman -S libpulse fftw sdl2 sdl2_ttf libsndfile graphicsmagick
 
 $ git clone https://github.com/vsergeev/audioprism.git
 $ make
