@@ -104,6 +104,10 @@ audioprism v1.0.0 - https://github.com/vsergeev/audioprism
 $
 ```
 
+## Installation
+
+AUR package: <https://aur.archlinux.org/packages/audioprism/>
+
 ## Building
 
 audioprism depends on: [PulseAudio](http://www.freedesktop.org/wiki/Software/PulseAudio/), [FFTW3](http://www.fftw.org/), [SDL2](http://libsdl.org/), [SDL2_ttf](https://www.libsdl.org/projects/SDL_ttf/), [libsndfile](http://www.mega-nerd.com/libsndfile/), [GraphicsMagick](http://www.graphicsmagick.org/), and a C++11 compiler.
