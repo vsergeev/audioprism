@@ -123,6 +123,7 @@ $ sudo yum install pulseaudio-libs-devel fftw-devel SDL2-devel SDL2_ttf-devel li
 $ sudo pacman -S libpulse fftw sdl2 sdl2_ttf libsndfile graphicsmagick
 
 $ git clone https://github.com/vsergeev/audioprism.git
+$ cd audioprism
 $ make
 rm -rf build
 rm -rf audioprism
