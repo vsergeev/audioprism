@@ -1,4 +1,4 @@
-# audioprism
+# audioprism v1.0.0
 
 audioprism is a real-time spectrogram tool for PulseAudio and a command-line spectrogram tool for WAV files.
 
