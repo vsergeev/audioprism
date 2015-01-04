@@ -92,55 +92,54 @@ void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
 }
 
 void print_usage(std::string progname) {
-    std::cerr << "\
- Real-time Usage: " << progname << " [options]\n\
-Audio File Usage: " << progname << " [options] <audio file input> <image file output>\n\
-\n\
-Interface Settings\n\
-    -h,--help                   Help\n\
-    --width <width>             Width of spectrogram (default 640)\n\
-    --height <height>           Height of spectrogram (default 480)\n\
-    --orientation <orientation> Orientation [horizontal, vertical]\n\
-                                    (default vertical)\n\
-\n\
-Audio Settings\n\
-    -r,--sample-rate <rate>     Audio input sample rate (default 24000)\n\
-\n\
-DFT Settings\n\
-    --overlap <percentage>      Samples overlap percentage (default 50)\n\
-    --dft-size <size>           DFT Size, must be power of two (default 1024)\n\
-    --window <window function>  Window Function [hann, hamming, bartlett, rectangular]\n\
-                                  (default hann)\n\
-\n\
-Spectrogram Settings\n\
-    --magnitude-scale <scale>   Magnitude Scale [linear, logarithmic]\n\
-                                    (default logarithmic)\n\
-    --magnitude-min <value>     Magnitude Minimum (default 0.0)\n\
-    --magnitude-max <value>     Magnitude Maximum (default 50.0)\n\
-    --colors <color scheme>     Color Scheme [heat, blue, grayscale]\n\
-                                    (default heat)\n\
-\n\
-Interactive Keyboard Control:\n\
-    q           - Quit\n\
-    h           - Hide/show settings information\n\
-    d           - Hide/show debug statistics\n\
-    c           - Cycle color scheme\n\
-    w           - Cycle window function\n\
-    l           - Toggle logarithmic/linear magnitude\n\
-\n\
-    -           - Decrease minimum magnitude\n\
-    =           - Increase minimum magnitude\n\
-\n\
-    [           - Decrease maximum magnitude\n\
-    ]           - Increase maximum magnitude\n\
-\n\
-    Left arrow  - Decrease DFT Size\n\
-    Right arrow - Increase DFT Size\n\
-\n\
-    Down arrow  - Decrease overlap\n\
-    Up arrow    - Increase overlap\n\
-\n\
-audioprism v1.0.0 - https://github.com/vsergeev/audioprism" << std::endl;
+    std::cerr << " Real-time Usage: " << progname << " [options]\n"
+                 "Audio File Usage: " << progname << " [options] <audio file input> <image file output>\n"
+                 "\n"
+                 "Interface Settings\n"
+                 "    -h,--help                   Help\n"
+                 "    --width <width>             Width of spectrogram (default 640)\n"
+                 "    --height <height>           Height of spectrogram (default 480)\n"
+                 "    --orientation <orientation> Orientation [horizontal, vertical]\n"
+                 "                                    (default vertical)\n"
+                 "\n"
+                 "Audio Settings\n"
+                 "    -r,--sample-rate <rate>     Audio input sample rate (default 24000)\n"
+                 "\n"
+                 "DFT Settings\n"
+                 "    --overlap <percentage>      Samples overlap percentage (default 50)\n"
+                 "    --dft-size <size>           DFT Size, must be power of two (default 1024)\n"
+                 "    --window <window function>  Window Function [hann, hamming, bartlett, rectangular]\n"
+                 "                                  (default hann)\n"
+                 "\n"
+                 "Spectrogram Settings\n"
+                 "    --magnitude-scale <scale>   Magnitude Scale [linear, logarithmic]\n"
+                 "                                    (default logarithmic)\n"
+                 "    --magnitude-min <value>     Magnitude Minimum (default 0.0)\n"
+                 "    --magnitude-max <value>     Magnitude Maximum (default 50.0)\n"
+                 "    --colors <color scheme>     Color Scheme [heat, blue, grayscale]\n"
+                 "                                    (default heat)\n"
+                 "\n"
+                 "Interactive Keyboard Control:\n"
+                 "    q           - Quit\n"
+                 "    h           - Hide/show settings information\n"
+                 "    d           - Hide/show debug statistics\n"
+                 "    c           - Cycle color scheme\n"
+                 "    w           - Cycle window function\n"
+                 "    l           - Toggle logarithmic/linear magnitude\n"
+                 "\n"
+                 "    -           - Decrease minimum magnitude\n"
+                 "    =           - Increase minimum magnitude\n"
+                 "\n"
+                 "    [           - Decrease maximum magnitude\n"
+                 "    ]           - Increase maximum magnitude\n"
+                 "\n"
+                 "    Left arrow  - Decrease DFT Size\n"
+                 "    Right arrow - Increase DFT Size\n"
+                 "\n"
+                 "    Down arrow  - Decrease overlap\n"
+                 "    Up arrow    - Increase overlap\n"
+                 "\n"
+                 "audioprism v1.0.0 - https://github.com/vsergeev/audioprism" << std::endl;
 }
 
 int main(int argc, char *argv[]) {
