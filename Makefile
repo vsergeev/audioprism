@@ -48,6 +48,10 @@ install: $(PROJECT)
 uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/$(PROJECT)
 
+.PHONY: analyze
+analyze:
+	clang --analyze -Xanalyzer -analyzer-output=text $(CPPFLAGS) $(SRCS)
+
 .PHONY: clean
 clean:
 	$(REMOVE) $(BUILD_DIR)
