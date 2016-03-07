@@ -146,5 +146,5 @@ Feel free to report any issues, bug reports, or suggestions at github or by emai
 
 ## License
 
-audioprism is MIT licensed. See the included `LICENSE` file for more details.
+audioprism is GPLv3 licensed. See the included `LICENSE` file for more details.
 
