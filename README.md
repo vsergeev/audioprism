@@ -1,4 +1,4 @@
-# audioprism v1.0.0
+# audioprism [![Build Status](https://travis-ci.org/vsergeev/audioprism.svg?branch=master)](https://travis-ci.org/vsergeev/audioprism) [![GitHub release](https://img.shields.io/github/release/vsergeev/audioprism.svg?maxAge=7200)](https://github.com/vsergeev/audioprism) [![License](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://github.com/vsergeev/audioprism/blob/master/LICENSE)
 
 audioprism is a real-time spectrogram tool for PulseAudio and a command-line spectrogram tool for WAV files.
 
