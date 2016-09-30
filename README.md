@@ -125,19 +125,19 @@ $ sudo pacman -S libpulse fftw sdl2 sdl2_ttf libsndfile graphicsmagick
 $ git clone https://github.com/vsergeev/audioprism.git
 $ cd audioprism
 $ make
-rm -rf build
-rm -rf audioprism
-g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -I/usr/include/SDL2 -D_REENTRANT -I/usr/include/GraphicsMagick -c src/audio/PulseAudioSource.cpp -o build/src/audio/PulseAudioSource.o
-g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -I/usr/include/SDL2 -D_REENTRANT -I/usr/include/GraphicsMagick -c src/audio/WaveAudioSource.cpp -o build/src/audio/WaveAudioSource.o
-g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -I/usr/include/SDL2 -D_REENTRANT -I/usr/include/GraphicsMagick -c src/dft/RealDft.cpp -o build/src/dft/RealDft.o
-g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -I/usr/include/SDL2 -D_REENTRANT -I/usr/include/GraphicsMagick -c src/image/MagickImageSink.cpp -o build/src/image/MagickImageSink.o
-g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -I/usr/include/SDL2 -D_REENTRANT -I/usr/include/GraphicsMagick -c src/spectrogram/SpectrumRenderer.cpp -o build/src/spectrogram/SpectrumRenderer.o
-g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -I/usr/include/SDL2 -D_REENTRANT -I/usr/include/GraphicsMagick -c src/main/AudioThread.cpp -o build/src/main/AudioThread.o
-g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -I/usr/include/SDL2 -D_REENTRANT -I/usr/include/GraphicsMagick -c src/main/SpectrogramThread.cpp -o build/src/main/SpectrogramThread.o
-g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -I/usr/include/SDL2 -D_REENTRANT -I/usr/include/GraphicsMagick -c src/main/InterfaceThread.cpp -o build/src/main/InterfaceThread.o
-g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -I/usr/include/SDL2 -D_REENTRANT -I/usr/include/GraphicsMagick -c src/main/main.cpp -o build/src/main/main.o
-g++ build/src/audio/PulseAudioSource.o build/src/audio/WaveAudioSource.o build/src/dft/RealDft.o build/src/image/MagickImageSink.o build/src/spectrogram/SpectrumRenderer.o build/src/main/AudioThread.o build/src/main/SpectrogramThread.o build/src/main/InterfaceThread.o build/src/main/main.o -o audioprism -L/usr/lib -lSDL2 -lpthread -lSDL2_ttf -lpulse -lpulse-simple -lfftw3 -lsndfile -lGraphicsMagick++ -lGraphicsMagick -llcms2 -lfreetype -lXext -lSM -lICE -lX11 -llzma -lbz2 -lz -lltdl -lm -lgomp -lpthread
-$ make install
+g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -D_REENTRANT -I/usr/include/SDL2 -I/usr/include/GraphicsMagick -c src/audio/PulseAudioSource.cpp -o build/src/audio/PulseAudioSource.o
+g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -D_REENTRANT -I/usr/include/SDL2 -I/usr/include/GraphicsMagick -c src/audio/WaveAudioSource.cpp -o build/src/audio/WaveAudioSource.o
+g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -D_REENTRANT -I/usr/include/SDL2 -I/usr/include/GraphicsMagick -c src/dft/RealDft.cpp -o build/src/dft/RealDft.o
+g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -D_REENTRANT -I/usr/include/SDL2 -I/usr/include/GraphicsMagick -c src/image/MagickImageSink.cpp -o build/src/image/MagickImageSink.o
+g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -D_REENTRANT -I/usr/include/SDL2 -I/usr/include/GraphicsMagick -c src/spectrogram/SpectrumRenderer.cpp -o build/src/spectrogram/SpectrumRenderer.o
+g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -D_REENTRANT -I/usr/include/SDL2 -I/usr/include/GraphicsMagick -c src/main/AudioThread.cpp -o build/src/main/AudioThread.o
+g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -D_REENTRANT -I/usr/include/SDL2 -I/usr/include/GraphicsMagick -c src/main/SpectrogramThread.cpp -o build/src/main/SpectrogramThread.o
+g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -D_REENTRANT -I/usr/include/SDL2 -I/usr/include/GraphicsMagick -c src/main/InterfaceThread.cpp -o build/src/main/InterfaceThread.o
+g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -D_REENTRANT -I/usr/include/SDL2 -I/usr/include/GraphicsMagick -c src/main/main.cpp -o build/src/main/main.o
+g++ build/src/audio/PulseAudioSource.o build/src/audio/WaveAudioSource.o build/src/dft/RealDft.o build/src/image/MagickImageSink.o build/src/spectrogram/SpectrumRenderer.o build/src/main/AudioThread.o build/src/main/SpectrogramThread.o build/src/main/InterfaceThread.o build/src/main/main.o -o audioprism -lpulse-simple -lpulse -lfftw3 -lsndfile -lSDL2_ttf -lSDL2 -lGraphicsMagick++ -lGraphicsMagick -lpthread
+$ sudo make install
+install -D -s -m 0755 audioprism /usr/bin/audioprism
+$
 ```
 
 ## Issues
