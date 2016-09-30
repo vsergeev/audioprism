@@ -1,6 +1,6 @@
 # audioprism [![Build Status](https://travis-ci.org/vsergeev/audioprism.svg?branch=master)](https://travis-ci.org/vsergeev/audioprism) [![GitHub release](https://img.shields.io/github/release/vsergeev/audioprism.svg?maxAge=7200)](https://github.com/vsergeev/audioprism) [![License](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://github.com/vsergeev/audioprism/blob/master/LICENSE)
 
-audioprism is a real-time spectrogram tool for PulseAudio and a command-line spectrogram tool for WAV files.
+audioprism is a spectrogram tool for PulseAudio and WAV files.
 
 ## Examples
 
@@ -29,32 +29,23 @@ $ ./audioprism --orientation horizontal equation_segment.wav equation_spectrogra
 
 ## Usage
 
-### Real-time Mode
-
 ```
 $ audioprism
 ```
 
-In real-time mode, audioprism renders the spectrogram of PulseAudio audio input to an SDL window in real-time. The common [pavucontrol](http://freedesktop.org/software/pulseaudio/pavucontrol/) volume control tool can be used to select the audio input source for audioprism. PulseAudio provides "monitors" of audio output devices as audio input sources, so audioprism can also be used to render the spectrogram of audio playing to an output device.
-
-Many settings, like window overlap, DFT size, magnitude ranges, and color scheme can be configured interactively with the keyboard controls documented [below](#full-usage), or by command-line options. Certain settings — window dimensions, orientation, and audio sample rate — can only be configured with command-line options.
-
-### File Mode
+In real-time mode, audioprism renders the spectrogram of PulseAudio audio input to an SDL window in real-time. The `pavucontrol` mixer can be used to select the audio input source for audioprism. PulseAudio provides "monitors" of audio output devices as audio input sources, so audioprism can also be used to render the spectrogram of audio playing to an output device.
 
 ```
 $ audioprism test.wav test.png
 ```
 
-In file mode, audioprism renders the spectrogram of a single channel WAV input file to an image output file. The audio input file must be a single channel WAV file. The image output file may be any kind of image format supported by [GraphicsMagick](http://www.graphicsmagick.org/), determined by its file extension.
+In WAV file mode, audioprism renders the spectrogram of a single channel WAV input file to an image output file. The audio input file must be a single channel WAV file. The image output file can be any kind of image format supported by [GraphicsMagick](http://www.graphicsmagick.org/), determined by its file extension.
 
-All settings used to render the spectrogram are configurable by command-line — see program usage [below](#full-usage) for more information. The height, if vertical orientation is selected, or width, if a horizontal orientation is selected, of the resulting image will depend on the audio length and the samples overlap percentage. The audio sample rate is determined by the audio file and is not configurable.
-
-### Full usage
 
 ```
 $ audioprism --help
- Real-time Usage: ./audioprism [options]
-Audio File Usage: ./audioprism [options] <audio file input> <image file output>
+Real-time Usage: ./audioprism [options]
+ WAV File Usage: ./audioprism [options] <WAV file input> <image file output>
 
 Interface Settings
     -h,--help                   Help
@@ -104,45 +95,29 @@ audioprism v1.0.0 - https://github.com/vsergeev/audioprism
 $
 ```
 
-## Installation
-
-AUR package: <https://aur.archlinux.org/packages/audioprism/>
-
 ## Building
+
+Arch Linux users can install the AUR package `audioprism`.
 
 audioprism depends on: [PulseAudio](http://www.freedesktop.org/wiki/Software/PulseAudio/), [FFTW3](http://www.fftw.org/), [SDL2](http://libsdl.org/), [SDL2_ttf](https://www.libsdl.org/projects/SDL_ttf/), [libsndfile](http://www.mega-nerd.com/libsndfile/), [GraphicsMagick](http://www.graphicsmagick.org/), and a C++11 compiler.
 
 ```
 # Ubuntu/Debian
-$ sudo apt-get install libpulse-dev libfftw3-dev libsdl2-dev libsdl2-ttf-dev libsndfile1-dev libgraphicsmagick++1-dev
+sudo apt-get install libpulse-dev libfftw3-dev libsdl2-dev libsdl2-ttf-dev libsndfile1-dev libgraphicsmagick++1-dev
 
 # Fedora/RedHat
-$ sudo yum install pulseaudio-libs-devel fftw-devel SDL2-devel SDL2_ttf-devel libsndfile-devel GraphicsMagick-c++-devel
+sudo yum install pulseaudio-libs-devel fftw-devel SDL2-devel SDL2_ttf-devel libsndfile-devel GraphicsMagick-c++-devel
 
 # ArchLinux
-$ sudo pacman -S libpulse fftw sdl2 sdl2_ttf libsndfile graphicsmagick
-
-$ git clone https://github.com/vsergeev/audioprism.git
-$ cd audioprism
-$ make
-g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -D_REENTRANT -I/usr/include/SDL2 -I/usr/include/GraphicsMagick -c src/audio/PulseAudioSource.cpp -o build/src/audio/PulseAudioSource.o
-g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -D_REENTRANT -I/usr/include/SDL2 -I/usr/include/GraphicsMagick -c src/audio/WaveAudioSource.cpp -o build/src/audio/WaveAudioSource.o
-g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -D_REENTRANT -I/usr/include/SDL2 -I/usr/include/GraphicsMagick -c src/dft/RealDft.cpp -o build/src/dft/RealDft.o
-g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -D_REENTRANT -I/usr/include/SDL2 -I/usr/include/GraphicsMagick -c src/image/MagickImageSink.cpp -o build/src/image/MagickImageSink.o
-g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -D_REENTRANT -I/usr/include/SDL2 -I/usr/include/GraphicsMagick -c src/spectrogram/SpectrumRenderer.cpp -o build/src/spectrogram/SpectrumRenderer.o
-g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -D_REENTRANT -I/usr/include/SDL2 -I/usr/include/GraphicsMagick -c src/main/AudioThread.cpp -o build/src/main/AudioThread.o
-g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -D_REENTRANT -I/usr/include/SDL2 -I/usr/include/GraphicsMagick -c src/main/SpectrogramThread.cpp -o build/src/main/SpectrogramThread.o
-g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -D_REENTRANT -I/usr/include/SDL2 -I/usr/include/GraphicsMagick -c src/main/InterfaceThread.cpp -o build/src/main/InterfaceThread.o
-g++ -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/ -D_REENTRANT -I/usr/include/SDL2 -I/usr/include/GraphicsMagick -c src/main/main.cpp -o build/src/main/main.o
-g++ build/src/audio/PulseAudioSource.o build/src/audio/WaveAudioSource.o build/src/dft/RealDft.o build/src/image/MagickImageSink.o build/src/spectrogram/SpectrumRenderer.o build/src/main/AudioThread.o build/src/main/SpectrogramThread.o build/src/main/InterfaceThread.o build/src/main/main.o -o audioprism -lpulse-simple -lpulse -lfftw3 -lsndfile -lSDL2_ttf -lSDL2 -lGraphicsMagick++ -lGraphicsMagick -lpthread
-$ sudo make install
-install -D -s -m 0755 audioprism /usr/bin/audioprism
-$
+sudo pacman -S libpulse fftw sdl2 sdl2_ttf libsndfile graphicsmagick
 ```
 
-## Issues
-
-Feel free to report any issues, bug reports, or suggestions at github or by email at vsergeev at gmail.
+```
+git clone https://github.com/vsergeev/audioprism.git
+cd audioprism
+make
+sudo make install
+```
 
 ## License
 
