@@ -92,8 +92,8 @@ void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
 }
 
 void print_usage(std::string progname) {
-    std::cerr << " Real-time Usage: " << progname << " [options]\n"
-                 "Audio File Usage: " << progname << " [options] <audio file input> <image file output>\n"
+    std::cerr << "Real-time Usage: " << progname << " [options]\n"
+                 " WAV File Usage: " << progname << " [options] <WAV file input> <image file output>\n"
                  "\n"
                  "Interface Settings\n"
                  "    -h,--help                   Help\n"
