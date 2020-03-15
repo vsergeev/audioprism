@@ -1,5 +1,4 @@
-#ifndef _AUDIOTHREAD_HPP
-#define _AUDIOTHREAD_HPP
+#pragma once
 
 #include <vector>
 #include <atomic>
@@ -31,5 +30,3 @@ class AudioThread {
 
     std::thread thread;
 };
-
-#endif

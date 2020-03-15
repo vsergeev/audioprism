@@ -1,5 +1,4 @@
-#ifndef _INTERFACETHREAD_HPP
-#define _INTERFACETHREAD_HPP
+#pragma once
 
 #include <functional>
 
@@ -73,5 +72,3 @@ class TTFException : public std::runtime_error {
   public:
     using std::runtime_error::runtime_error;
 };
-
-#endif

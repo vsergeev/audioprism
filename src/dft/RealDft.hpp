@@ -1,5 +1,4 @@
-#ifndef _REALDFT_HPP
-#define _REALDFT_HPP
+#pragma once
 
 #include <vector>
 #include <complex>
@@ -56,6 +55,5 @@ class SizeMismatchException : public std::length_error {
 
 std::ostream &operator<<(std::ostream &os, const RealDft::WindowFunction &wf);
 std::string to_string(const RealDft::WindowFunction &wf);
-}
 
-#endif
+}

@@ -1,5 +1,4 @@
-#ifndef _SPECTROGRAMTHREAD_HPP
-#define _SPECTROGRAMTHREAD_HPP
+#pragma once
 
 #include <vector>
 #include <atomic>
@@ -71,5 +70,3 @@ class SpectrogramThread {
 
     std::atomic<size_t> samplesQueueCount;
 };
-
-#endif

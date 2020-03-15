@@ -1,5 +1,4 @@
-#ifndef _SPECTRUMRENDERER_HPP
-#define _SPECTRUMRENDERER_HPP
+#pragma once
 
 #include <vector>
 #include <complex>
@@ -28,6 +27,5 @@ class SpectrumRenderer {
 };
 
 std::string to_string(const SpectrumRenderer::ColorScheme &colors);
-}
 
-#endif
+}

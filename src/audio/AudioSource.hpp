@@ -1,5 +1,4 @@
-#ifndef _AUDIOSOURCE_HPP
-#define _AUDIOSOURCE_HPP
+#pragma once
 
 #include <stdexcept>
 #include <vector>
@@ -22,6 +21,5 @@ class ReadException : public std::runtime_error {
   public:
     using std::runtime_error::runtime_error;
 };
-}
 
-#endif
+}

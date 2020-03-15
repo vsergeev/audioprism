@@ -1,5 +1,4 @@
-#ifndef _THREADSAFEQUEUE_HPP
-#define _THREADSAFEQUEUE_HPP
+#pragma once
 
 #include <queue>
 #include <mutex>
@@ -61,5 +60,3 @@ bool ThreadSafeQueue<T>::wait(const std::chrono::duration<Rep, Period> &rel_time
         return (cvNotEmpty.wait_for(lg, rel_time) == std::cv_status::no_timeout);
     return true;
 }
-
-#endif

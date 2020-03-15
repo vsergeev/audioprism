@@ -1,5 +1,4 @@
-#ifndef _PULSEAUDIOSOURCE_HPP
-#define _PULSEAUDIOSOURCE_HPP
+#pragma once
 
 #include <pulse/simple.h>
 
@@ -18,6 +17,5 @@ class PulseAudioSource : public AudioSource {
     pa_simple *s;
     unsigned int sampleRate;
 };
-}
 
-#endif
+}

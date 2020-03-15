@@ -1,5 +1,4 @@
-#ifndef _WAVEAUDIOSOURCE_HPP
-#define _WAVEAUDIOSOURCE_HPP
+#pragma once
 
 #include <string>
 
@@ -20,6 +19,5 @@ class WaveAudioSource : public AudioSource {
     SNDFILE *sndfile;
     SF_INFO sfinfo;
 };
-}
 
-#endif
+}

@@ -1,5 +1,4 @@
-#ifndef _IMAGESINK_HPP
-#define _IMAGESINK_HPP
+#pragma once
 
 #include <vector>
 #include <cstdint>
@@ -12,6 +11,5 @@ class ImageSink {
     virtual void append(const std::vector<uint32_t> &pixels) = 0;
     virtual void write() = 0;
 };
-}
 
-#endif
+}

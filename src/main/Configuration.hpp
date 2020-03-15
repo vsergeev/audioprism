@@ -1,5 +1,4 @@
-#ifndef _CONFIGURATION_HPP
-#define _CONFIGURATION_HPP
+#pragma once
 
 #include "audio/AudioSource.hpp"
 #include "dft/RealDft.hpp"
@@ -56,6 +55,5 @@ struct Limits {
 
 extern Settings InitialSettings;
 extern Limits UserLimits;
-}
 
-#endif
+}

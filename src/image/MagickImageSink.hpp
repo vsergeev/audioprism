@@ -1,5 +1,4 @@
-#ifndef _MAGICKIMAGESINK_HPP
-#define _MAGICKIMAGESINK_HPP
+#pragma once
 
 #include <string>
 
@@ -23,6 +22,5 @@ class MagickImageSink : public ImageSink {
     const Orientation orientation;
     std::vector<uint32_t> imagePixels;
 };
-}
 
-#endif
+}
