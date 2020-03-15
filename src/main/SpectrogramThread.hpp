@@ -48,25 +48,25 @@ class SpectrogramThread {
     size_t getDebugSamplesQueueCount();
 
   private:
-    void run();
+    void _run();
 
     /* Input samples queue */
-    ThreadSafeQueue<std::vector<double>> &samplesQueue;
+    ThreadSafeQueue<std::vector<double>> &_samplesQueue;
     /* Output pixels queue */
-    ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue;
+    ThreadSafeQueue<std::vector<uint32_t>> &_pixelsQueue;
 
-    std::atomic<bool> running;
+    std::atomic<bool> _running;
 
-    DFT::RealDft realDft;
-    std::mutex realDftLock;
+    DFT::RealDft _realDft;
+    std::mutex _realDftLock;
 
-    Spectrogram::SpectrumRenderer spectrumRenderer;
-    std::mutex spectrumRendererLock;
+    Spectrogram::SpectrumRenderer _spectrumRenderer;
+    std::mutex _spectrumRendererLock;
 
-    unsigned int samplesOverlap;
-    unsigned int pixelsWidth;
+    unsigned int _samplesOverlap;
+    unsigned int _pixelsWidth;
 
-    std::thread thread;
+    std::thread _thread;
 
-    std::atomic<size_t> samplesQueueCount;
+    std::atomic<size_t> _samplesQueueCount;
 };
