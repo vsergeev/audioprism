@@ -33,4 +33,5 @@ void WaveAudioSource::read(std::vector<double> &samples) {
 unsigned int WaveAudioSource::getSampleRate() {
     return static_cast<unsigned int>(sfinfo.samplerate);
 }
+
 }

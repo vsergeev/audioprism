@@ -48,4 +48,5 @@ void PulseAudioSource::read(std::vector<double> &samples) {
 unsigned int PulseAudioSource::getSampleRate() {
     return sampleRate;
 }
+
 }

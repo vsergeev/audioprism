@@ -111,4 +111,5 @@ std::string to_string(const SpectrumRenderer::ColorScheme &colors) {
 
     return "Unknown";
 }
+
 }

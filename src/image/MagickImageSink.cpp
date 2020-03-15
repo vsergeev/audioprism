@@ -25,4 +25,5 @@ void MagickImageSink::write() {
 
     image.write(path);
 }
+
 }

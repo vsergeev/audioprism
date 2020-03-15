@@ -130,4 +130,5 @@ void RealDft::setWindowFunction(WindowFunction wf) {
     windowFunction = wf;
     calculateWindow(window, windowFunction);
 }
+
 }
