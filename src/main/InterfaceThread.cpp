@@ -97,7 +97,9 @@ InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQ
         throw SDLException("Creating SDL renderer: SDL_CreateRenderer(): " + std::string(SDL_GetError()));
 
     /* Create main texture */
-    _pixelsTexture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STATIC, static_cast<int>(_width), static_cast<int>(_height));
+    _pixelsTexture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STATIC,
+                                       _orientation == Orientation::Vertical ? static_cast<int>(_width) : static_cast<int>(_height),
+                                       _orientation == Orientation::Vertical ? static_cast<int>(_height) : static_cast<int>(_width));
     if (_pixelsTexture == nullptr)
         throw SDLException("Creating SDL texture: SDL_CreateTexture(): " + std::string(SDL_GetError()));
 
@@ -122,6 +124,7 @@ InterfaceThread::~InterfaceThread() {
         SDL_DestroyTexture(_cursorTexture);
     if (_statisticsTexture)
         SDL_DestroyTexture(_statisticsTexture);
+
     SDL_DestroyRenderer(_renderer);
     SDL_DestroyWindow(_win);
     TTF_Quit();
@@ -520,46 +523,42 @@ void InterfaceThread::run() {
                 size = _width * _height;
             }
 
-            if (_orientation == Orientation::Vertical) {
-                /* Move old pixels up */
-                memmove(pixels.get(), pixels.get() + size, (_width * _height - size) * sizeof(uint32_t));
+            /* Move old pixels up */
+            memmove(pixels.get(), pixels.get() + size, (_width * _height - size) * sizeof(uint32_t));
 
-                /* Copy new pixels over */
-                memcpy(pixels.get() + (_width * _height - size), data, size * sizeof(uint32_t));
-            } else {
-                unsigned int colsToShift = std::min(static_cast<unsigned int>(size / _height), _width);
-
-                /* Move old pixels to the left */
-                for (unsigned int x = 0; x < (_width - colsToShift); x++)
-                    for (unsigned int y = 0; y < _height; y++)
-                        pixels[y * _width + x] = pixels[y * _width + x + colsToShift];
-
-                /* Copy new pixels over */
-                unsigned int i = 0;
-                for (unsigned int x = _width - colsToShift; x < _width; x++)
-                    for (unsigned int y = 0; y < _height; y++)
-                        pixels[(_height - y) * _width + x] = data[i++];
-            }
+            /* Copy new pixels over */
+            memcpy(pixels.get() + (_width * _height - size), data, size * sizeof(uint32_t));
 
             /* Clear new pixels */
             newPixels.clear();
 
-            SDL_UpdateTexture(_pixelsTexture, nullptr, pixels.get(), static_cast<int>(_width * sizeof(uint32_t)));
+            SDL_UpdateTexture(_pixelsTexture, nullptr, pixels.get(),
+                              _orientation == Orientation::Vertical ? static_cast<int>(_width * sizeof(uint32_t)) : static_cast<int>(_height * sizeof(uint32_t)));
         }
 
         SDL_RenderClear(_renderer);
+
         /* Render pixels */
-        SDL_RenderCopy(_renderer, _pixelsTexture, nullptr, nullptr);
+        if (_orientation == Orientation::Vertical)
+            SDL_RenderCopy(_renderer, _pixelsTexture, nullptr, nullptr);
+        else {
+            SDL_Rect destRect = {(static_cast<int>(_width) - static_cast<int>(_height)) / 2, -(static_cast<int>(_width) - static_cast<int>(_height)) / 2, static_cast<int>(_height), static_cast<int>(_width)};
+            SDL_RenderCopyEx(_renderer, _pixelsTexture, nullptr, &destRect, 90, nullptr, static_cast<SDL_RendererFlip>(SDL_FLIP_HORIZONTAL | SDL_FLIP_VERTICAL));
+        }
+
         /* Render settings and cursor */
         if (!_hideSettings) {
             SDL_RenderCopy(_renderer, _settingsTexture, nullptr, &_settingsRect);
             SDL_RenderCopy(_renderer, _cursorTexture, nullptr, &_cursorRect);
         }
+
         /* Render statistics */
         if (!_hideStatistics) {
             SDL_RenderCopy(_renderer, _statisticsTexture, nullptr, &_statisticsRect);
         }
+
         SDL_RenderPresent(_renderer);
+
         SDL_Delay(5);
     }
 }
