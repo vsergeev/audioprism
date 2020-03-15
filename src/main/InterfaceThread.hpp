@@ -19,36 +19,36 @@ class InterfaceThread {
 
   private:
     /* Pixels input queue */
-    ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue;
+    ThreadSafeQueue<std::vector<uint32_t>> &_pixelsQueue;
     /* References to other threads for control */
-    AudioThread &audioThread;
-    SpectrogramThread &spectrogramThread;
+    AudioThread &_audioThread;
+    SpectrogramThread &_spectrogramThread;
     /* Running boolean */
-    std::atomic<bool> running;
+    std::atomic<bool> _running;
 
     /* Owned resources (SDL) */
-    SDL_Window *win;
-    SDL_Renderer *renderer;
-    SDL_Texture *pixelsTexture;
-    SDL_Texture *settingsTexture;
-    SDL_Texture *cursorTexture;
-    SDL_Texture *statisticsTexture;
-    SDL_Rect settingsRect;
-    SDL_Rect cursorRect;
-    SDL_Rect statisticsRect;
-    TTF_Font *font;
+    SDL_Window *_win;
+    SDL_Renderer *_renderer;
+    SDL_Texture *_pixelsTexture;
+    SDL_Texture *_settingsTexture;
+    SDL_Texture *_cursorTexture;
+    SDL_Texture *_statisticsTexture;
+    SDL_Rect _settingsRect;
+    SDL_Rect _cursorRect;
+    SDL_Rect _statisticsRect;
+    TTF_Font *_font;
 
     /* Interface settings */
-    const unsigned int width, height;
-    const Configuration::Orientation orientation;
-    bool hideInfo, hideStatistics;
+    const unsigned int _width, _height;
+    const Configuration::Orientation _orientation;
+    bool _hideInfo, _hideStatistics;
 
     /* Helper functions for SDL */
-    void handleKeyDown(const uint8_t *state);
-    void updateSettings();
-    void renderSettings();
-    void renderCursor(int x, int y);
-    void renderStatistics();
+    void _handleKeyDown(const uint8_t *state);
+    void _updateSettings();
+    void _renderSettings();
+    void _renderCursor(int x, int y);
+    void _renderStatistics();
 
     /* Cached settings from audio source, dft, and spectrogram classes */
     struct {
@@ -60,7 +60,7 @@ class InterfaceThread {
         double magnitudeMax;
         bool magnitudeLog;
         Spectrogram::SpectrumRenderer::ColorScheme colors;
-    } settings;
+    } _settings;
 };
 
 class SDLException : public std::runtime_error {
