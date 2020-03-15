@@ -42,6 +42,7 @@ class InterfaceThread {
     TTF_Font *_font = nullptr;
 
     /* Interface settings */
+    bool _fullscreen;
     unsigned int _width, _height;
     const Configuration::Orientation _orientation;
     bool _hideSettings = false;

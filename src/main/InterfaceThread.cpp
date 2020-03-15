@@ -73,7 +73,7 @@ static std::string findFontPath() {
     return "";
 }
 
-InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, AudioThread &audioThread, SpectrogramThread &spectrogramThread, const Settings &initialSettings) : _pixelsQueue(pixelsQueue), _audioThread(audioThread), _spectrogramThread(spectrogramThread), _width(initialSettings.width), _height(initialSettings.height), _orientation(initialSettings.orientation) {
+InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, AudioThread &audioThread, SpectrogramThread &spectrogramThread, const Settings &initialSettings) : _pixelsQueue(pixelsQueue), _audioThread(audioThread), _spectrogramThread(spectrogramThread), _fullscreen(false), _width(initialSettings.width), _height(initialSettings.height), _orientation(initialSettings.orientation) {
     int ret;
 
     /* Initialize SDL */
@@ -455,6 +455,16 @@ void InterfaceThread::_handleKeyDown(const uint8_t *state) {
         _hideStatistics = !_hideStatistics;
         if (!_hideStatistics)
             _renderStatistics();
+        return;
+    } else if (state[SDL_SCANCODE_F]) {
+        _fullscreen = !_fullscreen;
+        if (_fullscreen) {
+            if (SDL_SetWindowFullscreen(_win, SDL_WINDOW_FULLSCREEN_DESKTOP) < 0)
+                throw SDLException("Setting fullscreen on SDL window: SDL_SetWindowFullscreen(): " + std::string(SDL_GetError()));
+        } else {
+            if (SDL_SetWindowFullscreen(_win, 0) < 0)
+                throw SDLException("Clearing fullscreen on SDL window: SDL_SetWindowFullscreen(): " + std::string(SDL_GetError()));
+        }
         return;
     } else {
         return;
