@@ -19,7 +19,7 @@ PulseAudioSource::PulseAudioSource(unsigned int sampleRate) : _sampleRate(sample
     attr.fragsize = 1024;
 
     int error;
-    _handle = pa_simple_new(nullptr, "spectrogram", PA_STREAM_RECORD, nullptr, "audio in", &ss, nullptr, &attr, &error);
+    _handle = pa_simple_new(nullptr, "audioprism", PA_STREAM_RECORD, nullptr, "audio in", &ss, nullptr, &attr, &error);
     if (_handle == nullptr)
         throw OpenException("Opening PulseAudio: pa_simple_new(): " + std::string(pa_strerror(error)));
 }
