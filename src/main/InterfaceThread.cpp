@@ -97,9 +97,7 @@ InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQ
         throw SDLException("Creating SDL renderer: SDL_CreateRenderer(): " + std::string(SDL_GetError()));
 
     /* Create main texture */
-    _pixelsTexture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STATIC,
-                                       _orientation == Orientation::Vertical ? static_cast<int>(_width) : static_cast<int>(_height),
-                                       _orientation == Orientation::Vertical ? static_cast<int>(_height) : static_cast<int>(_width));
+    _pixelsTexture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STATIC, static_cast<int>(getSpectrumWidth()), static_cast<int>(getTimeWidth()));
     if (_pixelsTexture == nullptr)
         throw SDLException("Creating SDL texture: SDL_CreateTexture(): " + std::string(SDL_GetError()));
 
@@ -529,8 +527,7 @@ void InterfaceThread::run() {
             /* Clear new pixels */
             newPixels.clear();
 
-            SDL_UpdateTexture(_pixelsTexture, nullptr, pixels.data(),
-                              _orientation == Orientation::Vertical ? static_cast<int>(_width * sizeof(uint32_t)) : static_cast<int>(_height * sizeof(uint32_t)));
+            SDL_UpdateTexture(_pixelsTexture, nullptr, pixels.data(), static_cast<int>(getSpectrumWidth() * sizeof(uint32_t)));
         }
 
         SDL_RenderClear(_renderer);

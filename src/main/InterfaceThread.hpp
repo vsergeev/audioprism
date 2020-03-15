@@ -18,6 +18,9 @@ class InterfaceThread {
     void run();
 
   private:
+    inline unsigned int getSpectrumWidth() { return (_orientation == Configuration::Orientation::Vertical) ? _width : _height; }
+    inline unsigned int getTimeWidth() { return (_orientation == Configuration::Orientation::Vertical) ? _height : _width; }
+
     /* Pixels input queue */
     ThreadSafeQueue<std::vector<uint32_t>> &_pixelsQueue;
     /* References to other threads for control */
