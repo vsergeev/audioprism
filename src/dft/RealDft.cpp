@@ -104,6 +104,8 @@ void RealDft::setSize(unsigned int N) {
 
     /* Rebuild our plan */
     _plan = fftwf_plan_dft_r2c_1d(static_cast<int>(N), _windowedSamples, _dft, FFTW_MEASURE);
+    if (_plan == nullptr)
+        throw AllocationException("Creating FFTW plan.");
 
     /* Update N */
     _N = N;
