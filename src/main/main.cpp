@@ -97,6 +97,7 @@ void print_usage(std::string progname) {
                              "\n"
                              "Interface Settings\n"
                              "    -h,--help                   Help\n"
+                             "    --fullscreen                Fullscreen mode\n"
                              "    --width <width>             Width of spectrogram (default 640)\n"
                              "    --height <height>           Height of spectrogram (default 480)\n"
                              "    --orientation <orientation> Orientation [horizontal, vertical]\n"
@@ -149,6 +150,7 @@ int main(int argc, char *argv[]) {
 
     static struct option long_options[] = {
         {"help", no_argument, 0, 'h'},
+        {"fullscreen", no_argument, 0, 0},
         {"width", required_argument, 0, 0},
         {"height", required_argument, 0, 0},
         {"orientation", required_argument, 0, 0},
@@ -184,7 +186,9 @@ int main(int argc, char *argv[]) {
             std::string option_name = long_options[options_index].name;
             std::string option_arg = (long_options[options_index].has_arg == required_argument) ? optarg : "";
 
-            if (option_name == "orientation") {
+            if (option_name == "fullscreen") {
+                InitialSettings.fullscreen = true;
+            } else if (option_name == "orientation") {
                 if (option_arg == "horizontal") {
                     InitialSettings.orientation = Orientation::Horizontal;
                 } else if (option_arg == "vertical") {
