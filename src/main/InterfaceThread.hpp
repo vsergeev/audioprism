@@ -1,7 +1,5 @@
 #pragma once
 
-#include <functional>
-
 #include <SDL.h>
 #include <SDL_ttf.h>
 

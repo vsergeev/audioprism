@@ -1,10 +1,6 @@
 #include <ftw.h>
 #include <fnmatch.h>
-#include <sstream>
-#include <algorithm>
 #include <map>
-
-#include <iostream>
 
 #include <SDL.h>
 #include <SDL_ttf.h>
