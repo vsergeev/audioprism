@@ -14,8 +14,8 @@ class PulseAudioSource : public AudioSource {
     virtual unsigned int getSampleRate();
 
   private:
-    pa_simple *s;
-    unsigned int sampleRate;
+    pa_simple *_handle;
+    unsigned int _sampleRate;
 };
 
 }
