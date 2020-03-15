@@ -27,21 +27,22 @@ class InterfaceThread {
     bool _running;
 
     /* Owned resources (SDL) */
-    SDL_Window *_win;
-    SDL_Renderer *_renderer;
-    SDL_Texture *_pixelsTexture;
-    SDL_Texture *_settingsTexture;
-    SDL_Texture *_cursorTexture;
-    SDL_Texture *_statisticsTexture;
+    SDL_Window *_win = nullptr;
+    SDL_Renderer *_renderer = nullptr;
+    SDL_Texture *_pixelsTexture = nullptr;
+    SDL_Texture *_settingsTexture = nullptr;
+    SDL_Texture *_cursorTexture = nullptr;
+    SDL_Texture *_statisticsTexture = nullptr;
     SDL_Rect _settingsRect;
     SDL_Rect _cursorRect;
     SDL_Rect _statisticsRect;
-    TTF_Font *_font;
+    TTF_Font *_font = nullptr;
 
     /* Interface settings */
     const unsigned int _width, _height;
     const Configuration::Orientation _orientation;
-    bool _hideInfo, _hideStatistics;
+    bool _hideInfo = false;
+    bool _hideStatistics = true;
 
     /* Helper functions for SDL */
     void _handleKeyDown(const uint8_t *state);

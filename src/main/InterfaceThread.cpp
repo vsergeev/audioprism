@@ -73,7 +73,7 @@ static std::string findFontPath() {
     return "";
 }
 
-InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, AudioThread &audioThread, SpectrogramThread &spectrogramThread, const Settings &initialSettings) : _pixelsQueue(pixelsQueue), _audioThread(audioThread), _spectrogramThread(spectrogramThread), _width(initialSettings.width), _height(initialSettings.height), _orientation(initialSettings.orientation), _hideInfo(false), _hideStatistics(true) {
+InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, AudioThread &audioThread, SpectrogramThread &spectrogramThread, const Settings &initialSettings) : _pixelsQueue(pixelsQueue), _audioThread(audioThread), _spectrogramThread(spectrogramThread), _width(initialSettings.width), _height(initialSettings.height), _orientation(initialSettings.orientation) {
     int ret;
 
     /* Initialize SDL */
@@ -100,10 +100,6 @@ InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQ
     _pixelsTexture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STATIC, static_cast<int>(_width), static_cast<int>(_height));
     if (_pixelsTexture == nullptr)
         throw SDLException("Creating SDL texture: SDL_CreateTexture(): " + std::string(SDL_GetError()));
-
-    _statisticsTexture = nullptr;
-    _settingsTexture = nullptr;
-    _cursorTexture = nullptr;
 
     /* Find a compatible font */
     std::string fontPath = findFontPath();
