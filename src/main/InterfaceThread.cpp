@@ -445,8 +445,8 @@ void InterfaceThread::_handleKeyDown(const uint8_t *state) {
         _settings.magnitudeMax = _spectrogramThread.getMagnitudeMax();
     } else if (state[SDL_SCANCODE_H]) {
         /* Hide info */
-        _hideInfo = !_hideInfo;
-        if (!_hideInfo)
+        _hideSettings = !_hideSettings;
+        if (!_hideSettings)
             _renderSettings();
         return;
     } else if (state[SDL_SCANCODE_D]) {
@@ -551,7 +551,7 @@ void InterfaceThread::run() {
         /* Render pixels */
         SDL_RenderCopy(_renderer, _pixelsTexture, nullptr, nullptr);
         /* Render settings and cursor */
-        if (!_hideInfo) {
+        if (!_hideSettings) {
             SDL_RenderCopy(_renderer, _settingsTexture, nullptr, &_settingsRect);
             SDL_RenderCopy(_renderer, _cursorTexture, nullptr, &_cursorRect);
         }

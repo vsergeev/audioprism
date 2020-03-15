@@ -41,7 +41,7 @@ class InterfaceThread {
     /* Interface settings */
     const unsigned int _width, _height;
     const Configuration::Orientation _orientation;
-    bool _hideInfo = false;
+    bool _hideSettings = false;
     bool _hideStatistics = true;
 
     /* Helper functions for SDL */
