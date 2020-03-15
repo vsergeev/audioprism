@@ -87,7 +87,7 @@ InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQ
         throw TTFException("Unable to initialize TTF: TTF_Init(): " + std::string(TTF_GetError()));
 
     /* Create Window */
-    _win = SDL_CreateWindow("audioprism", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, static_cast<int>(_width), static_cast<int>(_height), SDL_WINDOW_OPENGL);
+    _win = SDL_CreateWindow("audioprism", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, static_cast<int>(_width), static_cast<int>(_height), SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
     if (_win == nullptr)
         throw SDLException("Creating SDL window: SDL_CreateWindow(): " + std::string(SDL_GetError()));
 
@@ -491,6 +491,37 @@ void InterfaceThread::run() {
                 int mx, my;
                 SDL_GetMouseState(&mx, &my);
                 _renderCursor(mx, my);
+            } else if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_RESIZED) {
+                _width = static_cast<unsigned int>(e.window.data1);
+                _height = static_cast<unsigned int>(e.window.data2);
+
+                /* Update spectrogram thread with new width */
+                _spectrogramThread.setWidth(getSpectrumWidth());
+
+                /* Resize and re-initialize pixel buffer */
+                pixels.resize(_width * _height * sizeof(uint32_t));
+                std::fill(pixels.begin(), pixels.end(), 0);
+
+                /* Resize pixels texture */
+                if (_pixelsTexture)
+                    SDL_DestroyTexture(_pixelsTexture);
+
+                _pixelsTexture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STATIC, static_cast<int>(getSpectrumWidth()), static_cast<int>(getTimeWidth()));
+                if (_pixelsTexture == nullptr)
+                    throw SDLException("Creating SDL texture: SDL_CreateTexture(): " + std::string(SDL_GetError()));
+
+                /* Re-render settings */
+                if (!_hideSettings)
+                    _renderSettings();
+
+                /* Re-render cursor */
+                int mx, my;
+                SDL_GetMouseState(&mx, &my);
+                _renderCursor(mx, my);
+
+                /* Re-render statistics */
+                if (!_hideStatistics)
+                    _renderStatistics();
             }
         }
 
@@ -503,6 +534,13 @@ void InterfaceThread::run() {
         /* Collect all new pixel rows */
         while (!_pixelsQueue.empty()) {
             std::vector<uint32_t> pixelRow(_pixelsQueue.pop());
+
+            /* If we encounter an old pixel row, replace with empty row */
+            if (pixelRow.size() != getSpectrumWidth()) {
+                pixelRow.resize(getSpectrumWidth());
+                std::fill(pixelRow.begin(), pixelRow.end(), 0);
+            }
+
             newPixels.insert(newPixels.end(), pixelRow.begin(), pixelRow.end());
         }
 

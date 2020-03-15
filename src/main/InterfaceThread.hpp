@@ -42,7 +42,7 @@ class InterfaceThread {
     TTF_Font *_font = nullptr;
 
     /* Interface settings */
-    const unsigned int _width, _height;
+    unsigned int _width, _height;
     const Configuration::Orientation _orientation;
     bool _hideSettings = false;
     bool _hideStatistics = true;
