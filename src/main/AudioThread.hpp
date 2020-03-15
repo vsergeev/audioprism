@@ -19,14 +19,14 @@ class AudioThread {
     unsigned int getSampleRate();
 
   private:
-    void run();
+    void _run();
 
     /* Output samples queue */
-    ThreadSafeQueue<std::vector<double>> &samplesQueue;
+    ThreadSafeQueue<std::vector<double>> &_samplesQueue;
 
-    std::atomic<bool> running;
-    Audio::PulseAudioSource audioSource;
-    std::mutex audioSourceLock;
+    std::atomic<bool> _running;
+    Audio::PulseAudioSource _audioSource;
+    std::mutex _audioSourceLock;
 
-    std::thread thread;
+    std::thread _thread;
 };

@@ -2,33 +2,33 @@
 
 #define AUDIO_READ_SIZE 128
 
-AudioThread::AudioThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, const Configuration::Settings &initialSettings) : samplesQueue(samplesQueue), audioSource(initialSettings.audioSampleRate) {}
+AudioThread::AudioThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, const Configuration::Settings &initialSettings) : _samplesQueue(samplesQueue), _audioSource(initialSettings.audioSampleRate) {}
 
 void AudioThread::start() {
-    thread = std::thread(&AudioThread::run, this);
+    _thread = std::thread(&AudioThread::_run, this);
 }
 
 void AudioThread::stop() {
-    running = false;
-    thread.join();
+    _running = false;
+    _thread.join();
 }
 
-void AudioThread::run() {
+void AudioThread::_run() {
     std::vector<double> samples(AUDIO_READ_SIZE);
 
-    running = true;
+    _running = true;
 
-    while (running) {
+    while (_running) {
         {
-            std::lock_guard<std::mutex> lg(audioSourceLock);
-            audioSource.read(samples);
+            std::lock_guard<std::mutex> lg(_audioSourceLock);
+            _audioSource.read(samples);
         }
 
-        samplesQueue.push(samples);
+        _samplesQueue.push(samples);
     }
 }
 
 unsigned int AudioThread::getSampleRate() {
-    std::lock_guard<std::mutex> lg(audioSourceLock);
-    return audioSource.getSampleRate();
+    std::lock_guard<std::mutex> lg(_audioSourceLock);
+    return _audioSource.getSampleRate();
 }
