@@ -8,6 +8,18 @@
 #include "InterfaceThread.hpp"
 #include "Configuration.hpp"
 
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+#define SDL_R_MASK (0xffu << 24)
+#define SDL_G_MASK (0xffu << 16)
+#define SDL_B_MASK (0xffu << 8)
+#define SDL_A_MASK (0xffu)
+#else
+#define SDL_R_MASK (0xffu)
+#define SDL_G_MASK (0xffu << 8)
+#define SDL_B_MASK (0xffu << 16)
+#define SDL_A_MASK (0xffu << 24)
+#endif
+
 using namespace Audio;
 using namespace DFT;
 using namespace Spectrogram;
@@ -154,12 +166,8 @@ static SDL_Surface *vcatSurfaces(std::vector<SDL_Surface *> surfaces, Alignment 
         targetSurfaceHeight += surface->h;
     }
 
-/* Create target surface */
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN /* ghetto */
-    targetSurface = SDL_CreateRGBSurface(0, targetSurfaceWidth, targetSurfaceHeight, 32, 0xffu << 24, 0xffu << 16, 0xffu << 8, 0xffu);
-#else
-    targetSurface = SDL_CreateRGBSurface(0, targetSurfaceWidth, targetSurfaceHeight, 32, 0xffu, 0xffu << 8, 0xffu << 16, 0xffu << 24);
-#endif
+    /* Create target surface */
+    targetSurface = SDL_CreateRGBSurface(0, targetSurfaceWidth, targetSurfaceHeight, 32, SDL_R_MASK, SDL_G_MASK, SDL_B_MASK, SDL_A_MASK);
     if (targetSurface == nullptr)
         throw SDLException("Error creating target surface: SDL_CreateRGBSurface(): " + std::string(SDL_GetError()));
 
