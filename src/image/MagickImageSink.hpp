@@ -17,10 +17,10 @@ class MagickImageSink : public ImageSink {
     virtual void write();
 
   private:
-    const std::string path;
-    const unsigned int width;
-    const Orientation orientation;
-    std::vector<uint32_t> imagePixels;
+    const std::string _path;
+    const unsigned int _width;
+    const Orientation _orientation;
+    std::vector<uint32_t> _imagePixels;
 };
 
 }
