@@ -44,18 +44,13 @@ RealDft::RealDft(unsigned int N, RealDft::WindowFunction wf) : _N(N), _windowFun
 }
 
 RealDft::~RealDft() {
-    if (_plan) {
+    if (_plan)
         fftwf_destroy_plan(_plan);
-        _plan = nullptr;
-    }
-    if (_dft) {
+    if (_dft)
         fftwf_free(_dft);
-        _dft = nullptr;
-    }
-    if (_windowedSamples) {
+    if (_windowedSamples)
         fftwf_free(_windowedSamples);
-        _windowedSamples = nullptr;
-    }
+
     fftwf_cleanup();
 }
 
@@ -85,18 +80,12 @@ unsigned int RealDft::getSize() {
 
 void RealDft::setSize(unsigned int N) {
     /* Deallocate FFTW resources we are changing */
-    if (_plan) {
+    if (_plan)
         fftwf_destroy_plan(_plan);
-        _plan = nullptr;
-    }
-    if (_dft) {
+    if (_dft)
         fftwf_free(_dft);
-        _dft = nullptr;
-    }
-    if (_windowedSamples) {
+    if (_windowedSamples)
         fftwf_free(_windowedSamples);
-        _windowedSamples = nullptr;
-    }
 
     /* Resize window */
     _window.resize(N);
