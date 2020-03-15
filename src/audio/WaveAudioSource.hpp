@@ -16,8 +16,8 @@ class WaveAudioSource : public AudioSource {
     virtual unsigned int getSampleRate();
 
   private:
-    SNDFILE *sndfile;
-    SF_INFO sfinfo;
+    SNDFILE *_sndfile;
+    SF_INFO _sfinfo;
 };
 
 }
