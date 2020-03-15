@@ -47,33 +47,38 @@ void SpectrogramThread::_run() {
         /* Add new audio samples to our audio samples buffer */
         audioSamples.insert(audioSamples.end(), newAudioSamples.begin(), newAudioSamples.end());
 
-        /* Lock DFT */
-        std::lock_guard<std::mutex> dftLg(_realDftLock);
+        {
+            /* Lock DFT */
+            std::lock_guard<std::mutex> dftLg(_realDftLock);
 
-        /* Resize overlap samples buffer and DFT samples buffer if N changed */
-        if (overlapSamples.size() != _realDft.getSize()) {
-            overlapSamples.resize(_realDft.getSize());
-            dftSamples.resize(_realDft.getSize() / 2 + 1);
+            /* Resize overlap samples buffer and DFT samples buffer if N changed */
+            if (overlapSamples.size() != _realDft.getSize()) {
+                overlapSamples.resize(_realDft.getSize());
+                dftSamples.resize(_realDft.getSize() / 2 + 1);
+            }
+
+            /* If we don't have enough samples to update overlap window, continue to pop more */
+            if (audioSamples.size() < _samplesOverlap)
+                continue;
+
+            /* Move down overlapSamples.size()-samplesOverlap length old samples */
+            memmove(overlapSamples.data(), overlapSamples.data() + _samplesOverlap, sizeof(float) * (overlapSamples.size() - _samplesOverlap));
+            /* Copy overlapSamples.size()-samplesOverlap length new samples */
+            memcpy(overlapSamples.data() + _samplesOverlap, audioSamples.data(), sizeof(float) * (overlapSamples.size() - _samplesOverlap));
+            /* Erase used audio samples */
+            audioSamples.erase(audioSamples.begin(), audioSamples.begin() + _samplesOverlap);
+
+            /* Compute DFT */
+            _realDft.compute(dftSamples, overlapSamples);
         }
 
-        /* If we don't have enough samples to update overlap window, continue to pop more */
-        if (audioSamples.size() < _samplesOverlap)
-            continue;
+        {
+            /* Lock spectrum renderer */
+            std::lock_guard<std::mutex> spectrumLg(_spectrumRendererLock);
+            /* Render spectrogram line */
+            _spectrumRenderer.render(pixels, dftSamples);
+        }
 
-        /* Move down overlapSamples.size()-samplesOverlap length old samples */
-        memmove(overlapSamples.data(), overlapSamples.data() + _samplesOverlap, sizeof(float) * (overlapSamples.size() - _samplesOverlap));
-        /* Copy overlapSamples.size()-samplesOverlap length new samples */
-        memcpy(overlapSamples.data() + _samplesOverlap, audioSamples.data(), sizeof(float) * (overlapSamples.size() - _samplesOverlap));
-        /* Erase used audio samples */
-        audioSamples.erase(audioSamples.begin(), audioSamples.begin() + _samplesOverlap);
-
-        /* Compute DFT */
-        _realDft.compute(dftSamples, overlapSamples);
-
-        /* Lock spectrum renderer */
-        std::lock_guard<std::mutex> spectrumLg(_spectrumRendererLock);
-        /* Render spectrogram line */
-        _spectrumRenderer.render(pixels, dftSamples);
         /* Put into pixels queue */
         _pixelsQueue.push(pixels);
     }
