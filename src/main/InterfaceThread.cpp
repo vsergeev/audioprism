@@ -73,7 +73,7 @@ static std::string findFontPath() {
     return "";
 }
 
-InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, AudioThread &audioThread, SpectrogramThread &spectrogramThread, const Settings &initialSettings) : _pixelsQueue(pixelsQueue), _audioThread(audioThread), _spectrogramThread(spectrogramThread), _fullscreen(false), _width(initialSettings.width), _height(initialSettings.height), _orientation(initialSettings.orientation) {
+InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, AudioThread &audioThread, SpectrogramThread &spectrogramThread, const Settings &initialSettings) : _pixelsQueue(pixelsQueue), _audioThread(audioThread), _spectrogramThread(spectrogramThread), _fullscreen(initialSettings.fullscreen), _width(initialSettings.width), _height(initialSettings.height), _orientation(initialSettings.orientation) {
     int ret;
 
     /* Initialize SDL */
@@ -86,8 +86,21 @@ InterfaceThread::InterfaceThread(ThreadSafeQueue<std::vector<uint32_t>> &pixelsQ
     if (ret < 0)
         throw TTFException("Unable to initialize TTF: TTF_Init(): " + std::string(TTF_GetError()));
 
+    /* Query resolution for fullscreen mode */
+    if (_fullscreen) {
+        SDL_DisplayMode displayMode;
+        if (SDL_GetDesktopDisplayMode(0, &displayMode) < 0)
+            throw SDLException("Querying display mode: SDL_GetDesktopDisplayMode(): " + std::string(SDL_GetError()));
+
+        _width = static_cast<unsigned int>(displayMode.w);
+        _height = static_cast<unsigned int>(displayMode.h);
+
+        /* Update spectrogram with new width */
+        _spectrogramThread.setWidth(getSpectrumWidth());
+    }
+
     /* Create Window */
-    _win = SDL_CreateWindow("audioprism", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, static_cast<int>(_width), static_cast<int>(_height), SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+    _win = SDL_CreateWindow("audioprism", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, static_cast<int>(_width), static_cast<int>(_height), SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | (_fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0));
     if (_win == nullptr)
         throw SDLException("Creating SDL window: SDL_CreateWindow(): " + std::string(SDL_GetError()));
 

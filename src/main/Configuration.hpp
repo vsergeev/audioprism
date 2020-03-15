@@ -14,6 +14,7 @@ enum class Orientation { Horizontal,
 
 struct Settings {
     /* Interface Settings */
+    bool fullscreen = false;
     unsigned int width = 640;
     unsigned int height = 480;
     Orientation orientation = Orientation::Vertical;
