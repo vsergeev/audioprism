@@ -16,6 +16,9 @@ class SpectrogramThread {
     void start();
     void stop();
 
+    /* Set Spectrogram Width */
+    void setWidth(unsigned int width);
+
     /* Get/Set Samples Overlap (0.00 - 1.00) */
     float getSamplesOverlap();
     void setSamplesOverlap(float overlap);
@@ -61,11 +64,10 @@ class SpectrogramThread {
     Spectrogram::SpectrumRenderer _spectrumRenderer;
     std::mutex _spectrumRendererLock;
 
+    std::vector<uint32_t> _pixelLine;
     unsigned int _samplesOverlap;
-    unsigned int _pixelsWidth;
+    std::atomic<size_t> _samplesQueueCount;
 
     std::atomic<bool> _running;
     std::thread _thread;
-
-    std::atomic<size_t> _samplesQueueCount;
 };

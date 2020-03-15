@@ -6,7 +6,7 @@
 
 SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<float>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, const Configuration::Settings &initialSettings) : _samplesQueue(samplesQueue), _pixelsQueue(pixelsQueue), _realDft(initialSettings.dftSize, initialSettings.dftWindowFunction), _spectrumRenderer(initialSettings.magnitudeMin, initialSettings.magnitudeMax, initialSettings.magnitudeLog, initialSettings.colorScheme) {
     _samplesOverlap = static_cast<unsigned int>(initialSettings.samplesOverlap * static_cast<float>(initialSettings.dftSize));
-    _pixelsWidth = (initialSettings.orientation == Configuration::Orientation::Vertical) ? initialSettings.width : initialSettings.height;
+    _pixelLine.resize((initialSettings.orientation == Configuration::Orientation::Vertical) ? initialSettings.width : initialSettings.height);
     _samplesQueueCount = 0;
 }
 
@@ -27,8 +27,6 @@ void SpectrogramThread::_run() {
     std::vector<float> overlapSamples;
     /* DFT of Overlapped Samples */
     std::vector<std::complex<float>> dftSamples;
-    /* Pixel line */
-    std::vector<uint32_t> pixels(_pixelsWidth);
 
     while (_running) {
         std::vector<float> newAudioSamples;
@@ -75,12 +73,17 @@ void SpectrogramThread::_run() {
             /* Lock spectrum renderer */
             std::lock_guard<std::mutex> spectrumLg(_spectrumRendererLock);
             /* Render spectrogram line */
-            _spectrumRenderer.render(pixels, dftSamples);
+            _spectrumRenderer.render(_pixelLine, dftSamples);
         }
 
         /* Put into pixels queue */
-        _pixelsQueue.push(pixels);
+        _pixelsQueue.push(_pixelLine);
     }
+}
+
+void SpectrogramThread::setWidth(unsigned int width) {
+    std::lock_guard<std::mutex> dftLg(_spectrumRendererLock);
+    _pixelLine.resize(width);
 }
 
 float SpectrogramThread::getSamplesOverlap() {
