@@ -41,94 +41,94 @@ static void calculateWindow(std::vector<double> &window, RealDft::WindowFunction
     }
 }
 
-RealDft::RealDft(unsigned int N, RealDft::WindowFunction wf) : N(N), windowFunction(wf), wsamples(nullptr), dft(nullptr), plan(nullptr) {
-    setSize(N);
+RealDft::RealDft(unsigned int N, RealDft::WindowFunction wf) : _N(N), _windowFunction(wf), _wsamples(nullptr), _dft(nullptr), _plan(nullptr) {
+    setSize(_N);
 }
 
 RealDft::~RealDft() {
-    if (plan) {
-        fftw_destroy_plan(plan);
-        plan = nullptr;
+    if (_plan) {
+        fftw_destroy_plan(_plan);
+        _plan = nullptr;
     }
-    if (dft) {
-        fftw_free(dft);
-        dft = nullptr;
+    if (_dft) {
+        fftw_free(_dft);
+        _dft = nullptr;
     }
-    if (wsamples) {
-        fftw_free(wsamples);
-        wsamples = nullptr;
+    if (_wsamples) {
+        fftw_free(_wsamples);
+        _wsamples = nullptr;
     }
     fftw_cleanup();
 }
 
 void RealDft::compute(std::vector<std::complex<double>> &dft, const std::vector<double> &samples) {
     /* Assert sample buffer size */
-    if (samples.size() != N)
+    if (samples.size() != _N)
         throw SizeMismatchException("Samples size does not match DFT size!");
 
     /* Size dft buffer correctly */
-    dft.resize(N / 2 + 1);
+    dft.resize(_N / 2 + 1);
 
     /* Window samples first */
-    for (unsigned int n = 0; n < N; n++)
-        wsamples[n] = samples[n] * window[n];
+    for (unsigned int n = 0; n < _N; n++)
+        _wsamples[n] = samples[n] * _window[n];
 
     /* Execute DFT */
-    fftw_execute(plan);
+    fftw_execute(_plan);
 
     /* Compute DFT magnitude */
-    for (unsigned int n = 0; n < N / 2 + 1; n++)
-        dft[n] = std::complex<double>(this->dft[n][0], this->dft[n][1]);
+    for (unsigned int n = 0; n < _N / 2 + 1; n++)
+        dft[n] = std::complex<double>(_dft[n][0], _dft[n][1]);
 }
 
 unsigned int RealDft::getSize() {
-    return N;
+    return _N;
 }
 
 void RealDft::setSize(unsigned int N) {
     /* Deallocate FFTW resources we are changing */
-    if (plan) {
-        fftw_destroy_plan(plan);
-        plan = nullptr;
+    if (_plan) {
+        fftw_destroy_plan(_plan);
+        _plan = nullptr;
     }
-    if (dft) {
-        fftw_free(dft);
-        dft = nullptr;
+    if (_dft) {
+        fftw_free(_dft);
+        _dft = nullptr;
     }
-    if (wsamples) {
-        fftw_free(wsamples);
-        wsamples = nullptr;
+    if (_wsamples) {
+        fftw_free(_wsamples);
+        _wsamples = nullptr;
     }
 
     /* Resize window */
-    window.resize(N);
+    _window.resize(N);
     /* Recalculate window function */
-    calculateWindow(window, windowFunction);
+    calculateWindow(_window, _windowFunction);
 
     /* Allocate windowed samples buffer */
-    wsamples = fftw_alloc_real(N);
-    if (wsamples == nullptr)
+    _wsamples = fftw_alloc_real(N);
+    if (_wsamples == nullptr)
         throw AllocationException("Allocating sample memory.");
 
     /* Allocate DFT buffer */
-    dft = fftw_alloc_complex(N / 2 + 1);
-    if (dft == nullptr)
+    _dft = fftw_alloc_complex(N / 2 + 1);
+    if (_dft == nullptr)
         throw AllocationException("Allocating DFT memory.");
 
     /* Rebuild our plan */
-    plan = fftw_plan_dft_r2c_1d(static_cast<int>(N), wsamples, dft, FFTW_MEASURE);
+    _plan = fftw_plan_dft_r2c_1d(static_cast<int>(N), _wsamples, _dft, FFTW_MEASURE);
 
     /* Update N */
-    this->N = N;
+    _N = N;
 }
 
 RealDft::WindowFunction RealDft::getWindowFunction() {
-    return windowFunction;
+    return _windowFunction;
 }
 
 void RealDft::setWindowFunction(WindowFunction wf) {
-    windowFunction = wf;
-    calculateWindow(window, windowFunction);
+    _windowFunction = wf;
+    calculateWindow(_window, _windowFunction);
 }
 
 }

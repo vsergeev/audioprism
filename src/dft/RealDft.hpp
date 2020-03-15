@@ -30,17 +30,17 @@ class RealDft {
 
   private:
     /* DFT Size */
-    unsigned int N;
+    unsigned int _N;
     /* Window Function */
-    WindowFunction windowFunction;
+    WindowFunction _windowFunction;
     /* Window */
-    std::vector<double> window;
+    std::vector<double> _window;
     /* Windowed Samples */
-    double *wsamples;
+    double *_wsamples;
     /* Complex DFT */
-    fftw_complex *dft;
+    fftw_complex *_dft;
     /* FFTW Plan */
-    fftw_plan plan;
+    fftw_plan _plan;
 };
 
 class AllocationException : public std::runtime_error {
