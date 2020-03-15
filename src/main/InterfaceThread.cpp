@@ -466,13 +466,10 @@ void InterfaceThread::_handleKeyDown(const uint8_t *state) {
 }
 
 void InterfaceThread::run() {
-    std::unique_ptr<uint32_t[]> pixels = std::unique_ptr<uint32_t[]>(new uint32_t[_width * _height]);
+    std::vector<uint32_t> pixels(_width * _height * sizeof(uint32_t));
     std::vector<uint32_t> newPixels;
 
     auto statisticsTic = std::chrono::system_clock::now();
-
-    /* Initialize pixels */
-    memset(pixels.get(), 0x00, _width * _height * sizeof(uint32_t));
 
     /* Poll current settings */
     _updateSettings();
@@ -524,15 +521,15 @@ void InterfaceThread::run() {
             }
 
             /* Move old pixels up */
-            memmove(pixels.get(), pixels.get() + size, (_width * _height - size) * sizeof(uint32_t));
+            memmove(pixels.data(), pixels.data() + size, (_width * _height - size) * sizeof(uint32_t));
 
             /* Copy new pixels over */
-            memcpy(pixels.get() + (_width * _height - size), data, size * sizeof(uint32_t));
+            memcpy(pixels.data() + (_width * _height - size), data, size * sizeof(uint32_t));
 
             /* Clear new pixels */
             newPixels.clear();
 
-            SDL_UpdateTexture(_pixelsTexture, nullptr, pixels.get(),
+            SDL_UpdateTexture(_pixelsTexture, nullptr, pixels.data(),
                               _orientation == Orientation::Vertical ? static_cast<int>(_width * sizeof(uint32_t)) : static_cast<int>(_height * sizeof(uint32_t)));
         }
 
