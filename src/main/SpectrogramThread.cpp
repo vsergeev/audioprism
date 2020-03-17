@@ -11,6 +11,7 @@ SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<float>> &sample
 }
 
 void SpectrogramThread::start() {
+    _running = true;
     _thread = std::thread(&SpectrogramThread::_run, this);
 }
 
@@ -28,8 +29,6 @@ void SpectrogramThread::_run() {
     std::vector<std::complex<float>> dftSamples;
     /* Pixel line */
     std::vector<uint32_t> pixels(_pixelsWidth);
-
-    _running = true;
 
     while (_running) {
         std::vector<float> newAudioSamples;

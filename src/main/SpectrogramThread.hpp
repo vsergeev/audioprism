@@ -55,8 +55,6 @@ class SpectrogramThread {
     /* Output pixels queue */
     ThreadSafeQueue<std::vector<uint32_t>> &_pixelsQueue;
 
-    std::atomic<bool> _running;
-
     DFT::RealDft _realDft;
     std::mutex _realDftLock;
 
@@ -66,6 +64,7 @@ class SpectrogramThread {
     unsigned int _samplesOverlap;
     unsigned int _pixelsWidth;
 
+    std::atomic<bool> _running;
     std::thread _thread;
 
     std::atomic<size_t> _samplesQueueCount;
