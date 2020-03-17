@@ -24,7 +24,7 @@ class InterfaceThread {
     AudioThread &_audioThread;
     SpectrogramThread &_spectrogramThread;
     /* Running boolean */
-    std::atomic<bool> _running;
+    bool _running;
 
     /* Owned resources (SDL) */
     SDL_Window *_win;

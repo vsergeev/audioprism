@@ -464,8 +464,6 @@ void InterfaceThread::run() {
 
     auto statisticsTic = std::chrono::system_clock::now();
 
-    _running = true;
-
     /* Initialize pixels */
     memset(pixels.get(), 0x00, _width * _height * sizeof(uint32_t));
 
@@ -475,6 +473,8 @@ void InterfaceThread::run() {
     _renderSettings();
     /* Render statistics */
     _renderStatistics();
+
+    _running = true;
 
     while (_running) {
         /* Handle SDL events */
