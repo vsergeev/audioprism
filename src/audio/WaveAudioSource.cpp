@@ -1,6 +1,3 @@
-#include <stdexcept>
-#include <iostream>
-
 #include <sndfile.h>
 
 #include "WaveAudioSource.hpp"
