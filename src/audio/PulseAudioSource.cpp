@@ -6,20 +6,19 @@
 namespace Audio {
 
 PulseAudioSource::PulseAudioSource(unsigned int sampleRate) : _sampleRate(sampleRate) {
-    int error;
     pa_sample_spec ss;
-    pa_buffer_attr attr;
-
     ss.format = PA_SAMPLE_FLOAT32LE;
     ss.rate = sampleRate;
     ss.channels = 1;
 
+    pa_buffer_attr attr;
     attr.maxlength = -1u;
     attr.tlength = -1u;
     attr.prebuf = -1u;
     attr.minreq = -1u;
     attr.fragsize = 1024;
 
+    int error;
     _handle = pa_simple_new(nullptr, "spectrogram", PA_STREAM_RECORD, nullptr, "audio in", &ss, nullptr, &attr, &error);
     if (_handle == nullptr)
         throw OpenException("Opening PulseAudio: pa_simple_new(): " + std::string(pa_strerror(error)));
