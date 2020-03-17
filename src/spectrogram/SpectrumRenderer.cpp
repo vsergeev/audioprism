@@ -2,7 +2,7 @@
 
 namespace Spectrogram {
 
-SpectrumRenderer::SpectrumRenderer(float magnitudeMin, float magnitudeMax, bool magnitudeLog, ColorScheme colors) : settings({magnitudeMin, magnitudeMax, magnitudeLog, colors}) {}
+SpectrumRenderer::SpectrumRenderer(float magnitudeMin, float magnitudeMax, bool magnitudeLog, ColorScheme colorScheme) : _magnitudeMin(magnitudeMin), _magnitudeMax(magnitudeMax), _magnitudeLog(magnitudeLog), _colorScheme(colorScheme) {}
 
 template <typename T>
 static constexpr T normalize(T value, T min, T max) {
@@ -74,14 +74,14 @@ void SpectrumRenderer::render(std::vector<uint32_t> &pixels, const std::vector<s
     uint32_t (*valueToPixel)(float) = nullptr;
     float (*processMagnitude)(float) = nullptr;
 
-    if (settings.colors == SpectrumRenderer::ColorScheme::Heat)
+    if (_colorScheme == SpectrumRenderer::ColorScheme::Heat)
         valueToPixel = valueToPixel_Heat;
-    else if (settings.colors == SpectrumRenderer::ColorScheme::Blue)
+    else if (_colorScheme == SpectrumRenderer::ColorScheme::Blue)
         valueToPixel = valueToPixel_Blue;
-    else if (settings.colors == SpectrumRenderer::ColorScheme::Grayscale)
+    else if (_colorScheme == SpectrumRenderer::ColorScheme::Grayscale)
         valueToPixel = valueToPixel_Grayscale;
 
-    if (settings.magnitudeLog)
+    if (_magnitudeLog)
         processMagnitude = [](float x) -> float { return 20 * std::log10(x); };
     else
         processMagnitude = [](float x) -> float { return x; };
@@ -90,16 +90,48 @@ void SpectrumRenderer::render(std::vector<uint32_t> &pixels, const std::vector<s
     float index_scale = static_cast<float>(dft.size()) / static_cast<float>(pixels.size());
     for (i = 0; i < pixels.size(); i++) {
         float magnitude = processMagnitude(std::abs(dft[static_cast<unsigned int>(index_scale * static_cast<float>(i))]));
-        pixels[i] = valueToPixel(normalize(magnitude, settings.magnitudeMin, settings.magnitudeMax));
+        pixels[i] = valueToPixel(normalize(magnitude, _magnitudeMin, _magnitudeMax));
     }
 }
 
-std::string to_string(const SpectrumRenderer::ColorScheme &colors) {
-    if (colors == SpectrumRenderer::ColorScheme::Heat)
+float SpectrumRenderer::getMagnitudeMin() {
+    return _magnitudeMin;
+}
+
+void SpectrumRenderer::setMagnitudeMin(float min) {
+    _magnitudeMin = min;
+}
+
+float SpectrumRenderer::getMagnitudeMax() {
+    return _magnitudeMax;
+}
+
+void SpectrumRenderer::setMagnitudeMax(float max) {
+    _magnitudeMax = max;
+}
+
+bool SpectrumRenderer::getMagnitudeLog() {
+    return _magnitudeLog;
+}
+
+void SpectrumRenderer::setMagnitudeLog(bool logarithmic) {
+    _magnitudeLog = logarithmic;
+}
+
+SpectrumRenderer::ColorScheme SpectrumRenderer::getColorScheme() {
+    return _colorScheme;
+}
+
+void SpectrumRenderer::setColorScheme(ColorScheme colorScheme) {
+    _colorScheme = colorScheme;
+}
+
+std::string to_string(const SpectrumRenderer::ColorScheme &colorScheme) {
+    if (colorScheme == SpectrumRenderer::ColorScheme::Heat)
         return "Heat";
-    else if (colors == SpectrumRenderer::ColorScheme::Blue)
+    else if (colorScheme == SpectrumRenderer::ColorScheme::Blue)
         return "Blue";
-    else if (colors == SpectrumRenderer::ColorScheme::Grayscale)
+    else if (colorScheme == SpectrumRenderer::ColorScheme::Grayscale)
         return "Grayscale";
 
     return "Unknown";

@@ -118,42 +118,42 @@ void SpectrogramThread::setDftWindowFunction(DFT::RealDft::WindowFunction wf) {
 
 float SpectrogramThread::getMagnitudeMin() {
     std::lock_guard<std::mutex> spectrumLg(_spectrumRendererLock);
-    return _spectrumRenderer.settings.magnitudeMin;
+    return _spectrumRenderer.getMagnitudeMin();
 }
 
 void SpectrogramThread::setMagnitudeMin(float min) {
     std::lock_guard<std::mutex> spectrumLg(_spectrumRendererLock);
-    _spectrumRenderer.settings.magnitudeMin = min;
+    _spectrumRenderer.setMagnitudeMin(min);
 }
 
 float SpectrogramThread::getMagnitudeMax() {
     std::lock_guard<std::mutex> spectrumLg(_spectrumRendererLock);
-    return _spectrumRenderer.settings.magnitudeMax;
+    return _spectrumRenderer.getMagnitudeMax();
 }
 
 void SpectrogramThread::setMagnitudeMax(float max) {
     std::lock_guard<std::mutex> spectrumLg(_spectrumRendererLock);
-    _spectrumRenderer.settings.magnitudeMax = max;
+    _spectrumRenderer.setMagnitudeMax(max);
 }
 
 bool SpectrogramThread::getMagnitudeLog() {
     std::lock_guard<std::mutex> spectrumLg(_spectrumRendererLock);
-    return _spectrumRenderer.settings.magnitudeLog;
+    return _spectrumRenderer.getMagnitudeLog();
 }
 
 void SpectrogramThread::setMagnitudeLog(bool logarithmic) {
     std::lock_guard<std::mutex> spectrumLg(_spectrumRendererLock);
-    _spectrumRenderer.settings.magnitudeLog = logarithmic;
+    _spectrumRenderer.setMagnitudeLog(logarithmic);
 }
 
 Spectrogram::SpectrumRenderer::ColorScheme SpectrogramThread::getColors() {
     std::lock_guard<std::mutex> spectrumLg(_spectrumRendererLock);
-    return _spectrumRenderer.settings.colors;
+    return _spectrumRenderer.getColorScheme();
 }
 
 void SpectrogramThread::setColors(Spectrogram::SpectrumRenderer::ColorScheme colors) {
     std::lock_guard<std::mutex> spectrumLg(_spectrumRendererLock);
-    _spectrumRenderer.settings.colors = colors;
+    _spectrumRenderer.setColorScheme(colors);
 }
 
 size_t SpectrogramThread::getDebugSamplesQueueCount() {
