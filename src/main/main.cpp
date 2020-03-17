@@ -289,12 +289,14 @@ int main(int argc, char *argv[]) {
                     return EXIT_FAILURE;
                 }
             } else if (option_name == "colors") {
-                if (option_arg == "logarithmic")
-                    InitialSettings.magnitudeLog = true;
-                else if (option_arg == "linear")
-                    InitialSettings.magnitudeLog = false;
+                if (option_arg == "heat")
+                    InitialSettings.colors = SpectrumRenderer::ColorScheme::Heat;
+                else if (option_arg == "blue")
+                    InitialSettings.colors = SpectrumRenderer::ColorScheme::Blue;
+                else if (option_arg == "grayscale")
+                    InitialSettings.colors = SpectrumRenderer::ColorScheme::Grayscale;
                 else {
-                    std::cerr << "Invalid magnitude scale.\n\n";
+                    std::cerr << "Invalid color scheme.\n\n";
                     print_usage(argv[0]);
                     return EXIT_FAILURE;
                 }
