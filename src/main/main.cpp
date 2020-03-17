@@ -47,7 +47,7 @@ void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
     unsigned int spectrumWidth = (InitialSettings.orientation == Orientation::Vertical) ? InitialSettings.width : InitialSettings.height;
 
     WaveAudioSource audioSource(audioPath);
-    RealDft realDft(InitialSettings.dftSize, InitialSettings.dftWf);
+    RealDft realDft(InitialSettings.dftSize, InitialSettings.dftWindowFunction);
     SpectrumRenderer spectrumRenderer(InitialSettings.magnitudeMin, InitialSettings.magnitudeMax, InitialSettings.magnitudeLog, InitialSettings.colorScheme);
     MagickImageSink image(imagePath, spectrumWidth, (InitialSettings.orientation == Orientation::Vertical) ? MagickImageSink::Orientation::Vertical : MagickImageSink::Orientation::Horizontal);
 
@@ -250,13 +250,13 @@ int main(int argc, char *argv[]) {
                 InitialSettings.dftSize = dftSize;
             } else if (option_name == "window") {
                 if (option_arg == "hann")
-                    InitialSettings.dftWf = RealDft::WindowFunction::Hann;
+                    InitialSettings.dftWindowFunction = RealDft::WindowFunction::Hann;
                 else if (option_arg == "hamming")
-                    InitialSettings.dftWf = RealDft::WindowFunction::Hamming;
+                    InitialSettings.dftWindowFunction = RealDft::WindowFunction::Hamming;
                 else if (option_arg == "bartlett")
-                    InitialSettings.dftWf = RealDft::WindowFunction::Bartlett;
+                    InitialSettings.dftWindowFunction = RealDft::WindowFunction::Bartlett;
                 else if (option_arg == "rectangular")
-                    InitialSettings.dftWf = RealDft::WindowFunction::Rectangular;
+                    InitialSettings.dftWindowFunction = RealDft::WindowFunction::Rectangular;
                 else {
                     std::cerr << "Invalid window function.\n\n";
                     print_usage(argv[0]);

@@ -4,7 +4,7 @@
 
 #include "SpectrogramThread.hpp"
 
-SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<float>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, const Configuration::Settings &initialSettings) : _samplesQueue(samplesQueue), _pixelsQueue(pixelsQueue), _realDft(initialSettings.dftSize, initialSettings.dftWf), _spectrumRenderer(initialSettings.magnitudeMin, initialSettings.magnitudeMax, initialSettings.magnitudeLog, initialSettings.colorScheme) {
+SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<float>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, const Configuration::Settings &initialSettings) : _samplesQueue(samplesQueue), _pixelsQueue(pixelsQueue), _realDft(initialSettings.dftSize, initialSettings.dftWindowFunction), _spectrumRenderer(initialSettings.magnitudeMin, initialSettings.magnitudeMax, initialSettings.magnitudeLog, initialSettings.colorScheme) {
     _samplesOverlap = static_cast<unsigned int>(initialSettings.samplesOverlap * static_cast<float>(initialSettings.dftSize));
     _pixelsWidth = (initialSettings.orientation == Configuration::Orientation::Vertical) ? initialSettings.width : initialSettings.height;
     _samplesQueueCount = 0;

@@ -54,7 +54,7 @@ class InterfaceThread {
     struct {
         unsigned int audioSampleRate;
         float samplesOverlap;
-        DFT::RealDft::WindowFunction dftWf;
+        DFT::RealDft::WindowFunction dftWindowFunction;
         unsigned int dftSize;
         float magnitudeMin;
         float magnitudeMax;

@@ -197,7 +197,7 @@ void InterfaceThread::_updateSettings() {
     _settings.audioSampleRate = _audioThread.getSampleRate();
     _settings.samplesOverlap = _spectrogramThread.getSamplesOverlap();
     _settings.dftSize = _spectrogramThread.getDftSize();
-    _settings.dftWf = _spectrogramThread.getDftWindowFunction();
+    _settings.dftWindowFunction = _spectrogramThread.getDftWindowFunction();
     _settings.magnitudeMin = _spectrogramThread.getMagnitudeMin();
     _settings.magnitudeMax = _spectrogramThread.getMagnitudeMax();
     _settings.magnitudeLog = _spectrogramThread.getMagnitudeLog();
@@ -213,7 +213,7 @@ void InterfaceThread::_renderSettings() {
 
     textSurfaces.push_back(renderString(format("Sample Rate: %d Hz", _settings.audioSampleRate), _font, settingsColor));
     textSurfaces.push_back(renderString(format("Overlap: %d%%", overlap), _font, settingsColor));
-    textSurfaces.push_back(renderString("Window: " + to_string(_settings.dftWf), _font, settingsColor));
+    textSurfaces.push_back(renderString("Window: " + to_string(_settings.dftWindowFunction), _font, settingsColor));
     textSurfaces.push_back(renderString(format("DFT Size: %d", _settings.dftSize), _font, settingsColor));
     textSurfaces.push_back(renderString(format("Colors: %s", to_string(_settings.colorScheme).c_str()), _font, settingsColor));
     if (_settings.magnitudeLog) {
@@ -332,17 +332,17 @@ void InterfaceThread::_handleKeyDown(const uint8_t *state) {
         /* Change window function */
         RealDft::WindowFunction next_wf = RealDft::WindowFunction::Hann;
 
-        if (_settings.dftWf == RealDft::WindowFunction::Hann)
+        if (_settings.dftWindowFunction == RealDft::WindowFunction::Hann)
             next_wf = RealDft::WindowFunction::Hamming;
-        else if (_settings.dftWf == RealDft::WindowFunction::Hamming)
+        else if (_settings.dftWindowFunction == RealDft::WindowFunction::Hamming)
             next_wf = RealDft::WindowFunction::Bartlett;
-        else if (_settings.dftWf == RealDft::WindowFunction::Bartlett)
+        else if (_settings.dftWindowFunction == RealDft::WindowFunction::Bartlett)
             next_wf = RealDft::WindowFunction::Rectangular;
-        else if (_settings.dftWf == RealDft::WindowFunction::Rectangular)
+        else if (_settings.dftWindowFunction == RealDft::WindowFunction::Rectangular)
             next_wf = RealDft::WindowFunction::Hann;
 
         _spectrogramThread.setDftWindowFunction(next_wf);
-        _settings.dftWf = _spectrogramThread.getDftWindowFunction();
+        _settings.dftWindowFunction = _spectrogramThread.getDftWindowFunction();
     } else if (state[SDL_SCANCODE_L]) {
         /* Toggle between Logarithimic/Linear */
         bool next_magnitudeLog = !_settings.magnitudeLog;
