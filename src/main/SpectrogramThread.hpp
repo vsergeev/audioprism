@@ -41,8 +41,8 @@ class SpectrogramThread {
     void setMagnitudeLog(bool logarithmic);
 
     /* Get/Set Spectrogram Color Scheme */
-    Spectrogram::SpectrumRenderer::ColorScheme getColors();
-    void setColors(Spectrogram::SpectrumRenderer::ColorScheme colors);
+    Spectrogram::SpectrumRenderer::ColorScheme getColorScheme();
+    void setColorScheme(Spectrogram::SpectrumRenderer::ColorScheme colorScheme);
 
     /* Debug Statistics */
     size_t getDebugSamplesQueueCount();

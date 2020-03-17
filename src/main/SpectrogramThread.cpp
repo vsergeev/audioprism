@@ -146,14 +146,14 @@ void SpectrogramThread::setMagnitudeLog(bool logarithmic) {
     _spectrumRenderer.setMagnitudeLog(logarithmic);
 }
 
-Spectrogram::SpectrumRenderer::ColorScheme SpectrogramThread::getColors() {
+Spectrogram::SpectrumRenderer::ColorScheme SpectrogramThread::getColorScheme() {
     std::lock_guard<std::mutex> spectrumLg(_spectrumRendererLock);
     return _spectrumRenderer.getColorScheme();
 }
 
-void SpectrogramThread::setColors(Spectrogram::SpectrumRenderer::ColorScheme colors) {
+void SpectrogramThread::setColorScheme(Spectrogram::SpectrumRenderer::ColorScheme colorScheme) {
     std::lock_guard<std::mutex> spectrumLg(_spectrumRendererLock);
-    _spectrumRenderer.setColorScheme(colors);
+    _spectrumRenderer.setColorScheme(colorScheme);
 }
 
 size_t SpectrogramThread::getDebugSamplesQueueCount() {

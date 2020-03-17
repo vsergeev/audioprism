@@ -201,7 +201,7 @@ void InterfaceThread::_updateSettings() {
     _settings.magnitudeMin = _spectrogramThread.getMagnitudeMin();
     _settings.magnitudeMax = _spectrogramThread.getMagnitudeMax();
     _settings.magnitudeLog = _spectrogramThread.getMagnitudeLog();
-    _settings.colors = _spectrogramThread.getColors();
+    _settings.colors = _spectrogramThread.getColorScheme();
 }
 
 void InterfaceThread::_renderSettings() {
@@ -326,8 +326,8 @@ void InterfaceThread::_handleKeyDown(const uint8_t *state) {
         else if (_settings.colors == SpectrumRenderer::ColorScheme::Grayscale)
             next_colors = SpectrumRenderer::ColorScheme::Heat;
 
-        _spectrogramThread.setColors(next_colors);
-        _settings.colors = _spectrogramThread.getColors();
+        _spectrogramThread.setColorScheme(next_colors);
+        _settings.colors = _spectrogramThread.getColorScheme();
     } else if (state[SDL_SCANCODE_W]) {
         /* Change window function */
         RealDft::WindowFunction next_wf = RealDft::WindowFunction::Hann;
