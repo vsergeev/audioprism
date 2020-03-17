@@ -1,4 +1,3 @@
-#include <stdexcept>
 #include <cmath>
 #include <complex>
 
