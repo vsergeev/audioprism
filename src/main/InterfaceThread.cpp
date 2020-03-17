@@ -471,7 +471,7 @@ void InterfaceThread::run() {
 
     /* Poll current settings */
     _updateSettings();
-    /* Render settings text */
+    /* Render settings */
     _renderSettings();
     /* Render statistics */
     _renderStatistics();
