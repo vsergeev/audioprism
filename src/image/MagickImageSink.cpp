@@ -4,7 +4,7 @@
 
 namespace Image {
 
-MagickImageSink::MagickImageSink(std::string path, unsigned int width, Orientation orientation) : _path(path), _width(width), _orientation(orientation) {
+MagickImageSink::MagickImageSink(std::string path, unsigned int spectrumWidth, Orientation orientation) : _path(path), _spectrumWidth(spectrumWidth), _orientation(orientation) {
     Magick::InitializeMagick(nullptr);
 }
 
@@ -13,7 +13,7 @@ void MagickImageSink::append(const std::vector<uint32_t> &pixels) {
 }
 
 void MagickImageSink::write() {
-    Magick::Image image(_width, static_cast<unsigned int>(_imagePixels.size() / _width), "BGRA", Magick::CharPixel, _imagePixels.data());
+    Magick::Image image(_spectrumWidth, static_cast<unsigned int>(_imagePixels.size() / _spectrumWidth), "BGRA", Magick::CharPixel, _imagePixels.data());
     image.quality(100);
     image.opacity(0);
 
