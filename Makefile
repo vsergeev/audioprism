@@ -10,6 +10,7 @@ BUILD_DIR = build
 
 SRCS = $(shell find $(SRC_DIR)/ -type f -name "*.cpp")
 OBJS = $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(SRCS))
+DEPS = $(patsubst %.cpp,$(BUILD_DIR)/%.d,$(SRCS))
 
 ################################################################################
 
@@ -49,10 +50,12 @@ clean:
 
 ################################################################################
 
+-include $(DEPS)
+
 $(PROJECT): $(OBJS)
 	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
 
 $(BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(@D)
-	$(CXX) $(CPPFLAGS) -c $< -o $@
+	$(CXX) $(CPPFLAGS) -MMD -MP -c $< -o $@
 
