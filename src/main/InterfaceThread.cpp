@@ -135,6 +135,8 @@ InterfaceThread::~InterfaceThread() {
         SDL_DestroyTexture(_cursorTexture);
     if (_statisticsTexture)
         SDL_DestroyTexture(_statisticsTexture);
+    if (_helpTexture)
+        SDL_DestroyTexture(_helpTexture);
 
     SDL_DestroyRenderer(_renderer);
     SDL_DestroyWindow(_win);
@@ -327,6 +329,71 @@ void InterfaceThread::_renderStatistics() {
     SDL_FreeSurface(statisticsSurface);
 }
 
+void InterfaceThread::_renderHelp() {
+    std::vector<SDL_Surface *> textSurfaces;
+    SDL_Surface *textSurface;
+    SDL_Surface *helpSurface;
+    SDL_Color helpColor = {0xff, 0xff, 0x00, 0x00};
+
+    textSurfaces.push_back(renderString("q      Quit", _font, helpColor));
+    textSurfaces.push_back(renderString(" ", _font, helpColor));
+    textSurfaces.push_back(renderString("f      Toggle fullscreen", _font, helpColor));
+    textSurfaces.push_back(renderString(" ", _font, helpColor));
+    textSurfaces.push_back(renderString("h      Hide/show help", _font, helpColor));
+    textSurfaces.push_back(renderString("s      Hide/show settings", _font, helpColor));
+    textSurfaces.push_back(renderString("d      Hide/show debug stats", _font, helpColor));
+    textSurfaces.push_back(renderString(" ", _font, helpColor));
+    textSurfaces.push_back(renderString("c      Cycle color scheme", _font, helpColor));
+    textSurfaces.push_back(renderString("w      Cycle window function", _font, helpColor));
+    textSurfaces.push_back(renderString("l      Cycle linear/log magnitude", _font, helpColor));
+    textSurfaces.push_back(renderString(" ", _font, helpColor));
+    textSurfaces.push_back(renderString("-      Decrease min magnitude", _font, helpColor));
+    textSurfaces.push_back(renderString("=      Increase min magnitude", _font, helpColor));
+    textSurfaces.push_back(renderString(" ", _font, helpColor));
+    textSurfaces.push_back(renderString("[      Decrease max magnitude", _font, helpColor));
+    textSurfaces.push_back(renderString("]      Increase max magnitude", _font, helpColor));
+    textSurfaces.push_back(renderString(" ", _font, helpColor));
+    textSurfaces.push_back(renderString("Left   Decrease DFT size", _font, helpColor));
+    textSurfaces.push_back(renderString("Right  Increase DFT size", _font, helpColor));
+    textSurfaces.push_back(renderString(" ", _font, helpColor));
+    textSurfaces.push_back(renderString("Down   Decrease overlap", _font, helpColor));
+    textSurfaces.push_back(renderString("Up     Increase overlap", _font, helpColor));
+    textSurface = vcatSurfaces(textSurfaces, Alignment::Left);
+
+    /* Create background surface */
+    helpSurface = SDL_CreateRGBSurface(0, textSurface->w + 10, textSurface->h + 10, 32, SDL_R_MASK, SDL_G_MASK, SDL_B_MASK, SDL_A_MASK);
+    if (helpSurface == nullptr)
+        throw SDLException("Error creating help background surface: SDL_CreateRGBSurface(): " + std::string(SDL_GetError()));
+
+    if (SDL_FillRect(helpSurface, nullptr, SDL_MapRGBA(helpSurface->format, 0xff, 0xff, 0xff, 0x20)) < 0)
+        throw SDLException("Error filling help background surface: SDL_FillRect(): " + std::string(SDL_GetError()));
+
+    /* Blit text surface onto background surface */
+    SDL_Rect targetRect = {(helpSurface->w - textSurface->w) / 2, (helpSurface->h - textSurface->h) / 2, textSurface->w, textSurface->h};
+
+    if (SDL_BlitSurface(textSurface, nullptr, helpSurface, &targetRect) < 0)
+        throw SDLException("Error blitting text surfaces: SDL_BlitSurface(): " + std::string(SDL_GetError()));
+
+    SDL_FreeSurface(textSurface);
+
+    /* Update help rectangle destination for screen rendering */
+    _helpRect.x = (static_cast<int>(_width) - helpSurface->w) / 2;
+    _helpRect.y = (static_cast<int>(_height) - helpSurface->h) / 2;
+    _helpRect.w = helpSurface->w;
+    _helpRect.h = helpSurface->h;
+
+    /* Destroy old settings texture */
+    if (_helpTexture)
+        SDL_DestroyTexture(_helpTexture);
+
+    /* Create new texture from the target surface */
+    _helpTexture = SDL_CreateTextureFromSurface(_renderer, helpSurface);
+    if (_helpTexture == nullptr)
+        throw SDLException("Error creating texture for help text: SDL_CreateTextureFromSurface(): " + std::string(SDL_GetError()));
+
+    SDL_FreeSurface(helpSurface);
+}
+
 void InterfaceThread::_handleKeyDown(const uint8_t *state) {
     if (state[SDL_SCANCODE_Q]) {
         _running = false;
@@ -469,6 +536,12 @@ void InterfaceThread::_handleKeyDown(const uint8_t *state) {
         if (!_hideStatistics)
             _renderStatistics();
         return;
+    } else if (state[SDL_SCANCODE_H]) {
+        /* Hide help */
+        _hideHelp = !_hideHelp;
+        if (!_hideHelp)
+            _renderHelp();
+        return;
     } else if (state[SDL_SCANCODE_F]) {
         _fullscreen = !_fullscreen;
         if (_fullscreen) {
@@ -545,6 +618,10 @@ void InterfaceThread::run() {
                 /* Re-render statistics */
                 if (!_hideStatistics)
                     _renderStatistics();
+
+                /* Re-render help */
+                if (!_hideHelp)
+                    _renderHelp();
             }
         }
 
@@ -610,6 +687,11 @@ void InterfaceThread::run() {
         /* Render statistics */
         if (!_hideStatistics) {
             SDL_RenderCopy(_renderer, _statisticsTexture, nullptr, &_statisticsRect);
+        }
+
+        /* Render help */
+        if (!_hideHelp) {
+            SDL_RenderCopy(_renderer, _helpTexture, nullptr, &_helpRect);
         }
 
         SDL_RenderPresent(_renderer);

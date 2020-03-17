@@ -36,9 +36,11 @@ class InterfaceThread {
     SDL_Texture *_settingsTexture = nullptr;
     SDL_Texture *_cursorTexture = nullptr;
     SDL_Texture *_statisticsTexture = nullptr;
+    SDL_Texture *_helpTexture = nullptr;
     SDL_Rect _settingsRect;
     SDL_Rect _cursorRect;
     SDL_Rect _statisticsRect;
+    SDL_Rect _helpRect;
     TTF_Font *_font = nullptr;
 
     /* Interface settings */
@@ -47,6 +49,7 @@ class InterfaceThread {
     const Configuration::Orientation _orientation;
     bool _hideSettings = false;
     bool _hideStatistics = true;
+    bool _hideHelp = true;
 
     /* Helper functions for SDL */
     void _handleKeyDown(const uint8_t *state);
@@ -54,6 +57,7 @@ class InterfaceThread {
     void _renderSettings();
     void _renderCursor(int x, int y);
     void _renderStatistics();
+    void _renderHelp();
 
     /* Cached settings from audio source, dft, and spectrogram classes */
     struct {
