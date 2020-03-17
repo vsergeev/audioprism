@@ -238,7 +238,7 @@ void InterfaceThread::_renderSettings() {
     /* Create new texture from the target surface */
     _settingsTexture = SDL_CreateTextureFromSurface(_renderer, settingsSurface);
     if (_settingsTexture == nullptr)
-        throw SDLException("Error creating texture for text: SDL_CreateTextureFromSurface(): " + std::string(SDL_GetError()));
+        throw SDLException("Error creating texture for settings text: SDL_CreateTextureFromSurface(): " + std::string(SDL_GetError()));
 
     SDL_FreeSurface(settingsSurface);
 }
