@@ -1,6 +1,3 @@
-#include <string>
-#include <iostream>
-
 #include <Magick++.h>
 
 #include "MagickImageSink.hpp"
