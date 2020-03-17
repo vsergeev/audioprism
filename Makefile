@@ -5,20 +5,10 @@ BINDIR = $(PREFIX)/bin
 
 ################################################################################
 
-SRCS = audio/PulseAudioSource.cpp
-SRCS += audio/WaveAudioSource.cpp
-SRCS += dft/RealDft.cpp
-SRCS += image/MagickImageSink.cpp
-SRCS += spectrogram/SpectrumRenderer.cpp
-SRCS += main/AudioThread.cpp
-SRCS += main/SpectrogramThread.cpp
-SRCS += main/InterfaceThread.cpp
-SRCS += main/main.cpp
-
 SRC_DIR = src
 BUILD_DIR = build
 
-SRCS := $(patsubst %.cpp,$(SRC_DIR)/%.cpp,$(SRCS))
+SRCS = $(shell find $(SRC_DIR)/ -type f -name "*.cpp")
 OBJS = $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(SRCS))
 
 ################################################################################
