@@ -183,6 +183,7 @@ static SDL_Surface *vcatSurfaces(std::vector<SDL_Surface *> surfaces, Alignment 
 
         if (SDL_BlitSurface(surface, nullptr, targetSurface, &targetRect) < 0)
             throw SDLException("Error blitting text surfaces: SDL_BlitSurface(): " + std::string(SDL_GetError()));
+
         SDL_FreeSurface(surface);
     }
 
@@ -358,27 +359,30 @@ void InterfaceThread::_handleKeyDown(const uint8_t *state) {
         /* DFT N up */
         unsigned int next_dftSize = std::min<unsigned int>(_settings.dftSize * 2, UserLimits.dftSizeMax);
 
-        if (next_dftSize != _settings.dftSize) {
-            _spectrogramThread.setDftSize(next_dftSize);
-            /* Reset samples overlap to 50% */
-            _spectrogramThread.setSamplesOverlap(0.50);
+        if (next_dftSize == _settings.dftSize)
+            return;
 
-            _settings.dftSize = _spectrogramThread.getDftSize();
-            _settings.samplesOverlap = _spectrogramThread.getSamplesOverlap();
-        }
+        _spectrogramThread.setDftSize(next_dftSize);
+
+        /* Reset samples overlap to 50% */
+        _spectrogramThread.setSamplesOverlap(0.50);
+
+        _settings.dftSize = _spectrogramThread.getDftSize();
+        _settings.samplesOverlap = _spectrogramThread.getSamplesOverlap();
     } else if (state[SDL_SCANCODE_LEFT]) {
         /* DFT N down */
         unsigned int next_dftSize = std::max<unsigned int>(_settings.dftSize / 2, UserLimits.dftSizeMin);
 
-        /* Set Samples Overlap for 50% overlap */
-        if (next_dftSize != _settings.dftSize) {
-            _spectrogramThread.setDftSize(next_dftSize);
-            /* Reset samples overlap to 50% */
-            _spectrogramThread.setSamplesOverlap(0.50);
+        if (next_dftSize == _settings.dftSize)
+            return;
 
-            _settings.dftSize = _spectrogramThread.getDftSize();
-            _settings.samplesOverlap = _spectrogramThread.getSamplesOverlap();
-        }
+        _spectrogramThread.setDftSize(next_dftSize);
+
+        /* Reset samples overlap to 50% */
+        _spectrogramThread.setSamplesOverlap(0.50);
+
+        _settings.dftSize = _spectrogramThread.getDftSize();
+        _settings.samplesOverlap = _spectrogramThread.getSamplesOverlap();
     } else if (state[SDL_SCANCODE_DOWN]) {
         /* Samples Overlap Up */
         float next_samplesOverlap = std::max<float>(_settings.samplesOverlap - UserLimits.samplesOverlapStep, UserLimits.samplesOverlapMin);
