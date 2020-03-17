@@ -27,7 +27,7 @@ struct Settings {
     float magnitudeMin = 0.0;
     float magnitudeMax = 45.0;
     bool magnitudeLog = true;
-    SpectrumRenderer::ColorScheme colors = SpectrumRenderer::ColorScheme::Heat;
+    SpectrumRenderer::ColorScheme colorScheme = SpectrumRenderer::ColorScheme::Heat;
     /* Initial settings when switching between logarithmic/linear in UI */
     float magnitudeLogMin = 0.0;
     float magnitudeLogMax = 50.0;

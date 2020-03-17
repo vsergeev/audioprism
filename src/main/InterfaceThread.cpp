@@ -201,7 +201,7 @@ void InterfaceThread::_updateSettings() {
     _settings.magnitudeMin = _spectrogramThread.getMagnitudeMin();
     _settings.magnitudeMax = _spectrogramThread.getMagnitudeMax();
     _settings.magnitudeLog = _spectrogramThread.getMagnitudeLog();
-    _settings.colors = _spectrogramThread.getColorScheme();
+    _settings.colorScheme = _spectrogramThread.getColorScheme();
 }
 
 void InterfaceThread::_renderSettings() {
@@ -215,7 +215,7 @@ void InterfaceThread::_renderSettings() {
     textSurfaces.push_back(renderString(format("Overlap: %d%%", overlap), _font, settingsColor));
     textSurfaces.push_back(renderString("Window: " + to_string(_settings.dftWf), _font, settingsColor));
     textSurfaces.push_back(renderString(format("DFT Size: %d", _settings.dftSize), _font, settingsColor));
-    textSurfaces.push_back(renderString(format("Colors: %s", to_string(_settings.colors).c_str()), _font, settingsColor));
+    textSurfaces.push_back(renderString(format("Colors: %s", to_string(_settings.colorScheme).c_str()), _font, settingsColor));
     if (_settings.magnitudeLog) {
         textSurfaces.push_back(renderString(format("Mag. min: %.2f dB", _settings.magnitudeMin), _font, settingsColor));
         textSurfaces.push_back(renderString(format("Mag. max: %.2f dB", _settings.magnitudeMax), _font, settingsColor));
@@ -317,17 +317,17 @@ void InterfaceThread::_handleKeyDown(const uint8_t *state) {
         _running = false;
     } else if (state[SDL_SCANCODE_C]) {
         /* Change color scheme */
-        SpectrumRenderer::ColorScheme next_colors = SpectrumRenderer::ColorScheme::Heat;
+        SpectrumRenderer::ColorScheme next_colorScheme = SpectrumRenderer::ColorScheme::Heat;
 
-        if (_settings.colors == SpectrumRenderer::ColorScheme::Heat)
-            next_colors = SpectrumRenderer::ColorScheme::Blue;
-        else if (_settings.colors == SpectrumRenderer::ColorScheme::Blue)
-            next_colors = SpectrumRenderer::ColorScheme::Grayscale;
-        else if (_settings.colors == SpectrumRenderer::ColorScheme::Grayscale)
-            next_colors = SpectrumRenderer::ColorScheme::Heat;
+        if (_settings.colorScheme == SpectrumRenderer::ColorScheme::Heat)
+            next_colorScheme = SpectrumRenderer::ColorScheme::Blue;
+        else if (_settings.colorScheme == SpectrumRenderer::ColorScheme::Blue)
+            next_colorScheme = SpectrumRenderer::ColorScheme::Grayscale;
+        else if (_settings.colorScheme == SpectrumRenderer::ColorScheme::Grayscale)
+            next_colorScheme = SpectrumRenderer::ColorScheme::Heat;
 
-        _spectrogramThread.setColorScheme(next_colors);
-        _settings.colors = _spectrogramThread.getColorScheme();
+        _spectrogramThread.setColorScheme(next_colorScheme);
+        _settings.colorScheme = _spectrogramThread.getColorScheme();
     } else if (state[SDL_SCANCODE_W]) {
         /* Change window function */
         RealDft::WindowFunction next_wf = RealDft::WindowFunction::Hann;

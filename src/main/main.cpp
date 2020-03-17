@@ -48,7 +48,7 @@ void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
 
     WaveAudioSource audioSource(audioPath);
     RealDft realDft(InitialSettings.dftSize, InitialSettings.dftWf);
-    SpectrumRenderer spectrumRenderer(InitialSettings.magnitudeMin, InitialSettings.magnitudeMax, InitialSettings.magnitudeLog, InitialSettings.colors);
+    SpectrumRenderer spectrumRenderer(InitialSettings.magnitudeMin, InitialSettings.magnitudeMax, InitialSettings.magnitudeLog, InitialSettings.colorScheme);
     MagickImageSink image(imagePath, spectrumWidth, (InitialSettings.orientation == Orientation::Vertical) ? MagickImageSink::Orientation::Vertical : MagickImageSink::Orientation::Horizontal);
 
     unsigned int samplesOverlap = static_cast<unsigned int>(InitialSettings.samplesOverlap * static_cast<float>(InitialSettings.dftSize));
@@ -290,11 +290,11 @@ int main(int argc, char *argv[]) {
                 }
             } else if (option_name == "colors") {
                 if (option_arg == "heat")
-                    InitialSettings.colors = SpectrumRenderer::ColorScheme::Heat;
+                    InitialSettings.colorScheme = SpectrumRenderer::ColorScheme::Heat;
                 else if (option_arg == "blue")
-                    InitialSettings.colors = SpectrumRenderer::ColorScheme::Blue;
+                    InitialSettings.colorScheme = SpectrumRenderer::ColorScheme::Blue;
                 else if (option_arg == "grayscale")
-                    InitialSettings.colors = SpectrumRenderer::ColorScheme::Grayscale;
+                    InitialSettings.colorScheme = SpectrumRenderer::ColorScheme::Grayscale;
                 else {
                     std::cerr << "Invalid color scheme.\n\n";
                     print_usage(argv[0]);

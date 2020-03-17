@@ -59,7 +59,7 @@ class InterfaceThread {
         float magnitudeMin;
         float magnitudeMax;
         bool magnitudeLog;
-        Spectrogram::SpectrumRenderer::ColorScheme colors;
+        Spectrogram::SpectrumRenderer::ColorScheme colorScheme;
     } _settings;
 };
 
