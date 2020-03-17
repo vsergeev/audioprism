@@ -37,7 +37,7 @@ class RealDft {
     /* Window */
     std::vector<float> _window;
     /* Windowed Samples */
-    float *_wsamples;
+    float *_windowedSamples;
     /* Complex DFT */
     fftwf_complex *_dft;
     /* FFTW Plan */
