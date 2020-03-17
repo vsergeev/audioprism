@@ -1,4 +1,3 @@
-#include <thread>
 #include <iostream>
 #include <getopt.h>
 
