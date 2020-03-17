@@ -457,7 +457,7 @@ void InterfaceThread::_handleKeyDown(const uint8_t *state) {
 
         _spectrogramThread.setMagnitudeMax(next_magnitudeMax);
         _settings.magnitudeMax = _spectrogramThread.getMagnitudeMax();
-    } else if (state[SDL_SCANCODE_H]) {
+    } else if (state[SDL_SCANCODE_S]) {
         /* Hide info */
         _hideSettings = !_hideSettings;
         if (!_hideSettings)
