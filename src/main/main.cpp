@@ -333,11 +333,11 @@ int main(int argc, char *argv[]) {
     /* Audio file mode */
     if ((argc - optind) == 2) {
         if (sampleRateConfigured)
-            std::cerr << "warning: sample rate option ignored. sample rate is determined by audio file." << std::endl;
+            std::cerr << "Warning: sample rate option ignored. sample rate is determined by audio file." << std::endl;
         if (InitialSettings.orientation == Orientation::Vertical && heightConfigured)
-            std::cerr << "warning: height option ignored. height in vertical orientation is determined by audio length and samples overlap percentage." << std::endl;
+            std::cerr << "Warning: height option ignored. height in vertical orientation is determined by audio length and samples overlap percentage." << std::endl;
         if (InitialSettings.orientation == Orientation::Horizontal && widthConfigured)
-            std::cerr << "warning: width option ignored. width in horizontal orientation is determined by audio length and samples overlap percentage." << std::endl;
+            std::cerr << "Warning: width option ignored. width in horizontal orientation is determined by audio length and samples overlap percentage." << std::endl;
 
         spectrogram_audiofile(std::string(argv[optind]), std::string(argv[optind + 1]));
 
