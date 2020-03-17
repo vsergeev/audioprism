@@ -39,7 +39,7 @@ static void calculateWindow(std::vector<float> &window, RealDft::WindowFunction 
     }
 }
 
-RealDft::RealDft(unsigned int N, RealDft::WindowFunction wf) : _N(N), _windowFunction(wf), _windowedSamples(nullptr), _dft(nullptr), _plan(nullptr) {
+RealDft::RealDft(unsigned int N, RealDft::WindowFunction wf) : _N(N), _windowFunction(wf) {
     setSize(_N);
 }
 

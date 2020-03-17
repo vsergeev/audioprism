@@ -37,11 +37,11 @@ class RealDft {
     /* Window */
     std::vector<float> _window;
     /* Windowed Samples */
-    float *_windowedSamples;
+    float *_windowedSamples = nullptr;
     /* Complex DFT */
-    fftwf_complex *_dft;
+    fftwf_complex *_dft = nullptr;
     /* FFTW Plan */
-    fftwf_plan _plan;
+    fftwf_plan _plan = nullptr;
 };
 
 class AllocationException : public std::runtime_error {
