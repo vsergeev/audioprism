@@ -1,10 +1,3 @@
-#include <vector>
-#include <complex>
-#include <cstdint>
-#include <cstring>
-#include <algorithm>
-#include <functional>
-
 #include "SpectrumRenderer.hpp"
 
 namespace Spectrogram {

@@ -3,7 +3,6 @@
 #include <vector>
 #include <complex>
 #include <cstdint>
-#include <functional>
 
 namespace Spectrogram {
 
