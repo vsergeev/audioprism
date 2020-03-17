@@ -5,6 +5,7 @@
 AudioThread::AudioThread(ThreadSafeQueue<std::vector<float>> &samplesQueue, const Configuration::Settings &initialSettings) : _samplesQueue(samplesQueue), _audioSource(initialSettings.audioSampleRate) {}
 
 void AudioThread::start() {
+    _running = true;
     _thread = std::thread(&AudioThread::_run, this);
 }
 
@@ -15,8 +16,6 @@ void AudioThread::stop() {
 
 void AudioThread::_run() {
     std::vector<float> samples(AUDIO_READ_SIZE);
-
-    _running = true;
 
     while (_running) {
         {

@@ -24,9 +24,9 @@ class AudioThread {
     /* Output samples queue */
     ThreadSafeQueue<std::vector<float>> &_samplesQueue;
 
-    std::atomic<bool> _running;
     Audio::PulseAudioSource _audioSource;
     std::mutex _audioSourceLock;
 
+    std::atomic<bool> _running;
     std::thread _thread;
 };
