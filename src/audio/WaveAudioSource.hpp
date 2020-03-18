@@ -12,7 +12,7 @@ class WaveAudioSource : public AudioSource {
   public:
     WaveAudioSource(std::string path);
     ~WaveAudioSource();
-    virtual void read(std::vector<double> &samples);
+    virtual void read(std::vector<float> &samples);
     virtual unsigned int getSampleRate();
 
   private:

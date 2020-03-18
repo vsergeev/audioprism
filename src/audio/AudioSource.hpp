@@ -8,7 +8,7 @@ namespace Audio {
 class AudioSource {
   public:
     virtual ~AudioSource() {}
-    virtual void read(std::vector<double> &samples) = 0;
+    virtual void read(std::vector<float> &samples) = 0;
     virtual unsigned int getSampleRate() = 0;
 };
 

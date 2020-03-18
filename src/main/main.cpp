@@ -29,7 +29,7 @@ Limits UserLimits;
 using namespace Configuration;
 
 void spectrogram_realtime() {
-    ThreadSafeQueue<std::vector<double>> samplesQueue;
+    ThreadSafeQueue<std::vector<float>> samplesQueue;
     ThreadSafeQueue<std::vector<uint32_t>> pixelsQueue;
 
     AudioThread audioThread(samplesQueue, InitialSettings);
@@ -55,14 +55,14 @@ void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
     unsigned int samplesOverlap = static_cast<unsigned int>(InitialSettings.samplesOverlap * static_cast<float>(InitialSettings.dftSize));
 
     /* Overlapped Samples */
-    std::vector<double> overlapSamples(InitialSettings.dftSize);
+    std::vector<float> overlapSamples(InitialSettings.dftSize);
     /* DFT of Overlapped Samples */
-    std::vector<std::complex<double>> dftSamples(InitialSettings.dftSize / 2 + 1);
+    std::vector<std::complex<float>> dftSamples(InitialSettings.dftSize / 2 + 1);
     /* Pixel line */
     std::vector<uint32_t> pixels(pixelsWidth);
 
     while (true) {
-        std::vector<double> audioSamples(overlapSamples.size() - samplesOverlap);
+        std::vector<float> audioSamples(overlapSamples.size() - samplesOverlap);
 
         /* Read audio samples */
         audioSource.read(audioSamples);
@@ -74,9 +74,9 @@ void spectrogram_audiofile(std::string audioPath, std::string imagePath) {
             audioSamples.resize(overlapSamples.size() - samplesOverlap);
 
         /* Move down overlapSamples.size()-samplesOverlap length old samples */
-        memmove(overlapSamples.data(), overlapSamples.data() + samplesOverlap, sizeof(double) * (overlapSamples.size() - samplesOverlap));
+        memmove(overlapSamples.data(), overlapSamples.data() + samplesOverlap, sizeof(float) * (overlapSamples.size() - samplesOverlap));
         /* Copy overlapSamples.size()-samplesOverlap length new samples */
-        memcpy(overlapSamples.data() + samplesOverlap, audioSamples.data(), sizeof(double) * (overlapSamples.size() - samplesOverlap));
+        memcpy(overlapSamples.data() + samplesOverlap, audioSamples.data(), sizeof(float) * (overlapSamples.size() - samplesOverlap));
 
         /* Compute DFT */
         realDft.compute(dftSamples, overlapSamples);
@@ -273,7 +273,7 @@ int main(int argc, char *argv[]) {
                 }
             } else if (option_name == "magnitude-min") {
                 try {
-                    InitialSettings.magnitudeMin = std::stod(option_arg);
+                    InitialSettings.magnitudeMin = std::stof(option_arg);
                 } catch (const std::invalid_argument &e) {
                     std::cerr << "Invalid magnitude minimum.\n\n";
                     print_usage(argv[0]);
@@ -281,7 +281,7 @@ int main(int argc, char *argv[]) {
                 }
             } else if (option_name == "magntiude-max") {
                 try {
-                    InitialSettings.magnitudeMax = std::stod(option_arg);
+                    InitialSettings.magnitudeMax = std::stof(option_arg);
                 } catch (const std::invalid_argument &e) {
                     std::cerr << "Invalid magnitude maximum.\n\n";
                     print_usage(argv[0]);

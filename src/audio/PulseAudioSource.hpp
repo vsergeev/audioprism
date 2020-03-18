@@ -10,7 +10,7 @@ class PulseAudioSource : public AudioSource {
   public:
     PulseAudioSource(unsigned int sampleRate);
     ~PulseAudioSource();
-    virtual void read(std::vector<double> &samples);
+    virtual void read(std::vector<float> &samples);
     virtual unsigned int getSampleRate();
 
   private:

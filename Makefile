@@ -26,9 +26,9 @@ OBJS = $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(SRCS))
 REMOVE = rm -rf
 
 CPPFLAGS += -std=c++11 -W -Wall -Wextra -Wconversion -pedantic -O3 -g -Isrc/
-CPPFLAGS += $(shell pkg-config --cflags libpulse libpulse-simple fftw3 sndfile sdl2 SDL2_ttf GraphicsMagick++)
+CPPFLAGS += $(shell pkg-config --cflags libpulse libpulse-simple fftw3f sndfile sdl2 SDL2_ttf GraphicsMagick++)
 
-LDFLAGS += $(shell pkg-config --libs libpulse libpulse-simple fftw3 sndfile sdl2 SDL2_ttf GraphicsMagick++)
+LDFLAGS += $(shell pkg-config --libs libpulse libpulse-simple fftw3f sndfile sdl2 SDL2_ttf GraphicsMagick++)
 LDFLAGS +=  -lpthread
 
 ################################################################################

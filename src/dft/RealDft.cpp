@@ -24,20 +24,20 @@ std::ostream &operator<<(std::ostream &os, const RealDft::WindowFunction &wf) {
     return os;
 }
 
-static void calculateWindow(std::vector<double> &window, RealDft::WindowFunction windowFunction) {
+static void calculateWindow(std::vector<float> &window, RealDft::WindowFunction windowFunction) {
     size_t N = window.size();
     if (windowFunction == RealDft::WindowFunction::Hann) {
         for (unsigned int n = 0; n < N; n++)
-            window[n] = 0.5 * (1 - std::cos((2.0 * M_PI * static_cast<double>(n)) / static_cast<double>(N - 1)));
+            window[n] = 0.5f * (1.0f - std::cos((2.0f * static_cast<float>(M_PI) * static_cast<float>(n)) / static_cast<float>(N - 1)));
     } else if (windowFunction == RealDft::WindowFunction::Hamming) {
         for (unsigned int n = 0; n < N; n++)
-            window[n] = 0.54 - 0.46 * std::cos((2.0 * M_PI * static_cast<double>(n)) / static_cast<double>(N - 1));
+            window[n] = 0.54f - 0.46f * std::cos((2.0f * static_cast<float>(M_PI) * static_cast<float>(n)) / static_cast<float>(N - 1));
     } else if (windowFunction == RealDft::WindowFunction::Bartlett) {
         for (unsigned int n = 0; n < N; n++)
-            window[n] = 1.0 - std::abs((static_cast<double>(n) - static_cast<double>(N - 1) / 2.0) / (static_cast<double>(N - 1) / 2.0));
+            window[n] = 1.0f - std::abs((static_cast<float>(n) - static_cast<float>(N - 1) / 2.0f) / (static_cast<float>(N - 1) / 2.0f));
     } else if (windowFunction == RealDft::WindowFunction::Rectangular) {
         for (unsigned int n = 0; n < N; n++)
-            window[n] = 1.0;
+            window[n] = 1.0f;
     }
 }
 
@@ -47,21 +47,21 @@ RealDft::RealDft(unsigned int N, RealDft::WindowFunction wf) : _N(N), _windowFun
 
 RealDft::~RealDft() {
     if (_plan) {
-        fftw_destroy_plan(_plan);
+        fftwf_destroy_plan(_plan);
         _plan = nullptr;
     }
     if (_dft) {
-        fftw_free(_dft);
+        fftwf_free(_dft);
         _dft = nullptr;
     }
     if (_wsamples) {
-        fftw_free(_wsamples);
+        fftwf_free(_wsamples);
         _wsamples = nullptr;
     }
-    fftw_cleanup();
+    fftwf_cleanup();
 }
 
-void RealDft::compute(std::vector<std::complex<double>> &dft, const std::vector<double> &samples) {
+void RealDft::compute(std::vector<std::complex<float>> &dft, const std::vector<float> &samples) {
     /* Assert sample buffer size */
     if (samples.size() != _N)
         throw SizeMismatchException("Samples size does not match DFT size!");
@@ -74,11 +74,11 @@ void RealDft::compute(std::vector<std::complex<double>> &dft, const std::vector<
         _wsamples[n] = samples[n] * _window[n];
 
     /* Execute DFT */
-    fftw_execute(_plan);
+    fftwf_execute(_plan);
 
     /* Compute DFT magnitude */
     for (unsigned int n = 0; n < _N / 2 + 1; n++)
-        dft[n] = std::complex<double>(_dft[n][0], _dft[n][1]);
+        dft[n] = std::complex<float>(_dft[n][0], _dft[n][1]);
 }
 
 unsigned int RealDft::getSize() {
@@ -88,15 +88,15 @@ unsigned int RealDft::getSize() {
 void RealDft::setSize(unsigned int N) {
     /* Deallocate FFTW resources we are changing */
     if (_plan) {
-        fftw_destroy_plan(_plan);
+        fftwf_destroy_plan(_plan);
         _plan = nullptr;
     }
     if (_dft) {
-        fftw_free(_dft);
+        fftwf_free(_dft);
         _dft = nullptr;
     }
     if (_wsamples) {
-        fftw_free(_wsamples);
+        fftwf_free(_wsamples);
         _wsamples = nullptr;
     }
 
@@ -106,17 +106,17 @@ void RealDft::setSize(unsigned int N) {
     calculateWindow(_window, _windowFunction);
 
     /* Allocate windowed samples buffer */
-    _wsamples = fftw_alloc_real(N);
+    _wsamples = fftwf_alloc_real(N);
     if (_wsamples == nullptr)
         throw AllocationException("Allocating sample memory.");
 
     /* Allocate DFT buffer */
-    _dft = fftw_alloc_complex(N / 2 + 1);
+    _dft = fftwf_alloc_complex(N / 2 + 1);
     if (_dft == nullptr)
         throw AllocationException("Allocating DFT memory.");
 
     /* Rebuild our plan */
-    _plan = fftw_plan_dft_r2c_1d(static_cast<int>(N), _wsamples, _dft, FFTW_MEASURE);
+    _plan = fftwf_plan_dft_r2c_1d(static_cast<int>(N), _wsamples, _dft, FFTW_MEASURE);
 
     /* Update N */
     _N = N;

@@ -20,10 +20,10 @@ WaveAudioSource::~WaveAudioSource() {
         sf_close(_sndfile);
 }
 
-void WaveAudioSource::read(std::vector<double> &samples) {
+void WaveAudioSource::read(std::vector<float> &samples) {
     sf_count_t ret;
 
-    ret = sf_read_double(_sndfile, samples.data(), static_cast<sf_count_t>(samples.size()));
+    ret = sf_read_float(_sndfile, samples.data(), static_cast<sf_count_t>(samples.size()));
 
     /* Resize samples buffer if we read less than requested */
     if (ret < static_cast<sf_count_t>(samples.size()))

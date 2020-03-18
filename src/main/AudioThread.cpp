@@ -2,7 +2,7 @@
 
 #define AUDIO_READ_SIZE 128
 
-AudioThread::AudioThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, const Configuration::Settings &initialSettings) : _samplesQueue(samplesQueue), _audioSource(initialSettings.audioSampleRate) {}
+AudioThread::AudioThread(ThreadSafeQueue<std::vector<float>> &samplesQueue, const Configuration::Settings &initialSettings) : _samplesQueue(samplesQueue), _audioSource(initialSettings.audioSampleRate) {}
 
 void AudioThread::start() {
     _thread = std::thread(&AudioThread::_run, this);
@@ -14,7 +14,7 @@ void AudioThread::stop() {
 }
 
 void AudioThread::_run() {
-    std::vector<double> samples(AUDIO_READ_SIZE);
+    std::vector<float> samples(AUDIO_READ_SIZE);
 
     _running = true;
 

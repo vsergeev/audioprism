@@ -13,14 +13,14 @@ class SpectrumRenderer {
                              Blue,
                              Grayscale };
 
-    SpectrumRenderer(double magnitudeMin, double magnitudeMax, bool magnitudeLog, ColorScheme colors);
+    SpectrumRenderer(float magnitudeMin, float magnitudeMax, bool magnitudeLog, ColorScheme colors);
 
     /* Render a new pixel row from a DFT vector */
-    void render(std::vector<uint32_t> &pixels, const std::vector<std::complex<double>> &dft);
+    void render(std::vector<uint32_t> &pixels, const std::vector<std::complex<float>> &dft);
 
     struct {
-        double magnitudeMin;
-        double magnitudeMax;
+        float magnitudeMin;
+        float magnitudeMax;
         bool magnitudeLog;
         ColorScheme colors;
     } settings;

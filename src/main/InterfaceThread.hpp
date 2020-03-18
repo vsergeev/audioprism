@@ -56,8 +56,8 @@ class InterfaceThread {
         float samplesOverlap;
         DFT::RealDft::WindowFunction dftWf;
         unsigned int dftSize;
-        double magnitudeMin;
-        double magnitudeMax;
+        float magnitudeMin;
+        float magnitudeMax;
         bool magnitudeLog;
         Spectrogram::SpectrumRenderer::ColorScheme colors;
     } _settings;

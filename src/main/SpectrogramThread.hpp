@@ -11,7 +11,7 @@
 
 class SpectrogramThread {
   public:
-    SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, const Configuration::Settings &initialSettings);
+    SpectrogramThread(ThreadSafeQueue<std::vector<float>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, const Configuration::Settings &initialSettings);
 
     void start();
     void stop();
@@ -29,12 +29,12 @@ class SpectrogramThread {
     void setDftWindowFunction(DFT::RealDft::WindowFunction wf);
 
     /* Get/Set Spectrogram Magnitude Minimum */
-    double getMagnitudeMin();
-    void setMagnitudeMin(double min);
+    float getMagnitudeMin();
+    void setMagnitudeMin(float min);
 
     /* Get/Set Spectrogram Magnitude Maximum */
-    double getMagnitudeMax();
-    void setMagnitudeMax(double max);
+    float getMagnitudeMax();
+    void setMagnitudeMax(float max);
 
     /* Get/Set Spectrogram Magnitude Logarithmic/Linear */
     bool getMagnitudeLog();
@@ -51,7 +51,7 @@ class SpectrogramThread {
     void _run();
 
     /* Input samples queue */
-    ThreadSafeQueue<std::vector<double>> &_samplesQueue;
+    ThreadSafeQueue<std::vector<float>> &_samplesQueue;
     /* Output pixels queue */
     ThreadSafeQueue<std::vector<uint32_t>> &_pixelsQueue;
 

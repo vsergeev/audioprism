@@ -18,7 +18,7 @@ class RealDft {
     ~RealDft();
 
     /* Compute new DFT magnitude based on samples */
-    void compute(std::vector<std::complex<double>> &dft, const std::vector<double> &samples);
+    void compute(std::vector<std::complex<float>> &dft, const std::vector<float> &samples);
 
     /* Get/Set DFT Size */
     unsigned int getSize();
@@ -34,13 +34,13 @@ class RealDft {
     /* Window Function */
     WindowFunction _windowFunction;
     /* Window */
-    std::vector<double> _window;
+    std::vector<float> _window;
     /* Windowed Samples */
-    double *_wsamples;
+    float *_wsamples;
     /* Complex DFT */
-    fftw_complex *_dft;
+    fftwf_complex *_dft;
     /* FFTW Plan */
-    fftw_plan _plan;
+    fftwf_plan _plan;
 };
 
 class AllocationException : public std::runtime_error {

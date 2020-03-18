@@ -10,7 +10,7 @@
 
 class AudioThread {
   public:
-    AudioThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, const Configuration::Settings &initialSettings);
+    AudioThread(ThreadSafeQueue<std::vector<float>> &samplesQueue, const Configuration::Settings &initialSettings);
 
     void start();
     void stop();
@@ -22,7 +22,7 @@ class AudioThread {
     void _run();
 
     /* Output samples queue */
-    ThreadSafeQueue<std::vector<double>> &_samplesQueue;
+    ThreadSafeQueue<std::vector<float>> &_samplesQueue;
 
     std::atomic<bool> _running;
     Audio::PulseAudioSource _audioSource;

@@ -397,45 +397,45 @@ void InterfaceThread::_handleKeyDown(const uint8_t *state) {
         _settings.samplesOverlap = _spectrogramThread.getSamplesOverlap();
     } else if (state[SDL_SCANCODE_MINUS]) {
         /* Magnitude min down */
-        double next_magnitudeMin;
+        float next_magnitudeMin;
 
         if (_settings.magnitudeLog)
-            next_magnitudeMin = std::max<double>(_settings.magnitudeMin - UserLimits.magnitudeLogStep, UserLimits.magnitudeLogMin);
+            next_magnitudeMin = std::max<float>(_settings.magnitudeMin - UserLimits.magnitudeLogStep, UserLimits.magnitudeLogMin);
         else
-            next_magnitudeMin = std::max<double>(_settings.magnitudeMin - UserLimits.magnitudeLinearStep, UserLimits.magnitudeLinearMin);
+            next_magnitudeMin = std::max<float>(_settings.magnitudeMin - UserLimits.magnitudeLinearStep, UserLimits.magnitudeLinearMin);
 
         _spectrogramThread.setMagnitudeMin(next_magnitudeMin);
         _settings.magnitudeMin = _spectrogramThread.getMagnitudeMin();
     } else if (state[SDL_SCANCODE_EQUALS]) {
         /* Magnitude min up */
-        double next_magnitudeMin;
+        float next_magnitudeMin;
 
         if (_settings.magnitudeLog)
-            next_magnitudeMin = std::min<double>(_settings.magnitudeMin + UserLimits.magnitudeLogStep, _settings.magnitudeMax - UserLimits.magnitudeLogStep);
+            next_magnitudeMin = std::min<float>(_settings.magnitudeMin + UserLimits.magnitudeLogStep, _settings.magnitudeMax - UserLimits.magnitudeLogStep);
         else
-            next_magnitudeMin = std::min<double>(_settings.magnitudeMin + UserLimits.magnitudeLinearStep, _settings.magnitudeMax - UserLimits.magnitudeLinearStep);
+            next_magnitudeMin = std::min<float>(_settings.magnitudeMin + UserLimits.magnitudeLinearStep, _settings.magnitudeMax - UserLimits.magnitudeLinearStep);
 
         _spectrogramThread.setMagnitudeMin(next_magnitudeMin);
         _settings.magnitudeMin = _spectrogramThread.getMagnitudeMin();
     } else if (state[SDL_SCANCODE_LEFTBRACKET]) {
         /* Magnitude max down */
-        double next_magnitudeMax;
+        float next_magnitudeMax;
 
         if (_settings.magnitudeLog)
-            next_magnitudeMax = std::max<double>(_settings.magnitudeMax - UserLimits.magnitudeLogStep, _settings.magnitudeMin + UserLimits.magnitudeLogStep);
+            next_magnitudeMax = std::max<float>(_settings.magnitudeMax - UserLimits.magnitudeLogStep, _settings.magnitudeMin + UserLimits.magnitudeLogStep);
         else
-            next_magnitudeMax = std::max<double>(_settings.magnitudeMax - UserLimits.magnitudeLinearStep, _settings.magnitudeMin + UserLimits.magnitudeLinearStep);
+            next_magnitudeMax = std::max<float>(_settings.magnitudeMax - UserLimits.magnitudeLinearStep, _settings.magnitudeMin + UserLimits.magnitudeLinearStep);
 
         _spectrogramThread.setMagnitudeMax(next_magnitudeMax);
         _settings.magnitudeMax = _spectrogramThread.getMagnitudeMax();
     } else if (state[SDL_SCANCODE_RIGHTBRACKET]) {
         /* Magnitude max up */
-        double next_magnitudeMax;
+        float next_magnitudeMax;
 
         if (_settings.magnitudeLog)
-            next_magnitudeMax = std::min<double>(_settings.magnitudeMax + UserLimits.magnitudeLogStep, UserLimits.magnitudeLogMax);
+            next_magnitudeMax = std::min<float>(_settings.magnitudeMax + UserLimits.magnitudeLogStep, UserLimits.magnitudeLogMax);
         else
-            next_magnitudeMax = std::min<double>(_settings.magnitudeMax + UserLimits.magnitudeLinearStep, UserLimits.magnitudeLinearMax);
+            next_magnitudeMax = std::min<float>(_settings.magnitudeMax + UserLimits.magnitudeLinearStep, UserLimits.magnitudeLinearMax);
 
         _spectrogramThread.setMagnitudeMax(next_magnitudeMax);
         _settings.magnitudeMax = _spectrogramThread.getMagnitudeMax();

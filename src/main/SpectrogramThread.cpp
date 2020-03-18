@@ -4,7 +4,7 @@
 
 #include "SpectrogramThread.hpp"
 
-SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<double>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, const Configuration::Settings &initialSettings) : _samplesQueue(samplesQueue), _pixelsQueue(pixelsQueue), _realDft(initialSettings.dftSize, initialSettings.dftWf), _spectrumRenderer(initialSettings.magnitudeMin, initialSettings.magnitudeMax, initialSettings.magnitudeLog, initialSettings.colors) {
+SpectrogramThread::SpectrogramThread(ThreadSafeQueue<std::vector<float>> &samplesQueue, ThreadSafeQueue<std::vector<uint32_t>> &pixelsQueue, const Configuration::Settings &initialSettings) : _samplesQueue(samplesQueue), _pixelsQueue(pixelsQueue), _realDft(initialSettings.dftSize, initialSettings.dftWf), _spectrumRenderer(initialSettings.magnitudeMin, initialSettings.magnitudeMax, initialSettings.magnitudeLog, initialSettings.colors) {
     _samplesOverlap = static_cast<unsigned int>(initialSettings.samplesOverlap * static_cast<float>(initialSettings.dftSize));
     _pixelsWidth = (initialSettings.orientation == Configuration::Orientation::Vertical) ? initialSettings.width : initialSettings.height;
     _samplesQueueCount = 0;
@@ -21,18 +21,18 @@ void SpectrogramThread::stop() {
 
 void SpectrogramThread::_run() {
     /* Audio Samples Buffer */
-    std::vector<double> audioSamples;
+    std::vector<float> audioSamples;
     /* Overlapped Samples */
-    std::vector<double> overlapSamples;
+    std::vector<float> overlapSamples;
     /* DFT of Overlapped Samples */
-    std::vector<std::complex<double>> dftSamples;
+    std::vector<std::complex<float>> dftSamples;
     /* Pixel line */
     std::vector<uint32_t> pixels(_pixelsWidth);
 
     _running = true;
 
     while (_running) {
-        std::vector<double> newAudioSamples;
+        std::vector<float> newAudioSamples;
 
         /* Poll with timeout, in case this thread is asked to stop */
         if (!_samplesQueue.wait(std::chrono::milliseconds(100)))
@@ -61,9 +61,9 @@ void SpectrogramThread::_run() {
             continue;
 
         /* Move down overlapSamples.size()-samplesOverlap length old samples */
-        memmove(overlapSamples.data(), overlapSamples.data() + _samplesOverlap, sizeof(double) * (overlapSamples.size() - _samplesOverlap));
+        memmove(overlapSamples.data(), overlapSamples.data() + _samplesOverlap, sizeof(float) * (overlapSamples.size() - _samplesOverlap));
         /* Copy overlapSamples.size()-samplesOverlap length new samples */
-        memcpy(overlapSamples.data() + _samplesOverlap, audioSamples.data(), sizeof(double) * (overlapSamples.size() - _samplesOverlap));
+        memcpy(overlapSamples.data() + _samplesOverlap, audioSamples.data(), sizeof(float) * (overlapSamples.size() - _samplesOverlap));
         /* Erase used audio samples */
         audioSamples.erase(audioSamples.begin(), audioSamples.begin() + _samplesOverlap);
 
@@ -116,22 +116,22 @@ void SpectrogramThread::setDftWindowFunction(DFT::RealDft::WindowFunction wf) {
     _realDft.setWindowFunction(wf);
 }
 
-double SpectrogramThread::getMagnitudeMin() {
+float SpectrogramThread::getMagnitudeMin() {
     std::lock_guard<std::mutex> spectrumLg(_spectrumRendererLock);
     return _spectrumRenderer.settings.magnitudeMin;
 }
 
-void SpectrogramThread::setMagnitudeMin(double min) {
+void SpectrogramThread::setMagnitudeMin(float min) {
     std::lock_guard<std::mutex> spectrumLg(_spectrumRendererLock);
     _spectrumRenderer.settings.magnitudeMin = min;
 }
 
-double SpectrogramThread::getMagnitudeMax() {
+float SpectrogramThread::getMagnitudeMax() {
     std::lock_guard<std::mutex> spectrumLg(_spectrumRendererLock);
     return _spectrumRenderer.settings.magnitudeMax;
 }
 
-void SpectrogramThread::setMagnitudeMax(double max) {
+void SpectrogramThread::setMagnitudeMax(float max) {
     std::lock_guard<std::mutex> spectrumLg(_spectrumRendererLock);
     _spectrumRenderer.settings.magnitudeMax = max;
 }
