@@ -6,6 +6,8 @@ audioprism is a spectrogram tool for PulseAudio and WAV files.
 
 **Music**
 
+![](images/spectrogram-music.gif)
+
 ![](images/spectrogram-music.png)
 
 ![](images/spectrogram-music2.png)
