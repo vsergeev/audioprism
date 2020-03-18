@@ -1,9 +1,0 @@
-- use C-style interfaces for audio/spectrogram/dft?
-- add n-channel wav support?
-- add bandwidth selection
-- add frequency cursor delta
-- add realtime sample rate change
-- add realtime window size change
-- add logarithimic/linear frequency
-
-- add magnitude cursor info
