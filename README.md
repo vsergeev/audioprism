@@ -122,4 +122,3 @@ sudo make install
 ## License
 
 audioprism is GPLv3 licensed. See the included `LICENSE` file for more details.
-
