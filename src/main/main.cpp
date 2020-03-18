@@ -145,7 +145,7 @@ void print_usage(std::string progname) {
                              "    Down      Decrease overlap\n"
                              "    Up        Increase overlap\n"
                              "\n"
-                             "audioprism v1.0.1 - https://github.com/vsergeev/audioprism"
+                             "audioprism v1.1.0 - https://github.com/vsergeev/audioprism"
               << std::endl;
 }
 
