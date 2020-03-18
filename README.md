@@ -21,7 +21,7 @@ audioprism is a spectrogram tool for PulseAudio and WAV files.
 **A segment of Aphex Twin's equation song**
 
 ```
-$ sox Aphex\ Twin\ -\ Equation.mp3 equation_segment.wav remix 1,2 trim 5:26.5 11
+$ sox Aphex\ Twin\ -\ Equation.mp3 equation_segment.wav trim 5:26.5 11
 $ ./audioprism --orientation horizontal equation_segment.wav equation_spectrogram.png
 ```
 
@@ -33,13 +33,15 @@ $ ./audioprism --orientation horizontal equation_segment.wav equation_spectrogra
 $ audioprism
 ```
 
-In real-time mode, audioprism renders the spectrogram of PulseAudio audio input to an SDL window in real-time. The `pavucontrol` mixer can be used to select the audio input source for audioprism. PulseAudio provides "monitors" of audio output devices as audio input sources, so audioprism can also be used to render the spectrogram of audio playing to an output device.
+In real-time mode, audioprism renders the spectrogram of a PulseAudio input source to an SDL window. The `pavucontrol` mixer can be used to select the audio input source. PulseAudio provides loopback "monitors" of audio outputs as audio input sources, so audioprism can be used with audio streams playing from another program.
 
 ```
 $ audioprism test.wav test.png
 ```
 
-In WAV file mode, audioprism renders the spectrogram of a single channel WAV input file to an image output file. The audio input file must be a single channel WAV file. The image output file can be any kind of image format supported by [GraphicsMagick](http://www.graphicsmagick.org/), determined by its file extension.
+In WAV file mode, audioprism renders the spectrogram of a WAV file to an image file. The output file can be any kind of image format supported by [GraphicsMagick](http://www.graphicsmagick.org/), determined by its file extension.
+
+----
 
 
 ```
@@ -49,6 +51,7 @@ Real-time Usage: ./audioprism [options]
 
 Interface Settings
     -h,--help                   Help
+    --fullscreen                Fullscreen mode
     --width <width>             Width of spectrogram (default 640)
     --height <height>           Height of spectrogram (default 480)
     --orientation <orientation> Orientation [horizontal, vertical]
@@ -61,7 +64,7 @@ DFT Settings
     --overlap <percentage>      Samples overlap percentage (default 50)
     --dft-size <size>           DFT Size, must be power of two (default 1024)
     --window <window function>  Window Function [hann, hamming, bartlett, rectangular]
-                                  (default hann)
+                                    (default hann)
 
 Spectrogram Settings
     --magnitude-scale <scale>   Magnitude Scale [linear, logarithmic]
@@ -72,24 +75,29 @@ Spectrogram Settings
                                     (default heat)
 
 Interactive Keyboard Control:
-    q           - Quit
-    h           - Hide/show settings information
-    d           - Hide/show debug statistics
-    c           - Cycle color scheme
-    w           - Cycle window function
-    l           - Toggle logarithmic/linear magnitude
+    q         Quit
 
-    -           - Decrease minimum magnitude
-    =           - Increase minimum magnitude
+    f         Toggle fullscreen
 
-    [           - Decrease maximum magnitude
-    ]           - Increase maximum magnitude
+    h         Hide/show help
+    s         Hide/show settings
+    d         Hide/show debug stats
 
-    Left arrow  - Decrease DFT Size
-    Right arrow - Increase DFT Size
+    c         Cycle color scheme
+    w         Cycle window function
+    l         Cycle linear/log magnitude
 
-    Down arrow  - Decrease overlap
-    Up arrow    - Increase overlap
+    -         Decrease min magnitude
+    =         Increase min magnitude
+
+    [         Decrease max magnitude
+    ]         Increase max magnitude
+
+    Left      Decrease DFT size
+    Right     Increase DFT size
+
+    Down      Decrease overlap
+    Up        Increase overlap
 
 audioprism v1.0.1 - https://github.com/vsergeev/audioprism
 $
