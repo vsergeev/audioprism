@@ -1,4 +1,4 @@
-# audioprism [![Build Status](https://travis-ci.org/vsergeev/audioprism.svg?branch=master)](https://travis-ci.org/vsergeev/audioprism) [![GitHub release](https://img.shields.io/github/release/vsergeev/audioprism.svg?maxAge=7200)](https://github.com/vsergeev/audioprism) [![License](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://github.com/vsergeev/audioprism/blob/master/LICENSE)
+# audioprism [![Build Status](https://github.com/vsergeev/audioprism/actions/workflows/build.yml/badge.svg)](https://github.com/vsergeev/audioprism/actions/workflows/build.yml) [![GitHub release](https://img.shields.io/github/release/vsergeev/audioprism.svg?maxAge=7200)](https://github.com/vsergeev/audioprism) [![License](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://github.com/vsergeev/audioprism/blob/master/LICENSE)
 
 audioprism is a spectrogram tool for PulseAudio and WAV files.
 
